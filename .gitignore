@@ -1,3 +1,11 @@
+# My exclusions
+db.sqlite3
+/env
+*.env
+.vscode
+*.pyc
+delete_migrations.bat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
