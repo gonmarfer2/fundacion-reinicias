@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% load static %}
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
+        <link rel="stylesheet" href="{% static 'css/bootstrap-vue.min.css' %}" type="text/css">
+        <script src="{% static 'js/polyfill.min.js' %}" type="text/javascript"></script>
+        <script src="{% static 'js/vue.min.js' %}" type="text/javascript"></script>
+        <script src="{% static 'js/bootstrap-vue.min.js' %}" type="text/javascript"></script>
+        <script src="{% static 'js/bootstrap-vue-icons.min.js' %}" type="text/javascript"></script>
+
+        <title>Fundaci&oacute;n Reinicias</title>
+
+        <link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
+    </head>
+    <body>
+        <div id="app">
+            <navbar></navbar>
+            <b-container fluid id="id-main-container">
+                <b-row class="banner">
+                    <b-img src="{% static 'assets/Banner_Reinicias2.png' %}" alt="Banner de la Fundación Reinicias"></b-img>
+                    <div class="main-hello-box">
+                        <p class="text-purple">&iexcl;Bienvenido al &aacute;rea de la Fundaci&oacute;n Reinicias&excl;</p>
+                        <p>Al iniciar sesi&oacute;n, podr&aacute;s acceder a todo el contenido que la aplicaci&oacute;n tiene que ofrecerte.</p>
+                    </div>
+                </b-row>
+                <b-row class="justify-content-center my-5">
+                    <div class="d-center-items">
+                        <cyanbutton text="Iniciar sesi&oacute;n"></cyanbutton>
+                    </div>
+                    <div class="d-center-items">
+                        <b-icon icon="circle-fill" class="circle-cyan" scale="2"></b-icon>
+                    </div>
+                    <div class="d-center-items">
+                        <cyanbutton text="Cursos"></cyanbutton>
+                    </div>
+                </b-row>
+            </b-container>
+            <footer class="footer-bar"></footer>
+        </div>
+    
+        <script>
+            var Navbar = {
+                template: `{% include "components/navbar.html" %}`,
+            }
+            var Button = {
+                props: ['text'],
+                delimiters: ['[[', ']]'],
+                template: `{% include "components/cyanbutton.html" %}`
+            }
+
+            window.app = new Vue({
+                el: '#app',
+                delimiters: ['[[', ']]'],
+                components: {
+                    'navbar': Navbar,
+                    'cyanbutton': Button,
+                },
+                data: {
+                    name: 'Hola'
+                },
+                computed: {}
+            })
+        </script>
+    </body>
+</html>
