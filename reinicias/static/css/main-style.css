@@ -21,13 +21,13 @@
 }
 
 p {
-    font-family: 'OpenSans';
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: 24px;
     color: #000000;
 }
 
 .nav-link {
-    font-family: 'OpenSans';
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: 24px;
     color: #333333 !important;
 }
@@ -95,7 +95,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Montserrat';
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-size: 32px;
     font-weight: bold;
 }
