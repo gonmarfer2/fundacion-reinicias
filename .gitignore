@@ -5,6 +5,7 @@ db.sqlite3
 .vscode
 *.pyc
 delete_migrations.bat
+migrations/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
