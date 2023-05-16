@@ -1,0 +1,25 @@
+<template>
+  {% load static %}
+  <div class="navabr-full">
+    <div class="top-navbar"></div>
+    <b-navbar toggleable="md" id="id-navbar" class="bottom-navbar border-bottom border-1 border-dark">
+        <b-navbar-brand href="#">
+          <img class="logo-reinicias" src="{% static 'assets/fundacionReiniciasLogo.png' %}" alt="Logo de la Fundación Reinicias">
+        </b-navbar-brand>
+    
+        <b-navbar-toggle target="navbar-toggle-collapse">
+          <template #default="{ expanded }">
+            <b-icon v-if="expanded" icon="chevron-bar-up"></b-icon>
+            <b-icon v-else icon="chevron-bar-down"></b-icon>
+          </template>
+        </b-navbar-toggle>
+    
+        <b-collapse id="navbar-toggle-collapse" is-nav>
+          <b-navbar-nav class="ml-auto">
+            <b-nav-item class="ml-md-5" href="#">Cursos</b-nav-item>
+            <b-nav-item class="ml-md-5" href="#">Iniciar sesión</b-nav-item>
+          </b-navbar-nav>
+        </b-collapse>
+    </b-navbar>
+  </div>
+</template>
