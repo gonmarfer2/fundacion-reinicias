@@ -1,6 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser,BaseUserManager
+from django.contrib.auth.models import AbstractUser,BaseUserManager, Group
 from django.core.validators import RegexValidator
+
+TECHNIC_TEAM = 'technics'
 
 class UserManager(BaseUserManager):
     def create_superuser(self,email,password=None, **extra_fields):
@@ -32,14 +34,17 @@ class UserManager(BaseUserManager):
                 print("No ha introducido un número correcto. Debe tener el formato +999999999 con hasta 15 cifras. Inténtelo de nuevo.")
 
         user.save(using=self._db)
+        technic_group, created = Group.objects.get_or_create(name=TECHNIC_TEAM)
+        user.groups.add(technic_group)
         person.save(using=self._db)
-        person.role.set([Role.objects.all().get(pk=2)])
+        # person.role.set([Role.objects.all().get(pk=2)])
 
         return user
 
 class User(AbstractUser):
     objects = UserManager()
 
+"""
 class Role(models.Model):
     ROLE_CHOICES = (
         (1,'Paciente'),
@@ -52,10 +57,11 @@ class Role(models.Model):
 
     def __str__(self):
         return self.get_id_display()
+"""
 
 
 class Person(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     age = models.PositiveIntegerField()
     telephone = models.CharField(max_length=20,validators=[RegexValidator(regex=r"^\+?1?\d{9,15}$",message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")])
-    role = models.ManyToManyField(Role)
+    # role = models.ManyToManyField(Role)
