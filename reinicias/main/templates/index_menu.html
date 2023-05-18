@@ -1,0 +1,59 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}P&aacute;gina principal{% endblock %}
+{% block css_imports %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div id="app">
+    <navbar :user-groups="userGroups"></navbar>
+    <b-container fluid id="id-main-container" v-if="userGroups.includes('technics')">
+        <r-title type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico"></r-title>
+        <b-container>
+            <b-row class="div-technic-button justify-content-center">
+                <div class="gif-container">
+                    <img class="gif-icon" src="{% static 'assets/gifs/Monigote.gif' %}" alt="GIF Icon"></img>
+                </div>
+                <r-button href="#" text="Seguimiento de sesiones"></r-button>
+            </b-row>
+        </b-container>
+    </b-container>
+    
+</div>
+{% endblock %}
+{% block vue_script %}
+<script>
+    var Navbar = {
+        props: ['user-groups'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/navbar.html" %}`,
+    }
+    var Title = {
+        props: ['text','type'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/title.html" %}`,
+    }
+    var Button = {
+        props: ['href','text'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/cyanbutton.html" %}`
+    }
+
+    window.app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        components: {
+            'navbar': Navbar,
+            'r-title': Title,
+            'r-button': Button,
+        },
+        data: {
+            name: 'Hola',
+            userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
+        },
+        computed: {}
+    })
+</script>
+{% endblock %}

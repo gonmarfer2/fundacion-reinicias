@@ -1,4 +1,4 @@
-{% extends "layouts/form.html" %}
+{% extends "layouts/base.html" %}
 
 {% block title %}Inicio de sesi&oacute;n{% endblock %}
 {% block css_imports %}
@@ -8,8 +8,8 @@
 
 {% block body %}
 <div id="app">
-    <navbar></navbar>
-    <b-container fluid id="id-main-container">
+    <navbar :user-groups="userGroups"></navbar>
+    <b-container fluid id="id-form-container">
         <r-title type="general-title" text="Iniciar sesi&oacute;n"></r-title>
         <form method="post" class="container">{% csrf_token %}
             <b-row class="r-form-container mt-md-5">
@@ -34,14 +34,17 @@
                 <b-row class="r-form-container justify-content-center my-3">
                     <button type="submit" class="r-form-button">Enviar</button>
                 </b-row>
-        </b-form>
+        </form>
     </b-container>
+    <footer class="footer-bar"></footer>
     
 </div>
 {% endblock %}
 {% block vue_script %}
 <script>
     var Navbar = {
+        props: ['user-groups'],
+        delimiters: ['[[', ']]'],
         template: `{% include "components/navbar.html" %}`,
     }
     var Title = {
@@ -58,7 +61,8 @@
             'r-title': Title,
         },
         data: {
-            name: 'Hola'
+            name: 'Hola',
+            userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
         },
         computed: {}
     })
