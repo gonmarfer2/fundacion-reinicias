@@ -34,34 +34,17 @@ class UserManager(BaseUserManager):
                 print("No ha introducido un número correcto. Debe tener el formato +999999999 con hasta 15 cifras. Inténtelo de nuevo.")
 
         user.save(using=self._db)
-        technic_group, created = Group.objects.get_or_create(name=TECHNIC_TEAM)
+        technic_group,_ = Group.objects.get_or_create(name=TECHNIC_TEAM)
         user.groups.add(technic_group)
         person.save(using=self._db)
-        # person.role.set([Role.objects.all().get(pk=2)])
 
         return user
 
 class User(AbstractUser):
     objects = UserManager()
 
-"""
-class Role(models.Model):
-    ROLE_CHOICES = (
-        (1,'Paciente'),
-        (2,'Equipo técnico'),
-        (3,'Formador'),
-        (4,'Estudiante')
-    )
-
-    id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES,primary_key=True)
-
-    def __str__(self):
-        return self.get_id_display()
-"""
-
 
 class Person(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     age = models.PositiveIntegerField()
     telephone = models.CharField(max_length=20,validators=[RegexValidator(regex=r"^\+?1?\d{9,15}$",message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")])
-    # role = models.ManyToManyField(Role)
