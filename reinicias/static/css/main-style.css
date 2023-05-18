@@ -125,6 +125,12 @@ p {
     font-weight: bold;
 }
 
+@media screen and (min-width:576px) {
+    .btn-general {
+        width: 350px;
+        font-size: 24px;
+    }
+}
 @media screen and (min-width:768px) {
     .btn-general {
         width: 450px;
@@ -201,13 +207,18 @@ footer {
     margin: 0;
     width: 100%;
     height: 100%;
-    padding-top: 24px;
-    backdrop-filter: blur(5px) brightness(60%);
+    padding-top: 36px;
+    backdrop-filter: blur(5px) brightness(80%);
+}
+
+.general-title > .main-title {
+    backdrop-filter: blur(0) brightness(100%);
 }
 
 @media screen and (min-width:768px) {
     .main-title {
         font-size: var(--lg-size);
+        padding-top: 24px;
     }
 }
 
@@ -217,14 +228,25 @@ footer {
     align-items: center;
 }
 
-.technic-title {
-    background-image: url("/static/assets/BannerEquipoDirectivo.jpg");
+.section-title {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     height: 96px;
     align-items: center;
     width: 100vw;
+}
+
+.technic-title {
+    background-image: url("/static/assets/BannerEquipoDirectivo.jpg");
+}
+
+.teacher-title {
+    background-image: url("/static/assets/BannerFormadores.jpg");
+}
+
+.patient-title {
+    background-image: url("/static/assets/BannerPaciente.png");
 }
 
 .r-form-errors {
@@ -250,6 +272,11 @@ footer {
     border: 0;
     height: 64px;
     font-size: var(--md-size);
+}
+
+.r-form-field > input:focus {
+    border: var(--purple) solid 3px;
+    box-shadow: 0 0 5px var(--black);
 }
 
 .r-form-button {
