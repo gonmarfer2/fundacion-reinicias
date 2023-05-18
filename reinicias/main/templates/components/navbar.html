@@ -3,7 +3,7 @@
   <div class="navabr-full">
     <div class="top-navbar"></div>
     <b-navbar toggleable="md" id="id-navbar" class="bottom-navbar border-bottom border-1 border-dark">
-        <b-navbar-brand href="#">
+        <b-navbar-brand href="/">
           <img class="logo-reinicias" src="{% static 'assets/fundacionReiniciasLogo.png' %}" alt="Logo de la Fundación Reinicias">
         </b-navbar-brand>
     
@@ -16,8 +16,9 @@
     
         <b-collapse id="navbar-toggle-collapse" is-nav>
           <b-navbar-nav class="ml-auto">
-            <b-nav-item class="ml-md-5" href="#">Cursos</b-nav-item>
-            <b-nav-item class="ml-md-5" href="#">Iniciar sesión</b-nav-item>
+            <b-nav-item class="ml-md-5" href="#" v-if="userGroups.includes('')">Cursos</b-nav-item>
+            <b-nav-item class="ml-md-5" href="{% url 'login' %}" v-if="userGroups.includes('')">Iniciar sesi&oacute;n</b-nav-item>
+            <b-nav-item class="ml-md-5" href="{% url 'logout' %}" v-if="!userGroups.includes('')">Cerrar sesi&oacute;n</b-nav-item>
           </b-navbar-nav>
         </b-collapse>
     </b-navbar>

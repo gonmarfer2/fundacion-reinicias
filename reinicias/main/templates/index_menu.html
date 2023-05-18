@@ -1,0 +1,122 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}P&aacute;gina principal{% endblock %}
+{% block css_imports %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div id="app">
+    <navbar :user-groups="userGroups"></navbar>
+    <b-container fluid id="id-form-container" v-if="userGroups.includes('technics')">
+        <r-title type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico"></r-title>
+        <b-container>
+            <gifbutton type="technics" href="#" text="Seguimiento de sesiones" class="my-4"></gifbutton>
+            <gifbutton type="technics" href="#" text="Lista de usuarios" class="mb-4"></gifbutton>
+            <gifbutton type="technics" href="#" text="M&eacute;tricas del sistema" class="mb-4"></gifbutton>
+        </b-container>
+    </b-container>
+    <b-container fluid id="id-form-container" v-if="userGroups.includes('teachers')">
+        <r-title type="teacher-title" text="&Aacute;rea de formadores"></r-title>
+        <b-container>
+            <gifbutton type="teachers" href="#" text="Ver cursos" class="my-4"></gifbutton>
+            <gifbutton type="teachers" href="#" text="Crear un curso" class="mb-4"></gifbutton>
+        </b-container>
+    </b-container>
+    <b-container fluid id="id-form-container" v-if="userGroups.includes('patients')">
+        <r-title type="patient-title" text="Tu &aacute;rea Reinicias"></r-title>
+        <b-container>
+            <gifbutton type="patients" href="#" text="Mis tareas" class="my-4"></gifbutton>
+            <gifbutton type="patients" href="#" text="Mi diario" class="mb-4"></gifbutton>
+            <gifbutton type="patients" href="#" text="Mi perfil" class="mb-4"></gifbutton>
+        </b-container>
+    </b-container>
+    <footer class="footer-bar"></footer>
+    
+</div>
+{% endblock %}
+{% block vue_script %}
+<script>
+    var Navbar = {
+        props: ['user-groups'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/navbar.html" %}`,
+    }
+    var Title = {
+        props: ['text','type'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/title.html" %}`,
+    }
+    var Button = {
+        props: ['href','text'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/cyanbutton.html" %}`
+    }
+    var GifButton = {
+        props: ['href','text','type'],
+        delimiters: ['[[', ']]'],
+        data: function() {
+            if (this.type === "technics") {
+                return {
+                    monigotePng: "{% static 'assets/gifs/Monigote0.png' %}",
+                    monigoteGif: "{% static 'assets/gifs/Monigote.gif' %}",
+                    hover: false,
+                }
+            } else if (this.type === "teachers") {
+                return {
+                    librosPng: "{% static 'assets/gifs/Libros0.png' %}",
+                    librosGif: "{% static 'assets/gifs/Libros.gif' %}",
+                    hover: false,
+                }
+            } else if (this.type === "patients") {
+                return {
+                    rockyPng: "{% static 'assets/gifs/Piedrita0.png' %}",
+                    rockyGif: "{% static 'assets/gifs/Piedrita.gif' %}",
+                    hover: false,
+                }
+            }
+        },
+        computed: {
+            pictureHover () {
+                if (this.hover) {
+                    if (this.type === "technics") {
+                        return this.monigoteGif
+                    } else if (this.type === "teachers") {
+                        return this.librosGif
+                    } else if (this.type === "patients") {
+                        return this.rockyGif
+                    }
+                } else {
+                    if (this.type === "technics") {
+                        return this.monigotePng
+                    } else if (this.type === "teachers") {
+                        return this.librosPng
+                    } else if (this.type === "patients") {
+                        return this.rockyPng
+                    }
+                }
+            }
+        },
+        components: {
+            'cyanbutton': Button,
+        },
+        template: `{% include "components/gifbutton.html" %}`
+    }
+
+    window.app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        components: {
+            'navbar': Navbar,
+            'r-title': Title,
+            'gifbutton': GifButton,
+        },
+        data: {
+            name: 'Hola',
+            userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
+        },
+        computed: {}
+    })
+</script>
+{% endblock %}

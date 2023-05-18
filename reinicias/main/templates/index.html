@@ -19,8 +19,9 @@
     </head>
     <body>
         <div id="app">
-            <navbar></navbar>
+            <navbar :user-groups="userGroups"></navbar>
             <b-container fluid id="id-main-container">
+
                 <b-row class="banner">
                     <b-img src="{% static 'assets/Banner_Reinicias2.png' %}" alt="Banner de la Fundación Reinicias"></b-img>
                     <div class="main-hello-box">
@@ -30,7 +31,7 @@
                 </b-row>
                 <b-row class="justify-content-center my-5">
                     <div class="d-center-items">
-                        <cyanbutton text="Iniciar sesi&oacute;n"></cyanbutton>
+                        <cyanbutton href="login/" text="Iniciar sesi&oacute;n"></cyanbutton>
                     </div>
                     <div class="d-center-items">
                         <b-icon icon="circle-fill" class="circle-cyan" scale="2"></b-icon>
@@ -45,10 +46,12 @@
     
         <script>
             var Navbar = {
+                props: ['user-groups'],
+                delimiters: ['[[', ']]'],
                 template: `{% include "components/navbar.html" %}`,
             }
             var Button = {
-                props: ['text'],
+                props: ['href','text'],
                 delimiters: ['[[', ']]'],
                 template: `{% include "components/cyanbutton.html" %}`
             }
@@ -61,7 +64,9 @@
                     'cyanbutton': Button,
                 },
                 data: {
-                    name: 'Hola'
+                    request:'{{request}}',
+                    user:'{{request.user}}',
+                    userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
                 },
                 computed: {}
             })

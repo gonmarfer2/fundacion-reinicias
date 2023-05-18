@@ -3,4 +3,7 @@ from django.views.decorators.http import require_http_methods
 
 @require_http_methods(["GET"])
 def index(request):
-    return render(request,'index.html')
+    if request.user.groups.all().count() < 1:
+        return render(request,'index.html')
+    else:
+        return render(request,'index_menu.html')

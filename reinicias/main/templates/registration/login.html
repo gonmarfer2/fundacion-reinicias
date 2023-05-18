@@ -1,0 +1,70 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Inicio de sesi&oacute;n{% endblock %}
+{% block css_imports %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div id="app">
+    <navbar :user-groups="userGroups"></navbar>
+    <b-container fluid id="id-form-container">
+        <r-title type="general-title" text="Iniciar sesi&oacute;n"></r-title>
+        <form method="post" class="container">{% csrf_token %}
+            <b-row class="r-form-container mt-md-5">
+                {% for field in form %}
+                <b-col md="6" cols="12">
+                    <div class="w-100 r-form-tag">
+                        {{field.label_tag}}
+                    </div>
+                    <div class="w-100 r-form-field">
+                        {{field}}
+                    </div>
+                    <div class="w-100 r-form-errors">
+                        {{field.errors}}
+                    </div>
+                </b-col>
+                {% endfor %}
+            </b-row>
+            <b-row class="r-form-container justify-content-center my-3 my-md-5 px-3 px-md-0">
+                <p class="text-center">&iquest;Has olvidado la contrase&ntilde;a o el nombre de usuario&quest;<br/>
+                    Ponte en contacto con los administradores de la fundaci&oacute;n.</p>
+                </b-row>
+                <b-row class="r-form-container justify-content-center my-3">
+                    <button type="submit" class="r-form-button">Enviar</button>
+                </b-row>
+        </form>
+    </b-container>
+    <footer class="footer-bar"></footer>
+    
+</div>
+{% endblock %}
+{% block vue_script %}
+<script>
+    var Navbar = {
+        props: ['user-groups'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/navbar.html" %}`,
+    }
+    var Title = {
+        props: ['text','type'],
+        delimiters: ['[[', ']]'],
+        template: `{% include "components/title.html" %}`,
+    }
+
+    window.app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        components: {
+            'navbar': Navbar,
+            'r-title': Title,
+        },
+        data: {
+            name: 'Hola',
+            userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
+        },
+        computed: {}
+    })
+</script>
+{% endblock %}

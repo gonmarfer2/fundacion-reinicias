@@ -1,0 +1,8 @@
+<template>
+    <b-row class="justify-content-center" @mouseover="hover = true" @mouseleave="hover = false">
+        <div class="gif-container">
+            <img class="gif-icon" :src="pictureHover" alt="GIF Icon"></img>
+        </div>
+        <cyanbutton :href="href" :text="text"></cyanbutton>
+    </b-row>
+</template>
