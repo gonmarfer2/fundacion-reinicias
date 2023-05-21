@@ -9,7 +9,7 @@
 {% block body %}
 <div id="app">
     <navbar :user-groups="userGroups"></navbar>
-    <b-container fluid id="id-form-container" v-if="userGroups.includes('technics')">
+    <b-container fluid id="id-form-container" v-if="has_role('technics')">
         <r-title type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico"></r-title>
         <b-container>
             <gifbutton type="technics" href="#" text="Seguimiento de sesiones" class="my-4"></gifbutton>
@@ -17,14 +17,14 @@
             <gifbutton type="technics" href="#" text="M&eacute;tricas del sistema" class="mb-4"></gifbutton>
         </b-container>
     </b-container>
-    <b-container fluid id="id-form-container" v-if="userGroups.includes('teachers')">
+    <b-container fluid id="id-form-container" v-if="has_role('teachers')">
         <r-title type="teacher-title" text="&Aacute;rea de formadores"></r-title>
         <b-container>
             <gifbutton type="teachers" href="#" text="Ver cursos" class="my-4"></gifbutton>
             <gifbutton type="teachers" href="#" text="Crear un curso" class="mb-4"></gifbutton>
         </b-container>
     </b-container>
-    <b-container fluid id="id-form-container" v-if="userGroups.includes('patients')">
+    <b-container fluid id="id-form-container" v-if="has_role('patients')">
         <r-title type="patient-title" text="Tu &aacute;rea Reinicias"></r-title>
         <b-container>
             <gifbutton type="patients" href="#" text="Mis tareas" class="my-4"></gifbutton>
@@ -37,7 +37,10 @@
 </div>
 {% endblock %}
 {% block vue_script %}
+{{userGroups|json_script:"userGroupsJSON"}}
 <script>
+    let userGroups = JSON.parse(document.getElementById("userGroupsJSON").textContent)
+    userGroups = JSON.parse(userGroups)
     var Navbar = {
         props: ['user-groups'],
         delimiters: ['[[', ']]'],
@@ -113,8 +116,21 @@
             'gifbutton': GifButton,
         },
         data: {
-            name: 'Hola',
-            userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
+            userGroups: userGroups,
+        },
+        methods: {
+            has_role: function(role) {
+                let result = false;
+                var vm = this
+                this.userGroups.forEach(element => {
+                    console.log(element.fields.name)
+                    if(element.fields.name === role) {
+                        result = true;
+                    }
+                });
+                return result;
+            },
+            
         },
         computed: {}
     })

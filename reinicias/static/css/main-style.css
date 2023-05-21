@@ -5,6 +5,7 @@
     --grey: #333333;
     --red: #ff0000;
     --purple: #402d7a;
+    --light-grey: #eaeaea;
 
     --md-border: solid 3px;
     
@@ -128,13 +129,21 @@ p {
 @media screen and (min-width:576px) {
     .btn-general {
         width: 350px;
-        font-size: 24px;
+        font-size: var(--md-size);
+    }
+    .btn-student-register {
+        width: 220px;
+        font-size: var(--md-size);
     }
 }
 @media screen and (min-width:768px) {
     .btn-general {
         width: 450px;
-        font-size: 32px;
+        font-size: var(--lg-size);
+    }
+    .btn-student-register {
+        width: 30vw;
+        font-size: var(--md-size);
     }
 }
 
@@ -303,4 +312,63 @@ footer {
 .gif-icon {
     width: 64px;
     height: 64px;
+}
+
+.course-row {
+    width: 100%;
+    height: 96px;
+    cursor: pointer;
+    font-family: 'Montserrat',Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--md-size);
+    color: var(--black);
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--white);
+    border-top: var(--black) solid 1px;
+}
+
+.course-row[aria-expanded=false] {
+    border-bottom: var(--black) solid 1px;
+}
+.course-row[aria-expanded=true] {
+    border-bottom: var(--light-grey) solid 1px;
+}
+
+.course-row:hover,
+.course-row:active {
+    color: var(--black) !important;
+    background-color: var(--white) !important;
+    outline: none !important;
+}
+
+.course-row > span {
+    justify-self: flex-start;
+}
+
+.course-row > .plus-icon,
+.course-row > .minus-icon {
+    justify-self: flex-end;
+}
+
+.course-row-content {
+    border-bottom: var(--black) solid 1px;
+}
+
+.course-row[aria-expanded=true] .plus-icon {
+    display: none;
+}
+
+.course-row[aria-expanded=false] .minus-icon {
+    display: none;
+}
+
+#id-register-row {
+    justify-content: center;
+}
+
+.div-ask-student-register {
+    width: 90%;
+    justify-content: center;
+    padding: 15px 0;
+    border: var(--cyan) solid 3px;
 }

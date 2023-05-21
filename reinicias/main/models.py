@@ -45,6 +45,23 @@ class User(AbstractUser):
 
 
 class Person(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    age = models.PositiveIntegerField()
-    telephone = models.CharField(max_length=20,validators=[RegexValidator(regex=r"^\+?1?\d{9,15}$",message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")])
+    SEX_CHOICES = [
+        ('M','Masculino'),
+        ('F','Femenino'),
+        ('N','No binario'),
+        ('O','Otro')
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE,verbose_name="Usuario")
+    age = models.PositiveIntegerField(verbose_name="Edad")
+    telephone = models.CharField(max_length=20,validators=[RegexValidator(regex=r"^\+?1?\d{9,15}$",message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")],verbose_name="Teléfono")
+    sex = models.CharField(max_length=1,choices=SEX_CHOICES,verbose_name="Sexo/Género")
+
+    def __str__(self) -> str:
+        return self.user.get_full_name
+
+class Technic(models.Model):
+    person = models.OneToOneField(Person,on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.person.user.get_full_name

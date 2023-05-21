@@ -1,0 +1,17 @@
+<template>
+    <b-col cols="12" class="mb-3">
+        <div v-b-toggle="'id-' + course.id" class="course-row d-flex" role="tab">
+            <span>[[course.name]]</span>
+            <b-icon-plus-lg class="plus-icon"></b-icon-plus-lg>
+            <b-icon-dash-lg class="minus-icon"></b-icon-dash-lg>
+        </div>
+        <b-collapse :id="'id-' + course.id" accordion="my-accordion" role="tabpanel">
+            <div class="course-row-content py-md-4 pb-2">
+                <span>[[course.description]]</span>
+                <br>
+                <span><strong>Temas:&nbsp;</strong>[[course.units]]</span>
+            </div>
+        </b-collapse>
+
+    </b-col>
+</template>
