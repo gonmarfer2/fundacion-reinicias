@@ -1,0 +1,24 @@
+<div class="accordion-item">
+    <h2 class="accordion-header" id="flush-heading{{course.pk}}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{course.pk}}" aria-expanded="false" aria-controls="flush-collapse{{course.pk}}">
+            {{course.name}}
+        </button>
+    </h2>
+    <div id="flush-collapse{{course.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{course.pk}}" data-bs-parent="#{{parent_id}}">
+        <div class="py-md-4 pb-2">
+            <div class="w-100">
+                {{course.description}}
+            </div>
+            <div class="w-100">
+                <span><strong>Temas:&nbsp;</strong>{{course.units}}</span>
+            </div>
+            <div class="w-100">
+                {% if type == "seelist" and course.units > 0 %}
+                    <button class="my-3 courses-button courses-button-yellow"><a class="text-white" href="courses/{{course.pk}}/units" >Ver temas</a></button>
+                {% elif type == "enrol" %}
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="courses/{{course.pk}}/inscribe">Inscribirse</a></button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
