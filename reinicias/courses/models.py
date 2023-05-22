@@ -63,16 +63,16 @@ class Student(models.Model):
     options_chosen = models.ManyToManyField(QuestionOption,blank=True,verbose_name="Opciones escogidas")
 
     def __str__(self) -> str:
-        return self.person.user.get_full_name
+        return str(self.person)
 
 class Teacher(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
 
     def __str__(self) -> str:
-        return self.person.user.get_full_name
+        return str(self.person)
 
 class Calification(models.Model):
-    calification = models.PositiveSmallIntegerField(validators=[MaxValueValidator(10)],verbose_name="Calificación")
+    calification = models.PositiveSmallIntegerField(null=True,validators=[MaxValueValidator(10)],verbose_name="Calificación")
     start_date = models.DateTimeField(verbose_name="Fecha de comienzo")
     end_date = models.DateTimeField(verbose_name="Fecha de finalización")
     student = models.ForeignKey(Student,on_delete=models.CASCADE,verbose_name="Estudiante")
@@ -104,8 +104,9 @@ class Calification(models.Model):
 
 class CourseStatus(models.Model):
     completed = models.BooleanField(verbose_name="¿Completado?")
+    start_date = models.DateTimeField(verbose_name="Fecha de comienzo")
     student = models.ForeignKey(Student,on_delete=models.CASCADE,verbose_name="Estudiante")
     courses = models.ForeignKey(Course,on_delete=models.CASCADE,verbose_name="Cursos")
 
     def __str__(self) -> str:
-        return self.completed
+        return str(self.completed)
