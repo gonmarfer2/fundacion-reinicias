@@ -280,7 +280,6 @@ footer {
 
 .r-form-field > input {
     width: 100%;
-    border: 0;
     font-size: var(--md-size);
     height: 38px;
     border: transparent solid 3px;
