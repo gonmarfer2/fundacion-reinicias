@@ -14,9 +14,9 @@
             </div>
             <div class="w-100">
                 {% if type == "seelist" and course.units > 0 %}
-                    <button class="my-3 courses-button courses-button-yellow"><a class="text-white" href="courses/{{course.pk}}/units" >Ver temas</a></button>
+                    <button class="my-3 courses-button courses-button-yellow"><a class="text-white" href="{{course.pk}}/units" >Ver temas</a></button>
                 {% elif type == "enrol" %}
-                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="courses/{{course.pk}}/inscribe">Inscribirse</a></button>
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/inscribe">Inscribirse</a></button>
                 {% endif %}
             </div>
         </div>

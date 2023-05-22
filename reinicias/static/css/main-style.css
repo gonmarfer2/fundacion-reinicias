@@ -332,6 +332,9 @@ footer {
     font-weight: bold;
     font-size: var(--xs-size);
     text-decoration: none;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
 }
 
 .courses-button-yellow {

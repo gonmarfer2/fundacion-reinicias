@@ -72,7 +72,7 @@ class Teacher(models.Model):
         return str(self.person)
 
 class Calification(models.Model):
-    calification = models.PositiveSmallIntegerField(validators=[MaxValueValidator(10)],verbose_name="Calificación")
+    calification = models.PositiveSmallIntegerField(null=True,validators=[MaxValueValidator(10)],verbose_name="Calificación")
     start_date = models.DateTimeField(verbose_name="Fecha de comienzo")
     end_date = models.DateTimeField(verbose_name="Fecha de finalización")
     student = models.ForeignKey(Student,on_delete=models.CASCADE,verbose_name="Estudiante")
@@ -104,6 +104,7 @@ class Calification(models.Model):
 
 class CourseStatus(models.Model):
     completed = models.BooleanField(verbose_name="¿Completado?")
+    start_date = models.DateTimeField(verbose_name="Fecha de comienzo")
     student = models.ForeignKey(Student,on_delete=models.CASCADE,verbose_name="Estudiante")
     courses = models.ForeignKey(Course,on_delete=models.CASCADE,verbose_name="Cursos")
 

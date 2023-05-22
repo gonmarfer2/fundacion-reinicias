@@ -5,11 +5,26 @@ from django.core import serializers
 from django.contrib.auth.models import Group
 import json
 from django.db.models.expressions import Subquery
-from django.db.models import Count, OuterRef, Q
+from django.db.models import Count, OuterRef
 from django.db.models.functions import Coalesce 
 from django.db import models, transaction
 from .forms import StudentRegisterForm
 from main.models import Person
+from django.contrib.auth.decorators import user_passes_test
+import datetime
+from django.core.exceptions import PermissionDenied
+
+# CUSTOM DECORATOR
+
+def group_required(*group_names):
+    def has_group(user):
+        if user.is_authenticated:
+            if user.groups.filter(name__in=group_names).exists() or user.is_superuser:
+                return True
+        return False
+    return user_passes_test(has_group, login_url='403')
+
+# VIEWS
 
 @require_http_methods(["GET"])
 def list_course(request):
@@ -100,3 +115,22 @@ def register_student(request):
         'form':form
     }
     return render(request,'register_student.html',context)
+
+@require_http_methods(["GET"])
+@group_required("students")
+@transaction.atomic()
+def inscribe_in_course(request,course_id):
+    this_person = Person.objects.get(user=request.user)
+    this_student = Student.objects.get(person=this_person)
+    this_course = Course.objects.get(pk=course_id)
+    if CourseStatus.objects.filter(student=this_student,courses=this_course).exists():
+        raise PermissionDenied
+    else:
+        new_try = CourseStatus(
+            completed=False,
+            start_date=datetime.datetime.now(),
+            student=this_student,
+            courses=this_course
+        )
+        new_try.save()
+        return redirect(f"/courses/{course_id}")
