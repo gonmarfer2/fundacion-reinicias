@@ -37,14 +37,17 @@
                         <b-icon icon="circle-fill" class="circle-cyan" scale="2"></b-icon>
                     </div>
                     <div class="d-center-items">
-                        <cyanbutton text="Cursos"></cyanbutton>
+                        <cyanbutton href="courses/" text="Cursos"></cyanbutton>
                     </div>
                 </b-row>
             </b-container>
             <footer class="footer-bar"></footer>
         </div>
     
+        {{userGroups|json_script:"userGroupsJSON"}}
         <script>
+            let userGroups = JSON.parse(document.getElementById("userGroupsJSON").textContent)
+            userGroups = JSON.parse(userGroups)
             var Navbar = {
                 props: ['user-groups'],
                 delimiters: ['[[', ']]'],
@@ -66,7 +69,7 @@
                 data: {
                     request:'{{request}}',
                     user:'{{request.user}}',
-                    userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
+                    userGroups:userGroups,
                 },
                 computed: {}
             })

@@ -41,7 +41,9 @@
 </div>
 {% endblock %}
 {% block vue_script %}
+
 <script>
+
     var Navbar = {
         props: ['user-groups'],
         delimiters: ['[[', ']]'],
@@ -61,8 +63,7 @@
             'r-title': Title,
         },
         data: {
-            name: 'Hola',
-            userGroups: '{{request.user.groups.all | join:", "}}'.split(', '),
+            userGroups: [],
         },
         computed: {}
     })
