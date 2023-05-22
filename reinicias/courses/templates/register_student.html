@@ -1,0 +1,34 @@
+{% extends 'layouts/base_Bootstrap5.html' %}
+
+{% block title %}Registro de estudiante{% endblock %}
+{% block css_imports %}{% endblock %}
+
+{% block body %}
+
+{% include 'components/navbar2.html' %}
+<div class="container-fluid">
+    {% include 'components/title2.html' with type="general-title" text="Registro de estudiante" %}
+
+    <form method="post" class="container">{% csrf_token %}
+        <div class="row mt-md-5">
+            {% for field in form %}
+            <div class="col-12 col-md-6 mb-2">
+                <div class="w-100 r-form-tag">
+                    {{field.label_tag}}
+                </div>
+                <div class="w-100 r-form-field">
+                    {{field}}
+                </div>
+                <div class="w-100 r-form-errors">
+                    {{field.errors}}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="row justify-content-center my-3">
+            <button type="submit" class="r-form-button">Enviar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block vue_script %}{% endblock %}

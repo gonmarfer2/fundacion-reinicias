@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager, Group
 from django.core.validators import RegexValidator
+import datetime
 
 TECHNIC_TEAM = 'technics'
 
@@ -13,30 +14,20 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.is_staff = True
         user.is_superuser = True
-
-        person = Person(user=user)
-        while True:
-            try:
-                user_age = int(input("Edad del nuevo usuario: "))
-                if user_age < 0:
-                    raise ValueError
-                person.age = user_age
-                break
-            except ValueError:
-                print("No ha introducido un número o es menor que cero. Inténtelo de nuevo.")
-
-        while True:
-            try:
-                user_age = int(input("Teléfono (+999999999): "))
-                person.age = user_age
-                break
-            except ValueError:
-                print("No ha introducido un número correcto. Debe tener el formato +999999999 con hasta 15 cifras. Inténtelo de nuevo.")
-
         user.save(using=self._db)
         technic_group,_ = Group.objects.get_or_create(name=TECHNIC_TEAM)
         user.groups.add(technic_group)
+
+        person = Person(
+            user=user,
+            name="Superuser",
+            last_name="Reinicias",
+            birth_date=datetime.date(1,1,1),
+            telephone="+000000000",
+            sex="O")
         person.save(using=self._db)
+
+        print("This user can be manually configured through the admin site")
 
         return user
 
@@ -53,15 +44,17 @@ class Person(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE,verbose_name="Usuario")
-    age = models.PositiveIntegerField(verbose_name="Edad")
+    name = models.CharField(max_length=255,verbose_name='Nombre')
+    last_name = models.CharField(max_length=255,verbose_name='Apellidos')
+    birth_date = models.DateField(verbose_name='Fecha de nacimiento')
     telephone = models.CharField(max_length=20,validators=[RegexValidator(regex=r"^\+?1?\d{9,15}$",message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")],verbose_name="Teléfono")
     sex = models.CharField(max_length=1,choices=SEX_CHOICES,verbose_name="Sexo/Género")
 
     def __str__(self) -> str:
-        return self.user.get_full_name
+        return f"{self.name} {self.last_name}"
 
 class Technic(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        return self.person.user.get_full_name
+        return str(self.person)

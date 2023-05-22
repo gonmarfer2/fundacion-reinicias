@@ -12,6 +12,8 @@
     --sm-size: 18px;
     --md-size: 24px;
     --lg-size: 36px;
+
+    --title-height: 72px;
 }
 
 @font-face {
@@ -212,11 +214,11 @@ footer {
     font-weight: bold;
     font-size: var(--md-size);
     color: var(--white);
-    padding-left: 48px;
+    padding-left: calc(var(--title-height) / 2);
     margin: 0;
     width: 100%;
     height: 100%;
-    padding-top: 36px;
+    padding-top: 24px;
     backdrop-filter: blur(5px) brightness(80%);
 }
 
@@ -227,13 +229,13 @@ footer {
 @media screen and (min-width:768px) {
     .main-title {
         font-size: var(--lg-size);
-        padding-top: 24px;
+        padding-top: 14px;
     }
 }
 
 .general-title {
     background-color: var(--cyan);
-    height: 96px;
+    height: var(--title-height);
     align-items: center;
 }
 
@@ -241,7 +243,7 @@ footer {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 96px;
+    height: var(--title-height);
     align-items: center;
     width: 100vw;
 }
@@ -279,13 +281,24 @@ footer {
 .r-form-field > input {
     width: 100%;
     border: 0;
-    height: 64px;
     font-size: var(--md-size);
+    height: 38px;
+    border: transparent solid 3px;
 }
 
 .r-form-field > input:focus {
     border: var(--purple) solid 3px;
     box-shadow: 0 0 5px var(--black);
+}
+
+.r-form-field > select {
+    width: 100%;
+    height: 38px;
+    background-color: var(--white);
+    color: var(--black);
+    border: transparent solid 3px;
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--md-size);
 }
 
 .r-form-button {
