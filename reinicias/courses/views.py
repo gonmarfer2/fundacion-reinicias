@@ -19,7 +19,6 @@ def list_course(request):
             ),0))
     
     all_fields = [field.name for field in Course._meta.get_fields()] + ['units']
-    # serialized_courses = serializers.serialize("json",available_courses,fields=all_fields)
     serialized_courses = list(available_courses.values(*all_fields))
     json_data = json.dumps(serialized_courses)
     context = {

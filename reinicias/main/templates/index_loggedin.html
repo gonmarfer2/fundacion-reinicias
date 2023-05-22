@@ -121,7 +121,6 @@
         methods: {
             has_role: function(role) {
                 let result = false;
-                var vm = this
                 this.userGroups.forEach(element => {
                     console.log(element.fields.name)
                     if(element.fields.name === role) {
