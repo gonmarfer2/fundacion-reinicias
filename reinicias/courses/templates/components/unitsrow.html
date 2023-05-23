@@ -13,7 +13,7 @@
                 <!-- CONTENIDO -->
                 <ul>
                 {% for content in contents %}
-                    <li class="w-100"><strong class="text-capitalize">{{content}}:&nbsp;</strong><a target="_blank" href="{{MEDIA_URL}}{{content.resource.name}}">{{content.resource.name}}</a></li>
+                    <li class="w-100"><strong class="text-capitalize">{{content}}:&nbsp;</strong><a target="_blank" href="{{MEDIA_URL}}{{content.resource.name}}" rel="noopener">{{content.resource.name}}</a></li>
                 {% endfor %}
                 </ul>
             </div>

@@ -21,7 +21,7 @@ class CourseUnitResource(models.Model):
 
     def __str__(self) -> str:
         full_name = self.resource.name
-        filter_route = re.sub('uploads/[0-9]+/[0-9]+/[0-9]+/','',full_name)
+        filter_route = re.sub('uploads/\d+/\d+/\d+/','',full_name)
         filter_extension = re.sub('\.\w+','',filter_route)
         return filter_extension
 

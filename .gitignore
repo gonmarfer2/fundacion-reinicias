@@ -6,6 +6,7 @@ db.sqlite3
 *.pyc
 delete_migrations.bat
 migrations/
+uploads/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
