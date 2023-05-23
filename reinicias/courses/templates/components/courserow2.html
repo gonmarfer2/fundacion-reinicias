@@ -1,4 +1,4 @@
-<div class="accordion-item">
+<div class="accordion-item my-3">
     <h2 class="accordion-header" id="flush-heading{{course.pk}}">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{course.pk}}" aria-expanded="false" aria-controls="flush-collapse{{course.pk}}">
             {{course.name}}
@@ -14,9 +14,9 @@
             </div>
             <div class="w-100">
                 {% if type == "seelist" and course.units > 0 %}
-                    <button class="my-3 courses-button courses-button-yellow"><a class="text-white" href="{{course.pk}}/units" >Ver temas</a></button>
+                    <button class="my-3 courses-button courses-button-yellow"><a class="text-white" href="{{course.pk}}/" ><span>Ver temas</span></a></button>
                 {% elif type == "enrol" %}
-                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/inscribe">Inscribirse</a></button>
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/inscribe"><span>Inscribirse</span></a></button>
                 {% endif %}
             </div>
         </div>

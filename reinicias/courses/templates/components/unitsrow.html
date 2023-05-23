@@ -1,0 +1,26 @@
+{% load static %}
+<div class="accordion-item my-3">
+    <h2 class="accordion-header" id="flush-heading{{unit.pk}}">
+        <button class="accordion-button collapsed" {% if block %}disabled{% endif %} type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{unit.pk}}" aria-expanded="false" aria-controls="flush-collapse{{unit.pk}}">
+            <img class="section-icon {% if not block %}d-none{% endif %}" src="{% static 'assets/icons/block.png' %}" alt="Tema Bloqueado">
+            {{unit.title}}
+        </button>
+    </h2>
+    <div id="flush-collapse{{unit.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{unit.pk}}" data-bs-parent="#{{parent_id}}">
+        <div class="pt-md-4 pb-md-2 pb-2">
+            <div class="w-100">
+                <div class="w-100"><strong>Contenido:</strong></div>
+                <!-- CONTENIDO -->
+                <ul>
+                {% for content in contents %}
+                    <li class="w-100"><strong class="text-capitalize">{{content}}:&nbsp;</strong><a target="_blank" href="{{MEDIA_URL}}{{content.resource.name}}">{{content.resource.name}}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="w-100 d-flex align-items-center">
+                <button class="my-3 courses-button {% if unit.calification %}courses-button-yellow{% else %}courses-button-cyan{% endif %}"><a class="text-white" href="autoevaluation/{{unit.pk}}/" >Autoevaluaci&oacute;n</a></button>
+                <span class="ms-3"><strong>Calificaci&oacute;n:&nbsp;</strong>{% if unit.calification %}{{unit.calification}}{% else %}&dash;{% endif %}</span>
+            </div>
+        </div>
+    </div>
+</div>

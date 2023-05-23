@@ -1,0 +1,43 @@
+{% extends 'layouts/base_Bootstrap5.html' %}
+
+{% block title %}Curso {{course.pk}}{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
+<div class="container">
+    <h1 class="my-4 simple-title">{{course.name}}</h1>
+
+    <div class="row">
+        <div class="col-12 col-md-4 gx-5">
+            <div class="border-cyan">
+                <div class="w-100 course-data-large-text d-flex justify-content-center">{{completedUnits|length}}/{{units|length}}</div>
+                <div class="w-100 course-data-simple-text d-flex justify-content-center">Temas completados</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4 gx-5">
+            <div class="border-cyan">
+                <div class="w-100 course-data-large-text d-flex justify-content-center">{{currentCalification|safe}}/10</div>
+                <div class="w-100 course-data-simple-text d-flex justify-content-center">Calificación actual</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4 gx-5">
+            <div class="border-cyan">
+                <div class="w-100 course-data-large-text d-flex justify-content-center">{{remainingDays}} d&iacute;a{% if remainingDays != 1 %}s{% endif %}</div>
+                <div class="w-100 course-data-simple-text d-flex justify-content-center">Tiempo restante</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-4">
+        <div class="col-12">
+            <div class="accordion accordion-flush" id="accordionUnits">
+                {% for unit in units %}
+                    {% include 'components/unitsrow.html' with unit=unit parent_id="accordionUnits" contents=unitContents|get_item:unit.pk block=unitShow|get_item:unit.pk %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

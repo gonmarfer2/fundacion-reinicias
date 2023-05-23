@@ -1,18 +1,18 @@
 from django.shortcuts import render, redirect
-from courses.models import Course,CourseUnit,Student,CourseStatus
+from courses.models import Course,CourseUnit,Student,CourseStatus,Calification,CourseUnitResource
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
 from django.contrib.auth.models import Group
 import json
 from django.db.models.expressions import Subquery
-from django.db.models import Count, OuterRef
+from django.db.models import Count, OuterRef, Exists
 from django.db.models.functions import Coalesce 
 from django.db import models, transaction
 from .forms import StudentRegisterForm
 from main.models import Person
 from django.contrib.auth.decorators import user_passes_test
-import datetime
-from django.core.exceptions import PermissionDenied
+from datetime import datetime, timezone, timedelta
+from django.core.exceptions import PermissionDenied,ObjectDoesNotExist
 
 # CUSTOM DECORATOR
 
@@ -128,9 +128,58 @@ def inscribe_in_course(request,course_id):
     else:
         new_try = CourseStatus(
             completed=False,
-            start_date=datetime.datetime.now(),
+            start_date=datetime.now(timezone.utc),
             student=this_student,
             courses=this_course
         )
         new_try.save()
         return redirect(f"/courses/{course_id}")
+
+@require_http_methods(["GET"])
+@group_required("students","teachers")
+def details_course(request,course_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise ObjectDoesNotExist
+    else:
+        this_person = Person.objects.get(user=request.user)
+        this_student = Student.objects.get(person=this_person)
+        this_course = Course.objects.get(pk=course_id)
+        this_units = CourseUnit.objects.filter(course=this_course)
+
+        completed_units = Calification.objects \
+                .filter(student=this_student,autoevaluation__course_unit__in=this_units) \
+                .values('autoevaluation__course_unit') \
+                .annotate(total=Count('autoevaluation__course_unit')) \
+                .order_by('total')
+        
+        this_units = this_units.annotate(completed=Coalesce(Exists(
+                completed_units.filter(autoevaluation__course_unit=OuterRef('pk'))
+            ),False),
+            calification=Coalesce(
+                Subquery(Calification.objects \
+                        .filter(student=this_student,autoevaluation__course_unit=OuterRef('pk')) \
+                        .order_by('-end_date') \
+                        .values('calification')[:1]),None)).order_by('order')
+        current_calification = Calification.objects.filter(student=this_student,autoevaluation__course_unit__in=this_units).order_by('-end_date').first()
+
+        unit_contents = {u.pk:CourseUnitResource.objects.filter(course_unit=u) for u in this_units}
+        unit_block = {this_units.get(order=1).pk:False}
+        for i in range(2,len(this_units)+1):
+            if this_units.get(order=(i-1)).calification is None:
+                unit_block[this_units.get(order=(i)).pk] = True
+            else:
+                unit_block[this_units.get(order=(i)).pk] = False
+
+        remaining_days = CourseStatus.objects.get(student=this_student,courses=this_course).get_remaining_days(this_course)
+
+        context = {
+            'course':this_course,
+            'units':this_units,
+            'completedUnits':completed_units,
+            'unitContents':unit_contents,
+            'unitShow':unit_block,
+            'currentCalification':current_calification,
+            'remainingDays': remaining_days,
+            'userGroups':request.user.groups.all()
+        }
+        return render(request,'courses/details.html',context)

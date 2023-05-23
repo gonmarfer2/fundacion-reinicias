@@ -1,6 +1,8 @@
 from django.db import models
 from main.models import Person
 from django.core.validators import MaxValueValidator, MinValueValidator
+from datetime import datetime, timezone, timedelta
+import re
 
 class Course(models.Model):
     # Existe el atributo error_messages para los campos que permite poner errores personalizados para claves por defecto
@@ -18,11 +20,14 @@ class CourseUnitResource(models.Model):
     course_unit = models.ForeignKey("CourseUnit",on_delete=models.CASCADE,verbose_name="Tema")
 
     def __str__(self) -> str:
-        return self.resource.name
+        full_name = self.resource.name
+        filter_route = re.sub('uploads/[0-9]+/[0-9]+/[0-9]+/','',full_name)
+        filter_extension = re.sub('\.\w+','',filter_route)
+        return filter_extension
 
 class CourseUnit(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
-    order = models.PositiveSmallIntegerField(verbose_name="Orden")
+    order = models.PositiveSmallIntegerField(unique=True,verbose_name="Orden")
     course = models.ForeignKey(Course,on_delete=models.CASCADE,verbose_name="Curso")
 
     def __str__(self) -> str:
@@ -79,7 +84,7 @@ class Calification(models.Model):
     autoevaluation = models.ForeignKey(Autoevaluation,on_delete=models.CASCADE,verbose_name="Autoevaluación")
 
     def __str__(self) -> str:
-        return self.calification
+        return str(self.calification)
     
     def get_value(self):
         value = 0.0
@@ -110,3 +115,8 @@ class CourseStatus(models.Model):
 
     def __str__(self) -> str:
         return str(self.completed)
+    
+    def get_remaining_days(self,course):
+        this_units = CourseUnit.objects.filter(course=course)
+        remaining_time = (self.start_date + timedelta(days=this_units.count() * 7)) - datetime.now(timezone.utc)
+        return remaining_time.days
