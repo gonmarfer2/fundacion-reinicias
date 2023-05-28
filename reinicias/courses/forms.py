@@ -1,5 +1,6 @@
 from django import forms
 from main.models import Person, User
+from .models import CourseUnit, Course
 from django.contrib.auth.forms import UserCreationForm
 
 class StudentRegisterForm(UserCreationForm):
@@ -16,3 +17,32 @@ class StudentRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
+
+class CourseUnitCreateForm(forms.ModelForm):
+    class Meta:
+        model = CourseUnit
+        exclude = ['id','order','course']
+
+class CourseUnitEditForm(forms.ModelForm):
+    class Meta:
+        model = CourseUnit
+        exclude = ['id']
+        widgets = {
+            'order': forms.NumberInput(attrs={'min':'1','type':'number'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['order'].widget.attrs['min'] = 1
+
+
+class CourseCreateForm(forms.Form):
+    predecessors = Course.objects.all()
+
+    name = forms.CharField(max_length=256,label='Nombre')
+    duration = forms.DecimalField(widget=forms.NumberInput(attrs={'step':1,'min':1}),label='Duración (semanas)')
+    description = forms.CharField(widget=forms.Textarea,label='Descripción')
+    # This line creates problems with makemigrations
+    preceeded_by = forms.ModelMultipleChoiceField(queryset=predecessors,label='Predecesores',widget=forms.CheckboxSelectMultiple, required=False)
+    index_document = forms.FileField(label='Documento de curso',required=False,widget=forms.ClearableFileInput(attrs={'hidden':'true'}))
+    published = forms.BooleanField(label='Publicado',widget=forms.CheckboxInput)

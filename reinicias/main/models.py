@@ -4,6 +4,8 @@ from django.core.validators import RegexValidator
 import datetime
 
 TECHNIC_TEAM = 'technics'
+TEACHER_TEAM = 'teachers'
+PATIENT_TEAM = 'patients'
 
 class UserManager(BaseUserManager):
     def create_superuser(self,email,password=None, **extra_fields):
@@ -16,7 +18,11 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         technic_group,_ = Group.objects.get_or_create(name=TECHNIC_TEAM)
+        teacher_group,_ = Group.objects.get_or_create(name=TEACHER_TEAM)
+        patient_group,_ = Group.objects.get_or_create(name=PATIENT_TEAM)
         user.groups.add(technic_group)
+        user.groups.add(teacher_group)
+        user.groups.add(patient_group)
 
         person = Person(
             user=user,
@@ -27,12 +33,18 @@ class UserManager(BaseUserManager):
             sex="O")
         person.save(using=self._db)
 
+        Technic.objects.create(person=person)
+        Teacher.objects.create(person=person)
+
         print("This user can be manually configured through the admin site")
 
         return user
 
 class User(AbstractUser):
     objects = UserManager()
+
+    def has_group(self,group):
+        return self.groups.filter(name=group).exists()
 
 
 class Person(models.Model):
@@ -55,6 +67,12 @@ class Person(models.Model):
 
 class Technic(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return str(self.person)
+    
+class Teacher(models.Model):
+    person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
 
     def __str__(self) -> str:
         return str(self.person)

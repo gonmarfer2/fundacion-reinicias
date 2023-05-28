@@ -20,8 +20,8 @@
     <b-container fluid id="id-form-container" v-if="has_role('teachers')">
         <r-title type="teacher-title" text="&Aacute;rea de formadores"></r-title>
         <b-container>
-            <gifbutton type="teachers" href="#" text="Ver cursos" class="my-4"></gifbutton>
-            <gifbutton type="teachers" href="#" text="Crear un curso" class="mb-4"></gifbutton>
+            <gifbutton type="teachers" href="/courses/" text="Ver cursos" class="my-4"></gifbutton>
+            <gifbutton type="teachers" href="/courses/create/" text="Crear un curso" class="mb-4"></gifbutton>
         </b-container>
     </b-container>
     <b-container fluid id="id-form-container" v-if="has_role('patients')">

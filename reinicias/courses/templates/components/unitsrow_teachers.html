@@ -1,8 +1,7 @@
 {% load static %}
 <div class="accordion-item my-3">
     <h2 class="accordion-header" id="flush-heading{{unit.pk}}">
-        <button class="accordion-button collapsed" {% if block %}disabled{% endif %} type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{unit.pk}}" aria-expanded="false" aria-controls="flush-collapse{{unit.pk}}">
-            <img class="section-icon {% if not block %}d-none{% endif %}" src="{% static 'assets/icons/block.png' %}" alt="Tema Bloqueado">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{unit.pk}}" aria-expanded="false" aria-controls="flush-collapse{{unit.pk}}">
             {{unit.title}}
         </button>
     </h2>
@@ -18,8 +17,8 @@
                 </ul>
             </div>
             <div class="w-100 d-flex align-items-center">
-                <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="autoevaluation/{{unit.pk}}/" >Autoevaluaci&oacute;n</a></button>
-                <span class="ms-3"><strong>Calificaci&oacute;n:&nbsp;</strong>{% if unit.calification %}{{unit.calification}}{% else %}&dash;{% endif %}</span>
+                <button class="my-3 me-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/edit" >Editar tema</a></button>
+                <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="autoevaluation/{{unit.pk}}/" >Ver autoevaluaci&oacute;n</a></button>
             </div>
         </div>
     </div>

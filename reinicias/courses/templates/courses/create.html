@@ -1,0 +1,50 @@
+{% extends 'layouts/base_Bootstrap5.html' %}
+
+{% block title %}Curso {{course.pk}}{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
+<div class="container">
+    <div class="row">
+        <h1 class="my-4 simple-title col-12">{{title}}</h1>
+    </div>
+
+    <div class="row">
+        <form method="post" class="container">{% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="w-100 r-form-tag">
+                        {{field.label_tag}}
+                    </div>
+                    <div class="w-100 r-form-field {% if field.name == 'index_document' %}r-file-field{% endif %}">
+                        {{field}}
+                        {% if field.name == "index_document" %}
+                            <span>Seleccione un archivo...</span>
+                            <label for="{{field.auto_id}}" class="published-input"><span>Examinar</span></label>
+                        {% endif %}
+                    </div>
+                    <div class="w-100 r-form-errors">
+                        {{field.errors}}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row justify-content-center my-3">
+                <button type="submit" class="r-form-button">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    let checkbox = document.getElementById('id_published');
+    if(window.location.href.includes('create')){
+        checkbox.disabled = true;
+    }
+</script>
+{% endblock %}

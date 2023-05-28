@@ -1,5 +1,5 @@
 from django.db import models
-from main.models import Person
+from main.models import Person, Teacher
 from django.core.validators import MaxValueValidator, MinValueValidator
 from datetime import datetime, timezone, timedelta
 import re
@@ -9,14 +9,22 @@ class Course(models.Model):
     name = models.CharField(max_length=256,blank=False,verbose_name="Nombre")
     description = models.TextField(blank=False,verbose_name="Descripción")
     published = models.BooleanField(verbose_name="Publicado")
+    duration = models.IntegerField(validators=[MinValueValidator(1)],verbose_name="Duración")
+    teacher = models.ForeignKey(Teacher,on_delete=models.CASCADE,verbose_name="Formador")
+    index_document = models.FileField(upload_to='course/%Y/%m/%d',null=True,verbose_name="Índice de curso")
     preceeded_by = models.ManyToManyField("self",blank=True,symmetrical=False,verbose_name="Predecesores")
     # Tengo que validar que un curso A precedido por B no pueda preceder a B
 
+    DEFAULT_COURSE_DURATION = 30
+
     def __str__(self):
         return self.name
+    
+    class Meta:
+        db_table = "courses_course"
 
 class CourseUnitResource(models.Model):
-    resource = models.FileField(upload_to='uploads/%Y/%m/%d',verbose_name="Recurso")
+    resource = models.FileField(upload_to='courseunit/%Y/%m/%d',verbose_name="Recurso")
     course_unit = models.ForeignKey("CourseUnit",on_delete=models.CASCADE,verbose_name="Tema")
 
     def __str__(self) -> str:
@@ -27,11 +35,19 @@ class CourseUnitResource(models.Model):
 
 class CourseUnit(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
-    order = models.PositiveSmallIntegerField(unique=True,verbose_name="Orden")
+    order = models.PositiveSmallIntegerField(verbose_name="Orden")
     course = models.ForeignKey(Course,on_delete=models.CASCADE,verbose_name="Curso")
 
     def __str__(self) -> str:
         return self.title
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['course','order'],
+                name='order_in_course',
+                deferrable=models.Deferrable.DEFERRED,
+            )]
 
 class Autoevaluation(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
@@ -66,12 +82,6 @@ class Student(models.Model):
     courses = models.ManyToManyField(Course,blank=True,through="CourseStatus",verbose_name="Cursos")
     autoevaluations = models.ManyToManyField(Autoevaluation,blank=True,through="Calification",verbose_name="Autoevaluaciones")
     options_chosen = models.ManyToManyField(QuestionOption,blank=True,verbose_name="Opciones escogidas")
-
-    def __str__(self) -> str:
-        return str(self.person)
-
-class Teacher(models.Model):
-    person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
 
     def __str__(self) -> str:
         return str(self.person)
