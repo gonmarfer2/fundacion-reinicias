@@ -8,7 +8,7 @@ from django.db.models.expressions import Subquery
 from django.db.models import Count, OuterRef, Exists, F
 from django.db.models.functions import Coalesce 
 from django.db import models, transaction
-from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm
+from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm, CourseUnitResourceCreateForm
 from main.models import Person, Teacher
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime, timezone
@@ -23,7 +23,7 @@ def group_required(*group_names):
             if user.groups.filter(name__in=set(group_names)).exists() or user.is_superuser:
                 return True
         return False
-    return user_passes_test(has_group, login_url='403')
+    return user_passes_test(has_group, login_url='login')
 
 # CONSTANTS
 
@@ -96,7 +96,7 @@ def list_course(request):
         context = {
             'publishedCourses':published_courses,
             'nonPublishedCourses':non_published_courses,
-            'userGroups':serializers.serialize("json",request.user.groups.all()),
+            'userGroups':request.user.groups.all(),
         }
         
         return render(request,'courses/list_teachers.html',context)
@@ -216,7 +216,7 @@ def details_course(request,course_id):
             'course':this_course,
             'units':this_units,
             'unitContents':unit_contents,
-            'userGroups':request.user.groups.all()
+            'userGroups':request.user.groups.all(),
         }
         return render(request,'courses/details_teachers.html',context)
     
@@ -258,6 +258,8 @@ def edit_unit(request,course_id,unit_id):
         raise Http404(ERROR_404_COURSE)
     if CourseUnit.objects.filter(pk=unit_id).count() == 0:
         raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == True:
+        raise PermissionDenied()
     
     this_unit = CourseUnit.objects.get(pk=unit_id)
     form = CourseUnitEditForm(instance=this_unit)
@@ -299,14 +301,37 @@ def edit_unit(request,course_id,unit_id):
     }
     return render(request,'units/register.html',context)
 
-def reorder_course_units(course_id,this_unit,data_order,old_order):
-    if CourseUnit.objects.filter(course=course_id, order=data_order).exists():
+def reorder_course_units(course_id,this_unit,new_order,old_order):
+    if CourseUnit.objects.filter(course=course_id, order=new_order).exists():
         # Reorder other units
-        if data_order < old_order:
-            CourseUnit.objects.filter(course=course_id,order__gte=data_order,order__lt=old_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-        elif data_order > old_order:
-            CourseUnit.objects.filter(course=course_id,order__gte=data_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-            CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lt=data_order).exclude(pk=this_unit.pk).order_by('order').update(order=F('order')-1)
+        if new_order < old_order:
+            CourseUnit.objects.filter(course=course_id,order__gte=new_order,order__lt=old_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
+        elif new_order > old_order:
+            CourseUnit.objects.filter(course=course_id,order__gt=new_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
+            CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lte=new_order).exclude(pk=this_unit.pk).order_by('order').update(order=F('order')-1)
+
+@require_http_methods(["GET"])
+@group_required("teachers")
+@transaction.atomic()
+def delete_unit(request,course_id,unit_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if CourseUnit.objects.filter(pk=unit_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == True:
+        raise PermissionDenied()
+    
+    this_person = Person.objects.get(user=request.user)
+    this_teacher = Teacher.objects.get(person=this_person)
+    if Course.objects.filter(pk=course_id).first().teacher != this_teacher:
+        raise PermissionDenied()
+    
+    this_unit = CourseUnit.objects.get(pk=unit_id)
+    old_order = this_unit.order
+    this_unit.delete()
+    CourseUnit.objects.filter(course=course_id,order__gt=old_order).update(order=F('order')-1)
+
+    return redirect(f'/courses/{course_id}/')
 
 @require_http_methods(["GET","POST"])
 @group_required("teachers")
@@ -314,7 +339,7 @@ def reorder_course_units(course_id,this_unit,data_order,old_order):
 def create_course(request):
     form = CourseCreateForm()
     if request.method == "POST":
-        form = CourseCreateForm(request.POST)
+        form = CourseCreateForm(request.POST,request.FILES)
         if form.is_valid():
             form_data = form.cleaned_data
             this_person = Person.objects.get(user=request.user)
@@ -347,6 +372,8 @@ def create_course(request):
 def edit_course(request,course_id):
     if Course.objects.filter(pk=course_id).count() == 0:
         raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == True:
+        raise PermissionDenied()
     
     this_course = Course.objects.get(id=course_id)
     form = CourseCreateForm(initial={
@@ -358,14 +385,15 @@ def edit_course(request,course_id):
         'preceeded_by':this_course.preceeded_by.exclude(id=this_course.pk)
     })
     if request.method == "POST":
-        form = CourseCreateForm(request.POST)
+        form = CourseCreateForm(request.POST,request.FILES)
         if form.is_valid():
             form_data = form.cleaned_data
             this_person = Person.objects.get(user=request.user)
             this_teacher = Teacher.objects.get(person=this_person)
 
             new_duration = form_data.get('duration') if form_data.get('duration') else Course.DEFAULT_COURSE_DURATION
-            new_course = Course(
+            update_course = Course.objects.filter(id=course_id)
+            update_course.update(
                 name=form_data.get('name'),
                 description=form_data.get('description'),
                 published=form_data.get('published'),
@@ -374,9 +402,9 @@ def edit_course(request,course_id):
                 index_document=form_data.get('index_document')
             )
 
-            new_course.save()
-            new_course.preceeded_by.set(form_data.get('preceeded_by'))
-            return redirect(f'/courses/{new_course.pk}')
+            update_course = update_course.first()
+            update_course.preceeded_by.set(form_data.get('preceeded_by'))
+            return redirect(f'/courses/{update_course.pk}')
 
     context = {
         'title':'EDITAR CURSO',
@@ -384,3 +412,79 @@ def edit_course(request,course_id):
         'form':form
     }
     return render(request,'courses/create.html',context)
+
+@require_http_methods(["GET"])
+@group_required("teachers")
+@transaction.atomic()
+def delete_course(request,course_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == True:
+        raise PermissionDenied()
+    
+    this_person = Person.objects.get(user=request.user)
+    this_teacher = Teacher.objects.get(person=this_person)
+    if Course.objects.filter(pk=course_id).first().teacher != this_teacher:
+        raise PermissionDenied()
+    
+    Course.objects.get(pk=course_id).delete()
+
+    return redirect('course_list')
+
+@require_http_methods(["GET"])
+@group_required("teachers")
+@transaction.atomic()
+def unpublish_course(request,course_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == False:
+        raise PermissionDenied()
+    
+    Course.objects.filter(pk=course_id).update(published=False)
+
+    return redirect('course_list')
+
+@require_http_methods(["GET","POST"])
+@group_required("teachers")
+@transaction.atomic()
+def add_unit_resources(request,course_id,unit_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if CourseUnit.objects.filter(pk=unit_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == True:
+        raise PermissionDenied()
+    
+    form = CourseUnitResourceCreateForm()
+    if request.method == "POST":
+        form = CourseUnitResourceCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            
+            this_unit = CourseUnit.objects.get(pk=unit_id)
+
+            new_resource = form.save(commit=False)
+            new_resource.course_unit = this_unit
+            new_resource.save()
+
+            return redirect(f'/courses/{course_id}')
+
+    context = {
+        'title':'AÑADIR RECURSO',
+        'userGroups':request.user.groups.all(),
+        'form':form
+    }
+    return render(request,'unitresources/register.html',context)
+
+def remove_unit_resources(request,course_id,unit_id,resource_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if CourseUnit.objects.filter(pk=unit_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if CourseUnitResource.objects.filter(pk=resource_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    if Course.objects.get(pk=course_id).published == True:
+        raise PermissionDenied()
+    
+    CourseUnitResource.objects.filter(pk=resource_id).delete()
+
+    return redirect(f'/courses/{course_id}/')

@@ -11,10 +11,19 @@
     </div>
 
     <div class="row">
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
             <div class="row">
                 {% for field in form %}
-                <div class="col-12 col-md-6 mb-2">
+                <div class="col-12 mb-2">
                     <div class="w-100 r-form-tag">
                         {{field.label_tag}}
                     </div>
@@ -34,19 +43,4 @@
     </div>
 
 </div>
-{% endblock %}
-
-{% block script %}
-<script>
-    let checkbox = document.getElementById('id_published');
-    if(window.location.href.includes('create')){
-        checkbox.disabled = true;
-    }
-
-    const fileButton = document.getElementById('id-btn-file-upload');
-    const fileText = document.getElementById('id-text-file-upload');
-    fileButton.addEventListener('change', function() {
-        fileText.textContent = this.files[0].name
-    })
-</script>
 {% endblock %}

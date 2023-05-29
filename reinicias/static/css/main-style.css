@@ -286,6 +286,7 @@ footer {
 }
 
 .r-form-field > input[type="text"],
+.r-form-field > input[type="password"],
 .r-form-field > input[type="number"] {
     width: 100%;
     height: var(--input-height);
@@ -309,6 +310,13 @@ footer {
     padding: 0 15px;
     width: 100%;
     vertical-align: middle;
+}
+
+.r-form-field > input[type="file"] {
+    width: 100%;
+    overflow: hidden;
+    height: var(--input-height);
+    border: transparent solid 3px;
 }
 
 .r-form-field label {

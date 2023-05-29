@@ -1,6 +1,6 @@
 from django import forms
 from main.models import Person, User
-from .models import CourseUnit, Course
+from .models import CourseUnit, Course, CourseUnitResource
 from django.contrib.auth.forms import UserCreationForm
 
 class StudentRegisterForm(UserCreationForm):
@@ -35,14 +35,18 @@ class CourseUnitEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['order'].widget.attrs['min'] = 1
 
-
 class CourseCreateForm(forms.Form):
-    predecessors = Course.objects.all()
+    predecessors = Course.objects.all().order_by('name')
 
     name = forms.CharField(max_length=256,label='Nombre')
     duration = forms.DecimalField(widget=forms.NumberInput(attrs={'step':1,'min':1}),label='Duración (semanas)')
     description = forms.CharField(widget=forms.Textarea,label='Descripción')
     # This line creates problems with makemigrations
     preceeded_by = forms.ModelMultipleChoiceField(queryset=predecessors,label='Predecesores',widget=forms.CheckboxSelectMultiple, required=False)
-    index_document = forms.FileField(label='Documento de curso',required=False,widget=forms.ClearableFileInput(attrs={'hidden':'true'}))
-    published = forms.BooleanField(label='Publicado',widget=forms.CheckboxInput)
+    index_document = forms.FileField(label='Documento de curso',required=False,widget=forms.FileInput)
+    published = forms.BooleanField(label='Publicado',widget=forms.CheckboxInput,required=False)
+
+class CourseUnitResourceCreateForm(forms.ModelForm):
+    class Meta:
+        model = CourseUnitResource
+        fields = ['resource']

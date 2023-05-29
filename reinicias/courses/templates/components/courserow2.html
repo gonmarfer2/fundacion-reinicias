@@ -3,6 +3,7 @@ IN:
 - type = "seelist"/"enrol"
 - course
 - parent_id (accordion div)
+- editable
 
 Attributes for course:
 -> name
@@ -25,13 +26,16 @@ Attributes for course:
                 <span><strong>Temas:&nbsp;</strong>{{course.units}}</span>
             </div>
             <div class="w-100 d-flex">
-                {% if editable %}
-                <button class="my-3 me-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/edit"><span>Editar</span></a></button>
-                {% endif %}
                 {% if type == "seelist" %}
-                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/" ><span>Ver curso</span></a></button>
+                <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/" ><span>Ver curso</span></a></button>
                 {% elif type == "enrol" %}
-                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/inscribe"><span>Inscribirse</span></a></button>
+                <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/inscribe"><span>Inscribirse</span></a></button>
+                {% endif %}
+                {% if not course.published %}
+                <button class="my-3 ms-3 courses-button courses-button-cyan"><a class="text-white" href="{{course.pk}}/edit"><span>Editar</span></a></button>
+                <button class="my-3 ms-3 courses-button courses-button-cyan" type="submit"><a class="text-white" href="{{course.pk}}/delete"><span>Borrar</span></a></button>
+                {% else %}
+                <button class="my-3 ms-3 courses-button courses-button-cyan" type="submit"><a class="text-white" href="{{course.pk}}/unpublish"><span>Despublicar</span></a></button>
                 {% endif %}
             </div>
         </div>
