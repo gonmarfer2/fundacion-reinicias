@@ -5,7 +5,7 @@
 
 {% block body %}
 
-{% include 'components/navbar2.html' %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
 <div class="container-fluid">
     {% include 'components/title2.html' with type="general-title" text="Registro de estudiante" %}
 
@@ -28,7 +28,7 @@
         <div class="row justify-content-center my-3">
             <button type="submit" class="r-form-button">Enviar</button>
         </div>
-    </div>
+    </form>
 </div>
 {% endblock %}
 {% block vue_script %}{% endblock %}

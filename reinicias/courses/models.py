@@ -1,24 +1,43 @@
 from django.db import models
-from main.models import Person
+from main.models import Person, Teacher
 from django.core.validators import MaxValueValidator, MinValueValidator
+from datetime import datetime, timezone, timedelta
+import re
 
 class Course(models.Model):
     # Existe el atributo error_messages para los campos que permite poner errores personalizados para claves por defecto
     name = models.CharField(max_length=256,blank=False,verbose_name="Nombre")
     description = models.TextField(blank=False,verbose_name="Descripción")
     published = models.BooleanField(verbose_name="Publicado")
+    duration = models.IntegerField(validators=[MinValueValidator(1)],verbose_name="Duración")
+    teacher = models.ForeignKey(Teacher,on_delete=models.CASCADE,verbose_name="Formador")
+    index_document = models.FileField(upload_to='course/%Y/%m/%d',null=True,verbose_name="Índice de curso")
     preceeded_by = models.ManyToManyField("self",blank=True,symmetrical=False,verbose_name="Predecesores")
+    creation_date = models.DateTimeField(auto_now_add=True,verbose_name='Fecha de creación')
     # Tengo que validar que un curso A precedido por B no pueda preceder a B
+
+    DEFAULT_COURSE_DURATION = 30
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        db_table = "courses_course"
 
 class CourseUnitResource(models.Model):
-    resource = models.FileField(upload_to='uploads/%Y/%m/%d',verbose_name="Recurso")
+    resource = models.FileField(upload_to='courseunit/%Y/%m/%d',verbose_name="Recurso")
     course_unit = models.ForeignKey("CourseUnit",on_delete=models.CASCADE,verbose_name="Tema")
 
     def __str__(self) -> str:
-        return self.resource.name
+        full_name = self.resource.name
+        filter_route = re.sub('courseunit/\d+/\d+/\d+/','',full_name)
+        filter_extension = re.sub('\.\w+','',filter_route)
+        return filter_extension
+    
+    def get_file_with_extension(self) -> str:
+        full_name = self.resource.name
+        filter_route = re.sub('courseunit/\d+/\d+/\d+/','',full_name)
+        return filter_route
 
 class CourseUnit(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
@@ -27,6 +46,14 @@ class CourseUnit(models.Model):
 
     def __str__(self) -> str:
         return self.title
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['course','order'],
+                name='order_in_course',
+                deferrable=models.Deferrable.DEFERRED,
+            )]
 
 class Autoevaluation(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
@@ -65,12 +92,6 @@ class Student(models.Model):
     def __str__(self) -> str:
         return str(self.person)
 
-class Teacher(models.Model):
-    person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
-
-    def __str__(self) -> str:
-        return str(self.person)
-
 class Calification(models.Model):
     calification = models.PositiveSmallIntegerField(null=True,validators=[MaxValueValidator(10)],verbose_name="Calificación")
     start_date = models.DateTimeField(verbose_name="Fecha de comienzo")
@@ -79,7 +100,7 @@ class Calification(models.Model):
     autoevaluation = models.ForeignKey(Autoevaluation,on_delete=models.CASCADE,verbose_name="Autoevaluación")
 
     def __str__(self) -> str:
-        return self.calification
+        return str(self.calification)
     
     def get_value(self):
         value = 0.0
@@ -110,3 +131,8 @@ class CourseStatus(models.Model):
 
     def __str__(self) -> str:
         return str(self.completed)
+    
+    def get_remaining_days(self,course):
+        this_units = CourseUnit.objects.filter(course=course)
+        remaining_time = (self.start_date + timedelta(days=this_units.count() * 7)) - datetime.now(timezone.utc)
+        return remaining_time.days

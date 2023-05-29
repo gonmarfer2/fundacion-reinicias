@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body %}
-{% include 'components/navbar2.html' %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
 <div class="container-fluid">
     {% include 'components/title2.html' with type="teacher-title" text="Cursos" %}
     <div class="container">

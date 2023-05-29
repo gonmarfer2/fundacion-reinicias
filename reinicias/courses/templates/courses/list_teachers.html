@@ -1,0 +1,40 @@
+{% extends 'layouts/base_Bootstrap5.html' %}
+
+{% block title %}Cursos{% endblock %}
+{% block css_imports %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
+{% endblock %}
+
+{% block body %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
+<div class="container-fluid">
+    {% include 'components/title2.html' with type="teacher-title" text="Cursos" %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-12 col-sm-4 d-flex justify-content-center">
+                <button class="my-sm-3 mt-3 w-100 courses-button courses-button-cyan"><a class="text-white" href="create/" >&plus;&nbsp;Nuevo curso</a></button>
+            </div>
+            <form action="#" method="POST" class="form col-12 col-sm-8 my-4">
+                <input type="text" class="form-control course-filter" placeholder="Filtra cursos por nombre...">
+            </form>
+        </div>
+
+        {% include 'components/coursesection.html' with text="Publicados" %}
+        <div class="accordion accordion-flush" id="accordionPublished">
+            {% for course in publishedCourses %}
+                {% include 'components/courserow2.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}
+            {% endfor %}
+        </div>
+        
+        {% include 'components/coursesection.html' with text="En preparaci&oacute;n" %}
+        <div class="accordion accordion-flush" id="accordionNonPublished">
+            {% for course in nonPublishedCourses %}
+                {% include 'components/courserow2.html' with course=course parent_id="accordionNonPublished" type="seelist" editable=True %}
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
