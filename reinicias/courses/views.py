@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from courses.models import *
+from courses.models import Course,CourseUnit,CourseUnitResource,Student,Calification,CourseStatus
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
 from django.contrib.auth.models import Group
@@ -24,6 +24,10 @@ def group_required(*group_names):
                 return True
         return False
     return user_passes_test(has_group, login_url='403')
+
+# CONSTANTS
+
+ERROR_404_COURSE = "No existe ese curso"
 
 # VIEWS
 
@@ -159,7 +163,7 @@ def inscribe_in_course(request,course_id):
 @group_required("students","teachers")
 def details_course(request,course_id):
     if Course.objects.filter(pk=course_id).count() == 0:
-        raise Http404("No existe ese curso")
+        raise Http404(ERROR_404_COURSE)
     elif request.user.has_group('students'):
         this_person = Person.objects.get(user=request.user)
         this_student = Student.objects.get(person=this_person)
@@ -221,7 +225,7 @@ def details_course(request,course_id):
 @transaction.atomic()
 def create_unit(request,course_id):
     if Course.objects.filter(pk=course_id).count() == 0:
-        raise Http404("No existe ese curso")
+        raise Http404(ERROR_404_COURSE)
     
     form = CourseUnitCreateForm()
     if request.method == "POST":
@@ -251,9 +255,9 @@ def create_unit(request,course_id):
 @transaction.atomic()
 def edit_unit(request,course_id,unit_id):
     if Course.objects.filter(pk=course_id).count() == 0:
-        raise Http404("No existe ese curso")
+        raise Http404(ERROR_404_COURSE)
     if CourseUnit.objects.filter(pk=unit_id).count() == 0:
-        raise Http404("No existe ese tema")
+        raise Http404(ERROR_404_COURSE)
     
     this_unit = CourseUnit.objects.get(pk=unit_id)
     form = CourseUnitEditForm(instance=this_unit)
@@ -264,19 +268,12 @@ def edit_unit(request,course_id,unit_id):
             form_data = form.cleaned_data
 
             old_order = this_unit.order
-
-            if CourseUnit.objects.filter(course=course_id, order=form_data.get('order')).exists():
-                # Reorder other units
-                if form_data.get('order') < old_order:
-                    CourseUnit.objects.filter(course=course_id,order__gte=form_data.get('order'),order__lt=old_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-                elif form_data.get('order') > old_order:
-                    CourseUnit.objects.filter(course=course_id,order__gte=form_data.get('order')).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-                    CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lt=form_data.get('order')).exclude(pk=this_unit.pk).order_by('order').update(order=F('order')-1)
-            
             this_unit.title = form_data.get('title')
             this_unit.order = form_data.get('order')
             this_unit.course = form_data.get('course')
             this_unit.save()
+
+            reorder_course_units(course_id,this_unit,form_data.get('order'),old_order)
 
             return redirect(f'/courses/{course_id}')
         
@@ -291,16 +288,8 @@ def edit_unit(request,course_id,unit_id):
             this_unit.save()
 
             data_order = form_data.get('order')
-            if CourseUnit.objects.filter(course=course_id, order=data_order).exists():
-                # Reorder other units
-                if data_order < old_order:
-                    CourseUnit.objects.filter(course=course_id,order__gte=data_order,order__lt=old_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-                elif data_order > old_order:
-                    CourseUnit.objects.filter(course=course_id,order__gte=data_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-                    CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lt=data_order).exclude(pk=this_unit.pk).order_by('order').update(order=F('order')-1)
+            reorder_course_units(course_id,this_unit,data_order,old_order)
             
-            
-
             return redirect(f'/courses/{course_id}')
         
     context = {
@@ -309,6 +298,15 @@ def edit_unit(request,course_id,unit_id):
         'form':form
     }
     return render(request,'units/register.html',context)
+
+def reorder_course_units(course_id,this_unit,data_order,old_order):
+    if CourseUnit.objects.filter(course=course_id, order=data_order).exists():
+        # Reorder other units
+        if data_order < old_order:
+            CourseUnit.objects.filter(course=course_id,order__gte=data_order,order__lt=old_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
+        elif data_order > old_order:
+            CourseUnit.objects.filter(course=course_id,order__gte=data_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
+            CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lt=data_order).exclude(pk=this_unit.pk).order_by('order').update(order=F('order')-1)
 
 @require_http_methods(["GET","POST"])
 @group_required("teachers")
@@ -348,7 +346,7 @@ def create_course(request):
 @transaction.atomic()
 def edit_course(request,course_id):
     if Course.objects.filter(pk=course_id).count() == 0:
-        raise Http404("No existe ese curso")
+        raise Http404(ERROR_404_COURSE)
     
     this_course = Course.objects.get(id=course_id)
     form = CourseCreateForm(initial={

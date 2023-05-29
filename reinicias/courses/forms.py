@@ -21,12 +21,12 @@ class StudentRegisterForm(UserCreationForm):
 class CourseUnitCreateForm(forms.ModelForm):
     class Meta:
         model = CourseUnit
-        exclude = ['id','order','course']
+        fields = ['title']
 
 class CourseUnitEditForm(forms.ModelForm):
     class Meta:
         model = CourseUnit
-        exclude = ['id']
+        fields = ['title','order','course']
         widgets = {
             'order': forms.NumberInput(attrs={'min':'1','type':'number'})
         }
