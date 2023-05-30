@@ -143,7 +143,7 @@ class CourseStatus(models.Model):
         remaining_time = (self.start_date + timedelta(weeks=duration) - datetime.now(timezone.utc))
         return remaining_time.days
     
-    def get_end_calification(student,course):
+    def get_end_calification(self,student,course):
         units = CourseUnit.objects.filter(course=course)
         if not units.exists():
             return "-"
