@@ -41,11 +41,8 @@ def list_course(request):
                 output_field=models.IntegerField()
                 ),0))
 
-        all_fields = [field.name for field in Course._meta.get_fields()] + ['units']
-        serialized_courses = list(available_courses.values(*all_fields))
-        json_data = json.dumps(serialized_courses)
         context = {
-            'courses':json_data,
+            'courses':available_courses,
             'userGroups':serializers.serialize("json",request.user.groups.all()),
             }
         return render(request,'courses/list_anonymous.html',context)
@@ -491,3 +488,21 @@ def remove_unit_resources(course_id,unit_id,resource_id):
     CourseUnitResource.objects.filter(pk=resource_id).delete()
 
     return redirect(f'/courses/{course_id}/')
+
+@require_http_methods(["GET"])
+@group_required("teachers")
+def list_course_students(request,course_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    
+    this_course = Course.objects.get(id=course_id)
+    students = CourseStatus.objects.filter(courses__id=course_id).order_by('-start_date')
+    course_students = {s:CourseStatus.get_end_calification(s.student,course_id) for s in students}
+
+    context = {
+        'course':this_course,
+        'students':course_students,
+        'userGroups':request.user.groups.all()
+    }
+
+    return render(request,'courses/course_students.html',context)

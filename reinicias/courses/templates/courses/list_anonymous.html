@@ -1,85 +1,36 @@
-{% extends 'layouts/base.html' %}
+{% extends 'layouts/base_Bootstrap5.html' %}
 
 {% block title %}Cursos{% endblock %}
-{% block css_imports %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
-{% endblock %}
 
 {% block body %}
-<div id="app">
-    <navbar :user-groups="userGroups"></navbar>
-    <b-container fluid id="id-form-container">
-        <r-title type="teacher-title" text="Cursos"></r-title>
+{% include 'components/navbar2.html' with userGroups=userGroups %}
+<div class="container-fluid">
+    {% include 'components/title2.html' with type="teacher-title" text="Cursos" %}
 
-        <b-row id="id-register-row" class="my-4 px-5">
-            <b-col col="10" class="div-ask-student-register">
-                <b-row>
-                    <b-col cols="12" md="6">
-                        <div class="px-3">
-                            <span class="text-purple">&iexcl;Bienvenido al &aacute;rea de cursos Reinicias&excl;</span>
-                            <br>
-                            <span>Aqu&iacute; podr&aacute;s ver todos los cursos que se ofertan, pero solo los estudiantes registrados pueden inscribirse.</span>
-                        </div>
-                    </b-col>
-                    <b-col cols="12" md="6" class="d-flex justify-content-center">
-                        <cyanbutton class="btn-student-register" href="register/" text="Registro como estudiante"></cyanbutton>
-                    </b-col>
-                </b-row>
-            </b-col>
-        </b-row>
+    <div id="id-register-row" class="row my-4 px-5 justify-content-center">
+        <div class="col-10 div-ask-student-register">
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="px-3">
+                        <span class="text-purple">&iexcl;Bienvenido al &aacute;rea de cursos Reinicias&excl;</span>
+                        <br>
+                        <span>Aqu&iacute; podr&aacute;s ver todos los cursos que se ofertan, pero solo los estudiantes registrados pueden inscribirse.</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 d-flex justify-content-center">
+                    {% include 'components/cyanbutton2.html' with href='register/' text='Registro como estudiante' %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <b-row v-for="course in courses" class="accordion px-5" role="tablist">
-            <r-course :course="course"></r-course>
-        </b-row>
-    </b-container>
+    <div class="container">
+        <div class="accordion accordion-flush" id="availableCourses">
+        {% for course in courses %}
+            {% include 'components/courserow_anonymous.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}
+        {% endfor %}
+        </div>    
+    </div>
 
 </div>
-{% endblock %}
-{% block vue_script %}
-
-{{courses|json_script:"coursesJSON"}}
-{{userGroups|json_script:"userGroupsJSON"}}
-<script>
-    let courses_list = JSON.parse(document.getElementById("coursesJSON").textContent)
-    courses_list = JSON.parse(courses_list)
-    let userGroups = JSON.parse(document.getElementById("userGroupsJSON").textContent)
-    userGroups = JSON.parse(userGroups)
-    var Navbar = {
-        props: ['user-groups'],
-        delimiters: ['[[', ']]'],
-        template: `{% include "components/navbar.html" %}`,
-    }
-    var Title = {
-        props: ['text','type'],
-        delimiters: ['[[', ']]'],
-        template: `{% include "components/title.html" %}`,
-    }
-    var CourseRow = {
-        props: ['course'],
-        delimiters: ['[[',']]'],
-        template: `{% include "components/courserow.html" %}`
-    }
-    var Button = {
-        props: ['href','text'],
-        delimiters: ['[[', ']]'],
-        template: `{% include "components/cyanbutton.html" %}`
-    }
-
-    window.app = new Vue({
-        el: '#app',
-        delimiters: ['[[', ']]'],
-        components: {
-            'navbar': Navbar,
-            'r-title': Title,
-            'r-course': CourseRow,
-            'cyanbutton': Button
-        },
-        data: {
-            userGroups:userGroups,
-            courses:courses_list,
-        },
-        computed: {}
-    })
-</script>
 {% endblock %}
