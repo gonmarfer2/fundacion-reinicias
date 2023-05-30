@@ -110,18 +110,19 @@ class Calification(models.Model):
             students_answers = self.student.options_chosen.filter(question=question)
             if not question.is_multiple:
                 for answer in students_answers:
-                    if answer.is_correct:
-                        value += 1/questions_count
-                    else:
-                        value -= self.autoevaluation.penalization_factor/questions_count
+                    value += self.__sum_value(answer,self.autoevaluation.penalization_factor,questions_count)
             else:
                 question_options_count = QuestionOption.objects.filter(question=question).count()
                 for answer in students_answers:
-                    if answer.is_correct:
-                        value += 1/(questions_count*question_options_count)
-                    else:
-                        value -= self.autoevaluation.penalization_factor/(questions_count*question_options_count)
+                    value += self.__sum_value(answer,self.autoevaluation.penalization_factor,(questions_count*question_options_count))
         return value
+    
+    def __sum_value(self,answer,penalization_factor,total):
+        if answer.is_correct:
+            return 1/total
+        else:
+            return (-1)*penalization_factor/total
+
 
 class CourseStatus(models.Model):
     completed = models.BooleanField(verbose_name="¿Completado?")

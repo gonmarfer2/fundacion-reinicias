@@ -475,7 +475,10 @@ def add_unit_resources(request,course_id,unit_id):
     }
     return render(request,'unitresources/register.html',context)
 
-def remove_unit_resources(request,course_id,unit_id,resource_id):
+@require_http_methods(["GET"])
+@group_required("teachers")
+@transaction.atomic()
+def remove_unit_resources(course_id,unit_id,resource_id):
     if Course.objects.filter(pk=course_id).count() == 0:
         raise Http404(ERROR_404_COURSE)
     if CourseUnit.objects.filter(pk=unit_id).count() == 0:
