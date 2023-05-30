@@ -147,12 +147,14 @@ p {
 
 .btn-outline-cyan {
     background-color: var(--white);
+    color: var(--black);
     border: var(--cyan) var(--md-border);
     border-radius: 10px;
 }
 
 .btn-outline-cyan:hover {
     background-color: var(--cyan);
+    color: var(--white);
     border: var(--cyan) var(--md-border);
 }
 
