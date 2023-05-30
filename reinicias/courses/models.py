@@ -6,7 +6,7 @@ import re
 
 class Course(models.Model):
     # Existe el atributo error_messages para los campos que permite poner errores personalizados para claves por defecto
-    name = models.CharField(max_length=256,blank=False,verbose_name="Nombre")
+    name = models.CharField(max_length=256,blank=False,verbose_name="Nombre",unique=True)
     description = models.TextField(blank=False,verbose_name="Descripción")
     published = models.BooleanField(verbose_name="Publicado")
     duration = models.IntegerField(validators=[MinValueValidator(1)],verbose_name="Duración")
@@ -52,6 +52,11 @@ class CourseUnit(models.Model):
             models.UniqueConstraint(
                 fields=['course','order'],
                 name='order_in_course',
+                deferrable=models.Deferrable.DEFERRED,
+            ),
+            models.UniqueConstraint(
+                fields=['course','title'],
+                name='title_in_course',
                 deferrable=models.Deferrable.DEFERRED,
             )]
 
@@ -110,18 +115,19 @@ class Calification(models.Model):
             students_answers = self.student.options_chosen.filter(question=question)
             if not question.is_multiple:
                 for answer in students_answers:
-                    if answer.is_correct:
-                        value += 1/questions_count
-                    else:
-                        value -= self.autoevaluation.penalization_factor/questions_count
+                    value += self.__sum_value(answer,self.autoevaluation.penalization_factor,questions_count)
             else:
                 question_options_count = QuestionOption.objects.filter(question=question).count()
                 for answer in students_answers:
-                    if answer.is_correct:
-                        value += 1/(questions_count*question_options_count)
-                    else:
-                        value -= self.autoevaluation.penalization_factor/(questions_count*question_options_count)
+                    value += self.__sum_value(answer,self.autoevaluation.penalization_factor,(questions_count*question_options_count))
         return value
+    
+    def __sum_value(self,answer,penalization_factor,total):
+        if answer.is_correct:
+            return 1/total
+        else:
+            return (-1)*penalization_factor/total
+
 
 class CourseStatus(models.Model):
     completed = models.BooleanField(verbose_name="¿Completado?")
@@ -133,6 +139,20 @@ class CourseStatus(models.Model):
         return str(self.completed)
     
     def get_remaining_days(self,course):
-        this_units = CourseUnit.objects.filter(course=course)
-        remaining_time = (self.start_date + timedelta(days=this_units.count() * 7)) - datetime.now(timezone.utc)
+        duration = course.duration
+        remaining_time = (self.start_date + timedelta(weeks=duration) - datetime.now(timezone.utc))
         return remaining_time.days
+    
+    def get_end_calification(self,student,course):
+        units = CourseUnit.objects.filter(course=course)
+        if not units.exists():
+            return "-"
+        autoevaluations = Autoevaluation.objects.filter(course_unit__in=units)
+        if not autoevaluations.exists():
+            return "-"
+        califications = Calification.objects.filter(student=student,autoevaluation__in=autoevaluations)
+        if not califications.exists():
+            return "-"
+        calification_list = [c.get_value() for c in califications]
+        sum_calification = sum(calification_list)/len(calification_list)
+        return sum_calification

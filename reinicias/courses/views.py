@@ -8,7 +8,7 @@ from django.db.models.expressions import Subquery
 from django.db.models import Count, OuterRef, Exists, F
 from django.db.models.functions import Coalesce 
 from django.db import models, transaction
-from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm, CourseUnitResourceCreateForm
+from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm, CourseUnitResourceCreateForm, CourseEditForm
 from main.models import Person, Teacher
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime, timezone
@@ -35,35 +35,32 @@ ERROR_404_COURSE = "No existe ese curso"
 def list_course(request):
     unit_count = CourseUnit.objects.filter(course=OuterRef('pk')).values('course')
     if request.user.is_anonymous:
-        available_courses = Course.objects.filter(preceeded_by__isnull=True).annotate(
+        available_courses = Course.objects.filter(published=True).filter(preceeded_by__isnull=True).annotate(
             units=Coalesce(Subquery(
                 unit_count.annotate(count=Count('pk')).values('count'),
                 output_field=models.IntegerField()
                 ),0))
 
-        all_fields = [field.name for field in Course._meta.get_fields()] + ['units']
-        serialized_courses = list(available_courses.values(*all_fields))
-        json_data = json.dumps(serialized_courses)
         context = {
-            'courses':json_data,
+            'courses':available_courses,
             'userGroups':serializers.serialize("json",request.user.groups.all()),
             }
         return render(request,'courses/list_anonymous.html',context)
     elif request.user.has_group('students'):
         this_person = Person.objects.get(user=request.user)
         this_student = Student.objects.get(person=this_person)
-        current_courses = Course.objects.filter(coursestatus__completed=False,coursestatus__student=this_student).annotate(
+        current_courses = Course.objects.filter(published=True).filter(coursestatus__completed=False,coursestatus__student=this_student).annotate(
             units=Coalesce(Subquery(
                 unit_count.annotate(count=Count('pk')).values('count'),
                 output_field=models.IntegerField()
                 ),0))
-        done_courses = Course.objects.filter(coursestatus__completed=True,coursestatus__student=this_student).annotate(
+        done_courses = Course.objects.filter(published=True).filter(coursestatus__completed=True,coursestatus__student=this_student).annotate(
             units=Coalesce(Subquery(
                 unit_count.annotate(count=Count('pk')).values('count'),
                 output_field=models.IntegerField()
                 ),0))
 
-        rest_of_courses = Course.objects.exclude(pk__in=current_courses).exclude(pk__in=done_courses)
+        rest_of_courses = Course.objects.filter(published=True).exclude(pk__in=current_courses).exclude(pk__in=done_courses)
         for course in rest_of_courses:
             predecessors = course.preceeded_by.all()
             if predecessors is not None and not set(predecessors).issubset(set(done_courses)):
@@ -184,15 +181,17 @@ def details_course(request,course_id):
                         .filter(student=this_student,autoevaluation__course_unit=OuterRef('pk')) \
                         .order_by('-end_date') \
                         .values('calification')[:1]),None)).order_by('order')
-        current_calification = Calification.objects.filter(student=this_student,autoevaluation__course_unit__in=this_units).order_by('-end_date').first()
+        current_calification = CourseStatus.get_end_calification(student=this_student,course=course_id)
 
         unit_contents = {u.pk:CourseUnitResource.objects.filter(course_unit=u) for u in this_units}
-        unit_block = {this_units.get(order=1).pk:False}
-        for i in range(2,len(this_units)+1):
-            if this_units.get(order=(i-1)).calification is None:
-                unit_block[this_units.get(order=(i)).pk] = True
-            else:
-                unit_block[this_units.get(order=(i)).pk] = False
+        unit_block = {}
+        if this_units.count() > 0:
+            unit_block = {this_units.get(order=1).pk:False}
+            for i in range(2,len(this_units)+1):
+                if this_units.get(order=(i-1)).calification is None:
+                    unit_block[this_units.get(order=(i)).pk] = True
+                else:
+                    unit_block[this_units.get(order=(i)).pk] = False
 
         remaining_days = CourseStatus.objects.get(student=this_student,courses=this_course).get_remaining_days(this_course)
 
@@ -376,7 +375,8 @@ def edit_course(request,course_id):
         raise PermissionDenied()
     
     this_course = Course.objects.get(id=course_id)
-    form = CourseCreateForm(initial={
+    form = CourseEditForm(course_id_edit=course_id,initial={
+        'course_id_edit':course_id,
         'name':this_course.name,
         'description':this_course.description,
         'index_document':this_course.index_document,
@@ -385,7 +385,7 @@ def edit_course(request,course_id):
         'preceeded_by':this_course.preceeded_by.exclude(id=this_course.pk)
     })
     if request.method == "POST":
-        form = CourseCreateForm(request.POST,request.FILES)
+        form = CourseEditForm(request.POST,request.FILES,course_id_edit=course_id)
         if form.is_valid():
             form_data = form.cleaned_data
             this_person = Person.objects.get(user=request.user)
@@ -475,7 +475,10 @@ def add_unit_resources(request,course_id,unit_id):
     }
     return render(request,'unitresources/register.html',context)
 
-def remove_unit_resources(request,course_id,unit_id,resource_id):
+@require_http_methods(["GET"])
+@group_required("teachers")
+@transaction.atomic()
+def remove_unit_resources(course_id,unit_id,resource_id):
     if Course.objects.filter(pk=course_id).count() == 0:
         raise Http404(ERROR_404_COURSE)
     if CourseUnit.objects.filter(pk=unit_id).count() == 0:
@@ -488,3 +491,21 @@ def remove_unit_resources(request,course_id,unit_id,resource_id):
     CourseUnitResource.objects.filter(pk=resource_id).delete()
 
     return redirect(f'/courses/{course_id}/')
+
+@require_http_methods(["GET"])
+@group_required("teachers")
+def list_course_students(request,course_id):
+    if Course.objects.filter(pk=course_id).count() == 0:
+        raise Http404(ERROR_404_COURSE)
+    
+    this_course = Course.objects.get(id=course_id)
+    students = CourseStatus.objects.filter(courses__id=course_id).order_by('-start_date')
+    course_students = {s:CourseStatus.get_end_calification(s.student,course_id) for s in students}
+
+    context = {
+        'course':this_course,
+        'students':course_students,
+        'userGroups':request.user.groups.all()
+    }
+
+    return render(request,'courses/course_students.html',context)

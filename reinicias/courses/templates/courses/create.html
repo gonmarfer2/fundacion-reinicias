@@ -11,9 +11,23 @@
     </div>
 
     <div class="row">
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
             <div class="row">
                 {% for field in form %}
+                {% if field.name == 'course_id_edit' %}
+                <div class="d-none">
+                    {{field}}
+                </div>
+                {% else %}
                 <div class="col-12 col-md-6 mb-2">
                     <div class="w-100 r-form-tag">
                         {{field.label_tag}}
@@ -25,6 +39,7 @@
                         {{field.errors}}
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="row justify-content-center my-3">

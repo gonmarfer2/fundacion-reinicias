@@ -128,27 +128,19 @@ p {
     align-items: center;
     justify-content: center;
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 18px;
+    font-size: var(--sm-size);
     font-weight: bold;
 }
 
 @media screen and (min-width:576px) {
     .btn-general {
         width: 350px;
-        font-size: var(--md-size);
-    }
-    .btn-student-register {
-        width: 220px;
-        font-size: var(--md-size);
+        font-size: var(--sm-size);
     }
 }
 @media screen and (min-width:768px) {
     .btn-general {
         width: 450px;
-        font-size: var(--lg-size);
-    }
-    .btn-student-register {
-        width: 30vw;
         font-size: var(--md-size);
     }
 }
@@ -158,7 +150,6 @@ p {
     color: var(--black);
     border: var(--cyan) var(--md-border);
     border-radius: 10px;
-    
 }
 
 .btn-outline-cyan:hover {
@@ -173,6 +164,18 @@ p {
     color: var(--white);
     border: var(--cyan) var(--md-border);
     outline: var(--purple) var(--md-border);
+}
+
+.btn-outline-cyan a {
+    text-decoration: none;
+    color: var(--black);
+}
+
+.btn-outline-cyan:hover a,
+.btn-outline-cyan:active a,
+.btn-outline-cyan:focus a {
+    text-decoration: none;
+    color: var(--white);
 }
 
 .circle-cyan {
@@ -224,6 +227,9 @@ footer {
     height: 100%;
     padding-top: 24px;
     backdrop-filter: blur(5px) brightness(80%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .general-title > .main-title {
@@ -287,6 +293,8 @@ footer {
 
 .r-form-field > input[type="text"],
 .r-form-field > input[type="password"],
+.r-form-field > input[type="email"],
+.r-form-field > input[type="date"],
 .r-form-field > input[type="number"] {
     width: 100%;
     height: var(--input-height);

@@ -1,0 +1,33 @@
+{% extends 'layouts/base_Bootstrap5.html' %}
+
+{% block title %}Cursos{% endblock %}
+
+{% block body %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
+<div class="container-fluid">
+    {% include 'components/title2.html' with type="teacher-title" text="Estudiantes - "|add:course.name %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 table-responsive">
+                <table class="table table-hover">
+                    <caption>Estudiantes inscritos al curso</caption>
+                    <thead>
+                        <th scope="col">Calificaci&oacute;n</th>
+                        <th scope="col">Inicio</th>
+                        <th scope="col">Estudiante</th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for student,calification in students.items %}
+                            <tr>
+                                <td>{{calification}}</td>
+                                <td>{{student.start_date}}</td>
+                                <td>{{student.student}}</td>
+                            </tr>                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
