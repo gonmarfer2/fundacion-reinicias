@@ -18,8 +18,8 @@
                 </ul>
             </div>
             <div class="w-100 d-flex align-items-center">
-                <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="autoevaluation/{{unit.pk}}/" >Autoevaluaci&oacute;n</a></button>
-                <span class="ms-3"><strong>Calificaci&oacute;n:&nbsp;</strong>{% if unit.calification %}{{unit.calification}}{% else %}&dash;{% endif %}</span>
+                <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="{% url 'autoevaluation_start' unit.autoevaluation.pk %}" onclick="return confirm('¿Desea comenzar un intento para la autoevaluación?')">Autoevaluaci&oacute;n</a></button>
+                <span class="ms-3"><strong>Calificaci&oacute;n:&nbsp;</strong>{% if unit.calification is not None %}{{unit.calification}}{% else %}&dash;{% endif %}</span>
             </div>
         </div>
     </div>

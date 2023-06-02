@@ -16,7 +16,6 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
           </li>
-          {{userGroups}}
           {% elif userGroups|length > 0 %}
             {% if userGroups|has_group:"students" or userGroups|has_group:"teachers" %}
               <li class="nav-item">

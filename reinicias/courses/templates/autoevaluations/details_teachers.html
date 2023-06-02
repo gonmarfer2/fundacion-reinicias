@@ -1,0 +1,84 @@
+{% extends 'layouts/base_Bootstrap5.html' %}
+
+{% block title %}{{course.name}}{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar2.html' with userGroups=userGroups %}
+<div class="container mb-5">
+    <div class="row my-4">
+        <h1 class="simple-title col-12">{{autoevaluation.title}}</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-6 text-start">
+            <span>{{autoevaluation.duration}} minutos</span>
+        </div>
+        <div class="col-6 text-end">
+            <span class="autoevaluation-title">{{autoevaluation.course_unit.title}}</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% load humanize %}
+            {% widthratio autoevaluation.penalization_factor 1 100 as percentage %}
+            <span>Cada error resta un {{percentage}}% del valor de la pregunta</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 autoevaluation-instructions">
+            <p class="autoevaluation-paragraph">{{autoevaluation.instructions}}</p>
+        </div>
+    </div>
+    
+    {% if not course.published %}
+    <div class="row autoevaluation-instructions justify-content-center">
+        <div class="col-6 col-md-4 col-lg-3 d-flex">
+            <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="questions/add/">&plus;&nbsp;Nueva pregunta</a></button>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 d-flex">
+            <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="edit/">Editar evaluaci&oacute;n</a></button>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            {% for question in questions %}
+            <div class="row">
+                {% if not course.published %}
+                <div class="col-12 d-flex">
+                    <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="questions/{{question.pk}}/edit/">Editar pregunta {{question.order}}</a></button>
+                    <a class="ms-3 bi bi-x-square-fill text-danger delete-question" href="questions/{{question.pk}}/delete/" onclick="return confirm('¿Está seguro de querer borrar {{question}}?')"></a>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-8 col-md-10">
+                            <span class="question-title">{{question.order}}&period;&nbsp;{{question.question}}</span>
+                        </div>
+                        <div class="col-4 col-md-2 text-end">
+                            <span>{{question_points|get_item:question|floatformat:2}} puntos</span>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-12">
+                    {% load extra_tags %}
+                    <ul>
+                        {% for option in options|get_item:question %}
+                        <li class="question-option-text">{{option}}&nbsp;
+                            {% if option.is_correct %}<span class="text-success bi bi-check-square-fill">{% endif %}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div> 
+
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

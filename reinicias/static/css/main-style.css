@@ -11,6 +11,7 @@
 
     --md-border: solid 3px;
     
+    --xs-size: 14px;
     --sm-size: 18px;
     --md-size: 24px;
     --lg-size: 36px;
@@ -41,9 +42,20 @@
     font-weight: bold;
 }
 
+span {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
 p {
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: var(--md-size);
+    color: var(--black);
+}
+
+p.autoevaluation-paragraph {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
     color: var(--black);
 }
 
@@ -198,6 +210,12 @@ footer {
     background-color: var(--cyan);
 }
 
+header {
+    width: 100vw;
+    height: 48px;
+    background-color: var(--cyan);
+}
+
 .d-center-items {
     display: flex;
     justify-content: center;
@@ -279,6 +297,9 @@ footer {
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
     font-size: var(--md-size);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .r-form-field {
@@ -289,6 +310,8 @@ footer {
     width: 100%;
     padding: 0;
     min-height: var(--input-height);
+    display: flex;
+    align-items: center;
 }
 
 .r-form-field > input[type="text"],
@@ -317,7 +340,7 @@ footer {
 .r-form-field > input[type="checkbox"] {
     padding: 0 15px;
     width: 100%;
-    vertical-align: middle;
+    height: calc(var(--input-height)/2);
 }
 
 .r-form-field > input[type="file"] {
@@ -377,12 +400,12 @@ footer {
 }
 
 .r-form-button {
-    width: 210px;
-    height: 80px;
+    width: 150px;
+    height: 50px;
     color: var(--white);
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
-    font-size: var(--md-size);
+    font-size: var(--sm-size);
     background-image: conic-gradient(var(--cyan) 10deg, var(--purple) 180deg, var(--cyan) 360deg);
     border: 0;
     border-radius: 10px;
@@ -393,6 +416,14 @@ footer {
 }
 
 .courses-button {
+    width: 150px;
+    height: 50px;
+    border: 0;
+    border-radius: 10px;
+    display: flex;
+}
+
+.autoevaluation-button {
     width: 150px;
     height: 50px;
     border: 0;
@@ -541,4 +572,56 @@ button.accordion-button:focus {
 
 .border-cyan {
     border: var(--cyan) solid 2px;
+}
+
+.autoevaluation-title {
+    font-weight: bold;
+    font-size: var(--md-size);
+}
+
+.autoevaluation-instructions {
+    border-top: var(--cyan) solid 1px;
+    border-bottom: var(--cyan) solid 1px;
+    margin: 24px 0;
+    padding: 24px 0;
+}
+
+.delete-question {
+    font-size: 48px;
+    line-height: 0;
+}
+
+.delete-question:hover {
+    text-shadow: 0 0 2px var(--black);
+}
+
+.question-title {
+    font-family: 'OpenSans',Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: var(--sm-size);
+}
+
+.question-option-text {
+    font-family: 'OpenSans',Arial, Helvetica, sans-serif;
+    font-size: var(--xs-size);
+}
+
+.btn-invisible {
+    background-color: transparent;
+    border: none;
+}
+
+.btn-invisible:hover {
+    text-shadow: 0 0 2px var(--black);
+}
+
+.btn-invisible > span {
+    font-size: calc(var(--input-height)*0.8);
+    line-height: 0;
+}
+
+.autoevaluation-options-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }

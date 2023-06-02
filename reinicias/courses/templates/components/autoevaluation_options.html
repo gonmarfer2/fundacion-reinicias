@@ -1,0 +1,14 @@
+<ul class="autoevaluation-options-list">
+    {% for option in options %}
+    <div class="form-check">
+        {% if multiple %}
+            <input class="form-check-input" type="checkbox" name="question-{{question.pk}}-option" value="{{option.pk}}" id="id-{{option.pk}}">
+            <label class="form-check-label" for="id-{{option.pk}}">{{option.option_name}}</label>
+            <br>
+        {% else %}
+            <input class="form-check-input" type="radio" name="question-{{question.pk}}-option" value="{{option.pk}}" id="id-{{option.pk}}">
+            <label class="form-check-label" for="id-{{option.pk}}">{{option.option_name}}</label>
+        {% endif %}
+    </div>
+    {% endfor %}
+</ul>
