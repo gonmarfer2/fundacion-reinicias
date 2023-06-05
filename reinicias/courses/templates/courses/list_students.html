@@ -1,4 +1,4 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Cursos{% endblock %}
 {% block css_imports %}
@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block body %}
-{% include 'components/navbar2.html' with userGroups=userGroups %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
 <div class="container-fluid">
-    {% include 'components/title2.html' with type="teacher-title" text="Cursos" %}
+    {% include 'components/title.html' with type="teacher-title" text="Cursos" %}
     <div class="container mb-4">
 
         <form action="#" method="POST" class="form my-4">
@@ -19,21 +19,21 @@
         {% include 'components/coursesection.html' with text="Mis cursos" %}
         <div class="accordion accordion-flush" id="accordionOnGoing">
             {% for course in currentCourses %}
-                {% include 'components/courserow2.html' with course=course parent_id="accordionOnGoing" type="seelist" student=True %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionOnGoing" type="seelist" student=True %}
             {% endfor %}
         </div>
         
         {% include 'components/coursesection.html' with text="Cursos completados" %}
         <div class="accordion accordion-flush" id="accordionDone">
             {% for course in doneCourses %}
-                {% include 'components/courserow2.html' with course=course parent_id="accordionDone" type="seelist" student=True %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionDone" type="seelist" student=True %}
             {% endfor %}
         </div>
         
         {% include 'components/coursesection.html' with text="Todos los cursos" %}
         <div class="accordion accordion-flush" id="accordionAll">
             {% for course in restOfCourses %}
-                {% include 'components/courserow2.html' with course=course parent_id="accordionAll" type="enrol" student=True %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionAll" type="enrol" student=True %}
             {% endfor %}
         </div>
 

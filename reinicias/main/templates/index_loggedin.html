@@ -1,137 +1,91 @@
 {% extends "layouts/base.html" %}
 
 {% block title %}P&aacute;gina principal{% endblock %}
-{% block css_imports %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
-{% endblock %}
 
+{% load extra_tags %}
 {% block body %}
-<div id="app">
-    <navbar :user-groups="userGroups"></navbar>
-    <b-container fluid id="id-form-container" v-if="has_role('technics')">
-        <r-title type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico"></r-title>
-        <b-container>
-            <gifbutton type="technics" href="#" text="Seguimiento de sesiones" class="my-4"></gifbutton>
-            <gifbutton type="technics" href="#" text="Lista de usuarios" class="mb-4"></gifbutton>
-            <gifbutton type="technics" href="#" text="M&eacute;tricas del sistema" class="mb-4"></gifbutton>
-        </b-container>
-    </b-container>
-    <b-container fluid id="id-form-container" v-if="has_role('teachers')">
-        <r-title type="teacher-title" text="&Aacute;rea de formadores"></r-title>
-        <b-container>
-            <gifbutton type="teachers" href="/courses/" text="Ver cursos" class="my-4"></gifbutton>
-            <gifbutton type="teachers" href="/courses/create/" text="Crear un curso" class="mb-4"></gifbutton>
-        </b-container>
-    </b-container>
-    <b-container fluid id="id-form-container" v-if="has_role('patients')">
-        <r-title type="patient-title" text="Tu &aacute;rea Reinicias"></r-title>
-        <b-container>
-            <gifbutton type="patients" href="#" text="Mis tareas" class="my-4"></gifbutton>
-            <gifbutton type="patients" href="#" text="Mi diario" class="mb-4"></gifbutton>
-            <gifbutton type="patients" href="#" text="Mi perfil" class="mb-4"></gifbutton>
-        </b-container>
-    </b-container>
-    <footer class="footer-bar"></footer>
-    
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div class="container-fluid">
+    {% if userGroups|has_group:"technics" %}
+        {% include 'components/title.html' with type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico" %}
+        <div class="container mt-4">
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" type="technics" href="#" text="Seguimiento de sesiones" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" type="technics" href="#" text="Lista de usuarios" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-3" type="technics" href="#" text="M&eacute;tricas del sistema" %}
+        </div>
+    {% endif %}
+    {% if userGroups|has_group:"teachers" %}
+        {% include 'components/title.html' with type="teacher-title" text="&Aacute;rea de formadores" %}
+        <div class="container mt-4">
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-4" type="teachers" href="/courses/" text="Ver cursos" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-5" type="teachers" href="/courses/create/" text="Crear un curso" %}
+        </div>
+    {% endif %}
+    {% if userGroups|has_group:"patients" %}
+        {% include 'components/title.html' with type="patient-title" text="Tu &aacute;rea Reinicias" %}
+        <div class="container mt-4">
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" type="patients" href="#" text="Mis tareas" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" type="patients" href="#" text="Mi diario" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" type="patients" href="#" text="Mi perfil" %}
+        </div>
+    {% endif %}
+    <div class="container-fluid">
+
+    </div>
 </div>
+
 {% endblock %}
-{% block vue_script %}
-{{userGroups|json_script:"userGroupsJSON"}}
+
+{% block script %}
+{% load static %}
 <script>
-    let userGroups = JSON.parse(document.getElementById("userGroupsJSON").textContent)
-    userGroups = JSON.parse(userGroups)
-    var Navbar = {
-        props: ['user-groups'],
-        delimiters: ['[[', ']]'],
-        template: `{% include "components/navbar.html" %}`,
-    }
-    var Title = {
-        props: ['text','type'],
-        delimiters: ['[[', ']]'],
-        template: `{% include "components/title.html" %}`,
-    }
-    var Button = {
-        props: ['href','text'],
-        delimiters: ['[[', ']]'],
-        template: `{% include "components/cyanbutton.html" %}`
-    }
-    var GifButton = {
-        props: ['href','text','type'],
-        delimiters: ['[[', ']]'],
-        data: function() {
-            if (this.type === "technics") {
-                return {
-                    monigotePng: "{% static 'assets/gifs/Monigote0.png' %}",
-                    monigoteGif: "{% static 'assets/gifs/Monigote.gif' %}",
-                    hover: false,
-                }
-            } else if (this.type === "teachers") {
-                return {
-                    librosPng: "{% static 'assets/gifs/Libros0.png' %}",
-                    librosGif: "{% static 'assets/gifs/Libros.gif' %}",
-                    hover: false,
-                }
-            } else if (this.type === "patients") {
-                return {
-                    rockyPng: "{% static 'assets/gifs/Piedrita0.png' %}",
-                    rockyGif: "{% static 'assets/gifs/Piedrita.gif' %}",
-                    hover: false,
-                }
-            }
-        },
-        computed: {
-            pictureHover () {
-                if (this.hover) {
-                    if (this.type === "technics") {
-                        return this.monigoteGif
-                    } else if (this.type === "teachers") {
-                        return this.librosGif
-                    } else if (this.type === "patients") {
-                        return this.rockyGif
-                    }
-                } else {
-                    if (this.type === "technics") {
-                        return this.monigotePng
-                    } else if (this.type === "teachers") {
-                        return this.librosPng
-                    } else if (this.type === "patients") {
-                        return this.rockyPng
-                    }
-                }
-            }
-        },
-        components: {
-            'cyanbutton': Button,
-        },
-        template: `{% include "components/gifbutton.html" %}`
+    let technics = document.getElementsByClassName('id-technics-row');
+    for (let technic of technics) {
+        let buttonTechnic = technic.querySelector('button');
+        technic.querySelector('img').src = "{% static 'assets/gifs/Monigote0.png' %}";
+        buttonTechnic.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                technic.querySelector('img').src = "{% static 'assets/gifs/Monigote.gif' %}";
+            }, 50);
+        });
+        buttonTechnic.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                technic.querySelector('img').src = "{% static 'assets/gifs/Monigote0.png' %}";
+            }, 50);
+        });
     }
 
-    window.app = new Vue({
-        el: '#app',
-        delimiters: ['[[', ']]'],
-        components: {
-            'navbar': Navbar,
-            'r-title': Title,
-            'gifbutton': GifButton,
-        },
-        data: {
-            userGroups: userGroups,
-        },
-        methods: {
-            has_role: function(role) {
-                let result = false;
-                this.userGroups.forEach(element => {
-                    console.log(element.fields.name)
-                    if(element.fields.name === role) {
-                        result = true;
-                    }
-                });
-                return result;
-            },
-            
-        },
-        computed: {}
-    })
+    let teachers = document.getElementsByClassName('id-teachers-row');
+    for (let teacher of teachers) {
+        let buttonTeacher = teacher.querySelector('button');
+        teacher.querySelector('img').src = "{% static 'assets/gifs/Libros0.png' %}";
+        buttonTeacher.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                teacher.querySelector('img').src = "{% static 'assets/gifs/Libros.gif' %}";
+            }, 50);
+        });
+        buttonTeacher.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                teacher.querySelector('img').src = "{% static 'assets/gifs/Libros0.png' %}";
+            }, 50);
+        });
+    }
+
+    let patients = document.getElementsByClassName('id-patients-row');
+    for (let patient of patients) {
+        let patientButton = patient.querySelector('button');
+        patient.querySelector('img').src = "{% static 'assets/gifs/Piedrita0.png' %}";
+        patientButton.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                patient.querySelector('img').src = "{% static 'assets/gifs/Piedrita.gif' %}";
+            }, 50);
+        });
+        patientButton.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                patient.querySelector('img').src = "{% static 'assets/gifs/Piedrita0.png' %}";
+            }, 50);
+        });
+    }
+
 </script>
 {% endblock %}

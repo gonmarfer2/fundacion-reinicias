@@ -23,7 +23,9 @@ Attributes for course:
                 {{course.description}}
             </div>
             <div class="w-100">
-                <span><strong>Temas:&nbsp;</strong>{{course.units}}</span>
+                <span class="text-xs"><strong>Temas:&nbsp;</strong>{{course.units}}</span>
+                <br>
+                <span class="text-xs"><strong>Duraci&oacute;n (semanas):&nbsp;</strong>{{course.duration}}</span>
             </div>
             <div class="w-100 d-flex">
                 {% if type == "seelist" %}

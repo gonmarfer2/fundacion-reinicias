@@ -44,7 +44,7 @@
 
 span {
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
-    font-size: var(--sm-size);
+    font-size: var(--xs-size);
 }
 
 p {
@@ -93,6 +93,7 @@ p.autoevaluation-paragraph {
     height: 100%;
     position: relative;
     object-fit: cover;
+    padding: 0;
 }
 
 .main-hello-box {
@@ -102,12 +103,24 @@ p.autoevaluation-paragraph {
     background-color: var(--white);
     border-radius: 15px;
     padding: 20px;
-    max-width: 100%;
-    
+    max-width: 90%;
+    max-height: calc(50vh - 0.3*50vh);
 }
 
 .main-hello-box p {
     font-size: var(--sm-size) !important;
+}
+
+@media screen and (orientation: landscape) and (max-width:900px) {
+    .main-hello-box p {
+        font-size: 12px !important;
+    }
+}
+
+@media screen and (min-width: 460px) {
+    .main-hello-box {
+        max-width: 50%;
+    }
 }
 
 @media screen and (min-width: 768px) {
@@ -118,12 +131,11 @@ p.autoevaluation-paragraph {
         background-color: var(--white);
         border-radius: 15px;
         padding: 20px;
-        max-width: 35vw;
-        font-size: var(--md-size);
+        max-width: 50%;
     }
 
     .main-hello-box p {
-        font-size: var(--md-size) !important;
+        font-size: var(--sm-size) !important;
     }
 
 }
@@ -150,7 +162,7 @@ p.autoevaluation-paragraph {
         font-size: var(--sm-size);
     }
 }
-@media screen and (min-width:768px) {
+@media screen and (min-width:1084px) {
     .btn-general {
         width: 450px;
         font-size: var(--md-size);
@@ -162,6 +174,10 @@ p.autoevaluation-paragraph {
     color: var(--black);
     border: var(--cyan) var(--md-border);
     border-radius: 10px;
+}
+
+.btn-outline-cyan span {
+    font-size: var(--md-size);
 }
 
 .btn-outline-cyan:hover {
@@ -179,6 +195,11 @@ p.autoevaluation-paragraph {
 }
 
 .btn-outline-cyan a {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-decoration: none;
     color: var(--black);
 }
@@ -370,6 +391,7 @@ header {
     width: 100%;
     padding-left: 10px;
     overflow: hidden;
+    font-size: var(--md-size);
 }
 
 .published-input {
@@ -385,6 +407,7 @@ header {
 
 .published-input > span {
     vertical-align: bottom;
+    font-size: var(--md-size);
 }
 
 .r-form-field > input:focus,
@@ -628,6 +651,7 @@ button.accordion-button:focus {
 .btn-invisible > span {
     font-size: calc(var(--input-height)*0.8);
     line-height: 0;
+    font-size: var(--md-size);
 }
 
 .autoevaluation-options-list {

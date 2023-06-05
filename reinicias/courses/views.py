@@ -200,7 +200,6 @@ def details_course(request,course_id):
                         .filter(student=this_student,autoevaluation__course_unit=OuterRef('pk')) \
                         .order_by('-end_date') \
                         .values('calification')[:1]),None)).order_by('order')
-        print(this_units.values('calification'))
         
         current_calification = CourseStatus.get_end_calification(student=this_student,course=course_id)
 

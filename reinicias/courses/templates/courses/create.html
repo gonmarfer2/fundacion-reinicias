@@ -1,10 +1,10 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Curso {{course.pk}}{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
-{% include 'components/navbar2.html' with userGroups=userGroups %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
 <div class="container">
     <div class="row">
         <h1 class="my-4 simple-title col-12">{{title}}</h1>

@@ -1,13 +1,13 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Registro de estudiante{% endblock %}
 {% block css_imports %}{% endblock %}
 
 {% block body %}
 
-{% include 'components/navbar2.html' with userGroups=userGroups %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
 <div class="container-fluid">
-    {% include 'components/title2.html' with type="general-title" text="Registro de estudiante" %}
+    {% include 'components/title.html' with type="general-title" text="Registro de estudiante" %}
 
     <form method="post" class="container">{% csrf_token %}
         <div class="row mt-md-5">

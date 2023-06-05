@@ -1,8 +1,11 @@
-<template>
-    <b-row class="justify-content-center" @mouseover="hover = true" @mouseleave="hover = false">
-        <div class="gif-container">
-            <img class="gif-icon" :src="pictureHover" alt="GIF Icon"></img>
+{% load static %}
+<div class="row justify-content-center mb-4 id-{{type}}-row">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="gif-container" id="{{button_id}}-gif">
+            <img class="gif-icon" src="" alt="GIF Icon"></img>
         </div>
-        <cyanbutton :href="href" :text="text"></cyanbutton>
-    </b-row>
-</template>
+        <div id="{{button_id}}">
+            {% include 'components/cyanbutton.html' with href=href text=text %}
+        </div>
+    </div>
+</div>
