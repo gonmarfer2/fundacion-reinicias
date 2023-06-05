@@ -204,6 +204,10 @@ p.autoevaluation-paragraph {
     min-height: calc(100vh - 48px - 140px);
 }
 
+#id-course-container {
+    min-height: calc(100vh - 56px - 140px);
+}
+
 footer {
     width: 100vw;
     height: 48px;
@@ -460,6 +464,12 @@ header {
 .gif-icon {
     width: 64px;
     height: 64px;
+}
+
+.accordion {
+    max-height: 432px;
+    overflow-y: auto;
+    overflow-x: auto;
 }
 
 .accordion-button:disabled {

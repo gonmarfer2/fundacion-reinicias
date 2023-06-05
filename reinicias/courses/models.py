@@ -14,7 +14,6 @@ class Course(models.Model):
     index_document = models.FileField(upload_to='course/%Y/%m/%d',null=True,verbose_name="Índice de curso")
     preceeded_by = models.ManyToManyField("self",blank=True,symmetrical=False,verbose_name="Predecesores")
     creation_date = models.DateTimeField(auto_now_add=True,verbose_name='Fecha de creación')
-    # Tengo que validar que un curso A precedido por B no pueda preceder a B
 
     DEFAULT_COURSE_DURATION = 30
 

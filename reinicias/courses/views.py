@@ -56,18 +56,28 @@ def list_course(request):
     elif request.user.has_group('students'):
         this_person = Person.objects.get(user=request.user)
         this_student = Student.objects.get(person=this_person)
-        current_courses = Course.objects.filter(published=True).filter(coursestatus__completed=False,coursestatus__student=this_student).annotate(
-            units=Coalesce(Subquery(
-                unit_count.annotate(count=Count('pk')).values('count'),
-                output_field=models.IntegerField()
-                ),0))
-        done_courses = Course.objects.filter(published=True).filter(coursestatus__completed=True,coursestatus__student=this_student).annotate(
-            units=Coalesce(Subquery(
-                unit_count.annotate(count=Count('pk')).values('count'),
-                output_field=models.IntegerField()
-                ),0))
+        current_courses = Course.objects.filter(published=True).filter(
+            coursestatus__completed=False,
+            coursestatus__student=this_student) \
+            .annotate(
+                units=Coalesce(Subquery(
+                    unit_count.annotate(count=Count('pk')).values('count'),
+                    output_field=models.IntegerField()
+                    ),0)) \
+            .order_by('-creation_date')
+        done_courses = Course.objects.filter(published=True).filter(
+            coursestatus__completed=True,
+            coursestatus__student=this_student) \
+            .annotate(
+                units=Coalesce(Subquery(
+                    unit_count.annotate(count=Count('pk')).values('count'),
+                    output_field=models.IntegerField()
+                    ),0)) \
+            .order_by('-creation_date')
 
-        rest_of_courses = Course.objects.filter(published=True).exclude(pk__in=current_courses).exclude(pk__in=done_courses)
+        rest_of_courses = Course.objects.filter(published=True).exclude(pk__in=current_courses) \
+            .exclude(pk__in=done_courses) \
+            .order_by('-creation_date')
         for course in rest_of_courses:
             predecessors = course.preceeded_by.all()
             if predecessors is not None and not set(predecessors).issubset(set(done_courses)):
@@ -90,12 +100,12 @@ def list_course(request):
             units=Coalesce(Subquery(
                 unit_count.annotate(count=Count('pk')).values('count'),
                 output_field=models.IntegerField()
-                ),0))
+                ),0)).order_by('-creation_date')
         non_published_courses = Course.objects.filter(published=False).annotate(
             units=Coalesce(Subquery(
                 unit_count.annotate(count=Count('pk')).values('count'),
                 output_field=models.IntegerField()
-                ),0))
+                ),0)).order_by('-creation_date')
         
         context = {
             'publishedCourses':published_courses,
@@ -318,10 +328,19 @@ def reorder_course_units(course_id,this_unit,new_order,old_order):
     if CourseUnit.objects.filter(course=course_id, order=new_order).exists():
         # Reorder other units
         if new_order < old_order:
-            CourseUnit.objects.filter(course=course_id,order__gte=new_order,order__lt=old_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
+            CourseUnit.objects.filter(course=course_id,order__gte=new_order,order__lt=old_order) \
+                .exclude(pk=this_unit.pk) \
+                .order_by('-order') \
+                .update(order=F('order')+1)
         elif new_order > old_order:
-            CourseUnit.objects.filter(course=course_id,order__gt=new_order).exclude(pk=this_unit.pk).order_by('-order').update(order=F('order')+1)
-            CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lte=new_order).exclude(pk=this_unit.pk).order_by('order').update(order=F('order')-1)
+            CourseUnit.objects.filter(course=course_id,order__gt=new_order) \
+                .exclude(pk=this_unit.pk) \
+                .order_by('-order') \
+                .update(order=F('order')+1)
+            CourseUnit.objects.filter(course=course_id,order__gt=old_order,order__lte=new_order) \
+                .exclude(pk=this_unit.pk) \
+                .order_by('order') \
+                .update(order=F('order')-1)
 
 
 @require_http_methods(["GET"])

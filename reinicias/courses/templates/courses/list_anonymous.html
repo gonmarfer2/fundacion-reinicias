@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container mb-4">
         <div class="accordion accordion-flush" id="availableCourses">
         {% for course in courses %}
             {% include 'components/courserow_anonymous.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}
