@@ -158,7 +158,6 @@
             deleteButton.innerHTML = `<button id="id_remove_${data['id']}" class="btn-invisible d-flex align-items-center" onclick="remove_option('${data['id']}')" type="button"><span class="bi bi-x-square-fill text-danger text-center"></span></button>`;
             newRow.appendChild(deleteButton);
 
-            let divToAdd = document.getElementById('id-qoptions-div');
             form.insertBefore(newRow, form.lastElementChild);
         })
         .catch(function(error) {

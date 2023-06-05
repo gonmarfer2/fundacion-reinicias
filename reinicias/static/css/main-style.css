@@ -651,7 +651,6 @@ button.accordion-button:focus {
 .btn-invisible > span {
     font-size: calc(var(--input-height)*0.8);
     line-height: 0;
-    font-size: var(--md-size);
 }
 
 .autoevaluation-options-list {

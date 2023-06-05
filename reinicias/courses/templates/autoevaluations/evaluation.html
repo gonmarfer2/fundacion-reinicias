@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Editar autoevaluaci&oacute;n{% endblock %}
+{% block title %}Realizar autoevaluaci&oacute;n{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
@@ -77,7 +77,7 @@
         timer.style.width = `${(difference/60000) / duration * 100}%`;
 
         if (difference <= 0) {
-            let form = document.querySelector('form').submit();
+            document.querySelector('form').submit();
         }
     }, 5000);
 </script> 
