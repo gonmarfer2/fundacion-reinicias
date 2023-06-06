@@ -1,0 +1,6 @@
+SECRET_KEY=django-insecure-1*7mxgeu8-&yv)6#1v&z-85&eh4w7cl1a9wcyw(=dkiqg4peu9
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432

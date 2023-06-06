@@ -1,0 +1,59 @@
+version: '3.11.3'
+
+services:
+  db:
+    restart: always
+    container_name: reinicias_db
+    image: postgres:11-alpine
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - reinicias
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+  web:
+    restart: always
+    container_name: reinicias_web
+    image: reinicias_web:latest
+    build: .
+    command: ash -c "cd reinicias && python manage.py collectstatic --noinput && python manage.py makemigrations && python manage.py migrate && gunicorn -w 5 reinicias.wsgi --timeout=500 -b 0.0.0.0:5000"
+    expose:
+      - "5000"
+    volumes:
+      - static:/app/reinicias/static
+    depends_on:
+      - db
+    networks:
+      - reinicias
+
+  nginx:
+    restart: always
+    container_name: reinicias_nginx
+    image: reinicias_nginx:latest
+    build:
+        context: .
+        dockerfile: Dockerfile-nginx
+    volumes:
+      - static:/app/reinicias/static
+    ports:
+      - "8000:80"
+    depends_on:
+      - web
+    networks:
+      - reinicias
+
+volumes:
+  static:
+    name: reinicias_static
+  db:
+    name: reinicias_db
+
+networks:
+  reinicias:
+    name: reinicias
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.5.0.0/16
