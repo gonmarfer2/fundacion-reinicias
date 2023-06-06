@@ -8,7 +8,7 @@ from django.db.models import Count, OuterRef, Exists, F
 from django.db.models.functions import Coalesce 
 from django.db import models, transaction
 from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm, \
-    CourseUnitResourceCreateForm, CourseEditForm, QuestionCreateForm, QuestionEditForm, AutoevaluationEditForm
+    CourseUnitResourceCreateForm, CourseEditForm, QuestionEditForm, AutoevaluationEditForm
 from main.models import Person, Teacher
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime, timezone
@@ -195,6 +195,9 @@ def details_course(request,course_id):
     if Course.objects.filter(pk=course_id).count() == 0:
         raise Http404(ERROR_404_COURSE)
     elif request.user.has_group('students'):
+        if not Course.objects.get(pk=course_id).published:
+            raise PermissionDenied('Este curso no está publicado.')
+
         this_person = Person.objects.get(user=request.user)
         this_student = Student.objects.get(person=this_person)
         this_course = Course.objects.get(pk=course_id)
@@ -272,13 +275,13 @@ def get_blocked_units(this_units):
         first_unit = this_units.get(order=1)
         unit_block[first_unit.pk] = False
 
-        check_unit_tries(current_unit,autoev_block)
+        check_unit_tries(first_unit,autoev_block)
 
         for i in range(2,len(this_units)+1):
             previous_unit = this_units.get(order=(i-1))
             current_unit = this_units.get(order=(i))
 
-            if previous_unit.calification is None:
+            if previous_unit.calification is None or previous_unit.calification < 5:
                 unit_block[current_unit.pk] = True
             else:
                 unit_block[current_unit.pk] = False
@@ -340,6 +343,15 @@ def create_unit(request,course_id):
                 course = this_course
             )
             new_unit.save()
+
+            new_autoevaluation = Autoevaluation(
+                title=f'Autoevaluación del tema: {new_unit.title}',
+                duration=10,
+                instructions='Responda a las preguntas seleccionando la(s) respuesta(s) que considere correcta(s)',
+                penalization_factor=0.25,
+                course_unit=new_unit
+            )
+            new_autoevaluation.save()
 
             return redirect(f'/courses/{course_id}')
     context = {
@@ -683,26 +695,16 @@ def autoevaluation_add_question(request,autoevaluation_id):
     if Autoevaluation.objects.filter(pk=autoevaluation_id).count() == 0:
         raise Http404(ERROR_404_AUTOEV)
     
-    this_autoevaluation = Autoevaluation.objects.get(id=autoevaluation_id)
-    form = QuestionCreateForm()
-    if request.method == 'POST':
-        form = QuestionCreateForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.order = Question.get_last_order(this_autoevaluation.pk) + 1
-            question.autoevaluation = this_autoevaluation
-            question.save()
+    this_autoevaluation = Autoevaluation.objects.get(pk=autoevaluation_id)
+    new_question = Question.objects.create(
+        question="Nueva pregunta",
+        order=Question.get_last_order(this_autoevaluation.pk) + 1,
+        is_multiple=False,
+        autoevaluation=this_autoevaluation
+    )
+    new_question.save()
 
-            return redirect(f'/courses/autoevaluations/{autoevaluation_id}')
-
-    context = {
-        'autoevaluation':this_autoevaluation,
-        'userGroups':request.user.groups.all(),
-        'form':form,
-        'title': 'Crear pregunta'
-    }
-
-    return render(request,'autoevaluations/question_create.html',context)
+    return redirect(reverse('autoevaluation_edit_question',args=[this_autoevaluation.pk,new_question.pk]))
 
 
 @require_http_methods(["GET","POST"])
@@ -832,7 +834,6 @@ def autoevaluation_start(request,autoevaluation_id):
         autoevaluation=this_autoevaluation
     )
 
-
     questions = Question.objects.filter(autoevaluation=this_autoevaluation).order_by('order')
     options = {q:QuestionOption.objects.filter(question=q) for q in questions}
     question_points = {q:q.get_points() for q in questions}
@@ -881,7 +882,12 @@ def autoevaluation_process(request,autoevaluation_id):
     data = request.POST
     questions = Question.objects.filter(autoevaluation=this_autoevaluation)
     for question in questions:
-        if not question.is_multiple:
+        if question.is_multiple:
+            chosen_options = data.getlist(f'question-{question.pk}-option',None)
+            if chosen_options:
+                newly_chosen = QuestionOption.objects.filter(pk__in=chosen_options)
+                this_student.options_chosen.add(*newly_chosen)
+        else:
             chosen_option = data.get(f'question-{question.pk}-option',None)
             if chosen_option:
                 newly_chosen = QuestionOption.objects.get(pk=chosen_option)

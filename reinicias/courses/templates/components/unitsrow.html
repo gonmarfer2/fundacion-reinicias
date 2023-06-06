@@ -6,6 +6,7 @@
             {{unit.title}}
         </button>
     </h2>
+    {% if not block %}
     <div id="flush-collapse{{unit.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{unit.pk}}" data-bs-parent="#{{parent_id}}">
         <div class="pt-md-4 pb-md-2 pb-2">
             <div class="w-100">
@@ -34,4 +35,5 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>

@@ -88,11 +88,6 @@ class CourseUnitResourceCreateForm(forms.ModelForm):
         fields = ['resource']
 
 
-class QuestionCreateForm(forms.ModelForm):
-    class Meta:
-        model = Question
-        fields = ['question','is_multiple']
-
 class QuestionEditForm(forms.Form):
     this_question_id = forms.IntegerField(widget=forms.HiddenInput)
     question = forms.CharField(widget=forms.Textarea,label='Pregunta')
