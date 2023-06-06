@@ -37,7 +37,7 @@
         <div class="col-12">
             <div class="accordion accordion-flush" id="accordionUnits">
                 {% for unit in units %}
-                    {% include 'components/unitsrow.html' with unit=unit parent_id="accordionUnits" contents=unitContents|get_item:unit.pk block=unitShow|get_item:unit.pk %}
+                    {% include 'components/unitsrow.html' with unit=unit parent_id="accordionUnits" contents=unitContents|get_item:unit.pk block=unitShow|get_item:unit.pk autoev_block=autoevShow|get_item:unit.pk %}
                 {% endfor %}
             </div>
         </div>

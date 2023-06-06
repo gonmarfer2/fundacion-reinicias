@@ -3,6 +3,9 @@ from main.models import Person, Teacher
 from django.core.validators import MaxValueValidator, MinValueValidator
 from datetime import datetime, timezone, timedelta
 import re
+from django.db.models import OuterRef
+from django.db.models.functions import Coalesce
+from django.db.models.expressions import Subquery
 
 class Course(models.Model):
     # Existe el atributo error_messages para los campos que permite poner errores personalizados para claves por defecto
@@ -168,6 +171,11 @@ class Calification(models.Model):
         must_end = self.start_date + timedelta(minutes=self.autoevaluation.duration)
         return must_end
     
+    @staticmethod
+    def get_last_calification(student,autoevaluation):
+        califications = Calification.objects.filter(student=student,autoevaluation=autoevaluation).order_by('-end_date')
+        return califications.first() if califications.exists() else None
+    
 
 class CourseStatus(models.Model):
     completed = models.BooleanField(verbose_name="¿Completado?")
@@ -191,9 +199,18 @@ class CourseStatus(models.Model):
         autoevaluations = Autoevaluation.objects.filter(course_unit__in=units)
         if not autoevaluations.exists():
             return "-"
-        califications = Calification.objects.filter(student=student,autoevaluation__in=autoevaluations)
+        
+        califications = Autoevaluation.objects.filter(course_unit__in=units) \
+            .values('pk','course_unit') \
+            .annotate(last_calification=Coalesce(
+                Subquery(
+                    Calification.objects.filter(student=student,autoevaluation=OuterRef('pk')) \
+                        .order_by('-end_date').values('calification')[:1]),0.0)) \
+            .values('last_calification')
+        
+        print(califications)
         if not califications.exists():
             return "-"
-        calification_list = [c.get_value() for c in califications]
+        calification_list = [c.get('last_calification') for c in califications]
         sum_calification = sum(calification_list)/len(calification_list)
         return sum_calification

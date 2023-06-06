@@ -56,6 +56,9 @@ def list_course(request):
     elif request.user.has_group('students'):
         this_person = Person.objects.get(user=request.user)
         this_student = Student.objects.get(person=this_person)
+
+        check_if_course_time_has_expired(this_student)
+
         current_courses = Course.objects.filter(published=True).filter(
             coursestatus__completed=False,
             coursestatus__student=this_student) \
@@ -115,6 +118,15 @@ def list_course(request):
         
         return render(request,'courses/list_teachers.html',context)
 
+def check_if_course_time_has_expired(student):
+    inscribed_courses = CourseStatus.objects.filter(student=student)
+    for course in inscribed_courses:
+        if course.get_remaining_days(course.courses) <= 0:
+            this_course = course.courses
+            autoevaluations = Autoevaluation.objects.filter(course_unit__course=this_course)
+            Calification.objects.filter(student=student,autoevaluation__in=autoevaluations).delete()
+            student.options_chosen.filter(question__autoevaluation__in=autoevaluations).delete()
+            course.delete()
 
 @require_http_methods(["GET","POST"])
 @transaction.atomic()
@@ -186,32 +198,56 @@ def details_course(request,course_id):
         this_course = Course.objects.get(pk=course_id)
         this_units = CourseUnit.objects.filter(course=this_course)
 
-        completed_units = Calification.objects \
-                .filter(student=this_student,autoevaluation__course_unit__in=this_units) \
-                .values('autoevaluation__course_unit') \
-                .annotate(total=Count('autoevaluation__course_unit')) \
-                .order_by('total')
+        # Extrae temas 
+        last_calification_in_autoevaluations = Autoevaluation.objects.filter(course_unit__in=this_units) \
+            .values('pk','course_unit') \
+            .annotate(last_calification=Coalesce(
+                Subquery(
+                    Calification.objects.filter(student=this_student,autoevaluation=OuterRef('pk')) \
+                        .order_by('-end_date').values('pk')[:1]),None)) \
+            .values('last_calification')
         
-        this_units = this_units.annotate(completed=Coalesce(Exists(
+        completed_units = Calification.objects.filter(pk__in=last_calification_in_autoevaluations,calification__gte=5.0) \
+            .values('autoevaluation__course_unit')
+        
+        this_units = this_units.annotate(
+            completed=Coalesce(Exists(
                 completed_units.filter(autoevaluation__course_unit=OuterRef('pk'))
             ),False),
             calification=Coalesce(
                 Subquery(Calification.objects \
                         .filter(student=this_student,autoevaluation__course_unit=OuterRef('pk')) \
                         .order_by('-end_date') \
-                        .values('calification')[:1]),None)).order_by('order')
+                        .values('calification')[:1]),None),
+            tries=Coalesce(
+                Subquery(Calification.objects \
+                        .filter(student=this_student,autoevaluation__course_unit=OuterRef('pk')) \
+                        .values('autoevaluation__course_unit') \
+                        .annotate(tries_count=Count('pk')) \
+                        .values('tries_count')[:1]),0)            
+            ).order_by('order')
         
         current_calification = CourseStatus.get_end_calification(student=this_student,course=course_id)
+        if current_calification != '-' and current_calification >= 5.0:
+            course_finished = True
+            for unit in this_units:
+                if unit.completed == False:
+                    course_finished = False
+                    break
+            if course_finished:
+                CourseStatus.objects.filter(student=this_student,courses=this_course).update(completed=True)
 
         unit_contents = {u.pk:CourseUnitResource.objects.filter(course_unit=u) for u in this_units}
-        unit_block = {}
-        if this_units.count() > 0:
-            unit_block = {this_units.get(order=1).pk:False}
-            for i in range(2,len(this_units)+1):
-                if this_units.get(order=(i-1)).calification is None:
-                    unit_block[this_units.get(order=(i)).pk] = True
-                else:
-                    unit_block[this_units.get(order=(i)).pk] = False
+
+        autoevaluations = Autoevaluation.objects.filter(course_unit__in=this_units)
+        for unit in this_units:
+            last_calification = Calification.get_last_calification(this_student,autoevaluations.get(course_unit=unit))
+            if last_calification:
+                has_week_passed = (datetime.now(timezone.utc) - last_calification.end_date)
+                if unit.completed == False and unit.tries == 3 and has_week_passed.days >= 7:
+                    unblock_unit(this_student,autoevaluations.get(course_unit=unit))
+        
+        unit_block,autoev_block = get_blocked_units(this_units)
 
         remaining_days = CourseStatus.objects.get(student=this_student,courses=this_course).get_remaining_days(this_course)
 
@@ -221,6 +257,7 @@ def details_course(request,course_id):
             'completedUnits':completed_units,
             'unitContents':unit_contents,
             'unitShow':unit_block,
+            'autoevShow':autoev_block,
             'currentCalification':current_calification,
             'remainingDays': remaining_days,
             'userGroups':request.user.groups.all()
@@ -239,6 +276,40 @@ def details_course(request,course_id):
         }
         return render(request,'courses/details_teachers.html',context)
 
+def get_blocked_units(this_units):
+    unit_block = {}
+    autoev_block = {}
+    if this_units.count() > 0:
+        first_unit = this_units.get(order=1)
+        unit_block[first_unit.pk] = False
+
+        if first_unit.tries == 3:
+            if first_unit.completed:
+                autoev_block[first_unit.pk] = False
+            else:
+                autoev_block[first_unit.pk] = True
+        else:
+            autoev_block[first_unit.pk] = False
+
+        for i in range(2,len(this_units)+1):
+            previous_unit = this_units.get(order=(i-1))
+            current_unit = this_units.get(order=(i))
+
+            if previous_unit.calification is None:
+                unit_block[current_unit.pk] = True
+            else:
+                unit_block[current_unit.pk] = False
+                if current_unit.tries == 3:
+                    if current_unit.completed:
+                        autoev_block[current_unit.pk] = False
+                    else:
+                        autoev_block[current_unit.pk] = True
+                else:
+                    autoev_block[current_unit.pk] = False
+    return (unit_block,autoev_block)
+
+def unblock_unit(student,autoevaluation):
+    Calification.objects.filter(student=student,autoevaluation=autoevaluation).delete()
 
 @require_http_methods(["GET","POST"])
 @group_required("teachers")
