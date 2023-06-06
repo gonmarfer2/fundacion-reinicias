@@ -1,11 +1,11 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Cursos{% endblock %}
 
 {% block body %}
-{% include 'components/navbar2.html' with userGroups=userGroups %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
 <div class="container-fluid">
-    {% include 'components/title2.html' with type="teacher-title" text="Cursos" %}
+    {% include 'components/title.html' with type="teacher-title" text="Cursos" %}
 
     <div id="id-register-row" class="row my-4 px-5 justify-content-center">
         <div class="col-10 div-ask-student-register">
@@ -18,13 +18,13 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-6 d-flex justify-content-center">
-                    {% include 'components/cyanbutton2.html' with href='register/' text='Registro como estudiante' %}
+                    {% include 'components/cyanbutton.html' with href='register/' text='Registro como estudiante' %}
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container">
+    <div class="container mb-4">
         <div class="accordion accordion-flush" id="availableCourses">
         {% for course in courses %}
             {% include 'components/courserow_anonymous.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}

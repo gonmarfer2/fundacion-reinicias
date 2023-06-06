@@ -1,26 +1,43 @@
-<template>
-  {% load static %}
-  <div class="navabr-full">
-    <div class="top-navbar"></div>
-    <b-navbar toggleable="md" id="id-navbar" class="bottom-navbar border-bottom border-1 border-dark">
-        <b-navbar-brand href="/">
-          <img class="logo-reinicias" src="{% static 'assets/fundacionReiniciasLogo.png' %}" alt="Logo de la Fundación Reinicias">
-        </b-navbar-brand>
-    
-        <b-navbar-toggle target="navbar-toggle-collapse">
-          <template #default="{ expanded }">
-            <b-icon v-if="expanded" icon="chevron-bar-up"></b-icon>
-            <b-icon v-else icon="chevron-bar-down"></b-icon>
-          </template>
-        </b-navbar-toggle>
-    
-        <b-collapse id="navbar-toggle-collapse" is-nav>
-          <b-navbar-nav class="ml-auto">
-            <b-nav-item class="ml-md-5" href="{% url 'course_list' %}" v-if="userGroups.length === 0">Cursos</b-nav-item>
-            <b-nav-item class="ml-md-5" href="{% url 'login' %}" v-if="userGroups.length === 0">Iniciar sesi&oacute;n</b-nav-item>
-            <b-nav-item class="ml-md-5" href="{% url 'logout' %}" v-if="userGroups.length > 0">Cerrar sesi&oacute;n</b-nav-item>
-          </b-navbar-nav>
-        </b-collapse>
-    </b-navbar>
-  </div>
-</template>
+{% load static %}
+{% load extra_tags %}
+<div class="navbar-full">
+  <div class="top-navbar"></div>
+  <nav class="navbar navbar-expand-lg border-bottom border-1 border-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <img class="logo-reinicias" src="{% static 'assets/fundacionReiniciasLogo.png' %}" alt="Logo de la Fundación Reinicias">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Inicio</a>
+          </li>
+          {% if userGroups|length == 0 %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
+          </li>
+          {% elif userGroups|length > 0 %}
+            {% if userGroups|has_group:"students" or userGroups|has_group:"teachers" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
+              </li>
+            {% endif %}
+          {% endif %}
+        </ul>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          {% if userGroups|length == 0 %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Iniciar sesi&oacute;n</a>
+            </li>
+          {% elif userGroups|length > 0 %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Cerrar sesi&oacute;n</a>
+            </li>
+          {% endif %}
+      </div>
+    </div>
+  </nav>
+</div>

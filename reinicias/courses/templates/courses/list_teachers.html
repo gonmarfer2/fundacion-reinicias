@@ -1,4 +1,4 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Cursos{% endblock %}
 {% block css_imports %}
@@ -7,10 +7,10 @@
 {% endblock %}
 
 {% block body %}
-{% include 'components/navbar2.html' with userGroups=userGroups %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
 <div class="container-fluid">
-    {% include 'components/title2.html' with type="teacher-title" text="Cursos" %}
-    <div class="container">
+    {% include 'components/title.html' with type="teacher-title" text="Cursos" %}
+    <div class="container mb-4">
 
         <div class="row">
             <div class="col-12 col-sm-4 d-flex justify-content-center">
@@ -24,14 +24,14 @@
         {% include 'components/coursesection.html' with text="Publicados" %}
         <div class="accordion accordion-flush" id="accordionPublished">
             {% for course in publishedCourses %}
-                {% include 'components/courserow2.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}
             {% endfor %}
         </div>
         
         {% include 'components/coursesection.html' with text="En preparaci&oacute;n" %}
         <div class="accordion accordion-flush" id="accordionNonPublished">
             {% for course in nonPublishedCourses %}
-                {% include 'components/courserow2.html' with course=course parent_id="accordionNonPublished" type="seelist" editable=True %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionNonPublished" type="seelist" editable=True %}
             {% endfor %}
         </div>
         

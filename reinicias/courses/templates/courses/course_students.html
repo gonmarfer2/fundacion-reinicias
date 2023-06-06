@@ -1,11 +1,11 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Cursos{% endblock %}
 
 {% block body %}
-{% include 'components/navbar2.html' with userGroups=userGroups %}
-<div class="container-fluid">
-    {% include 'components/title2.html' with type="teacher-title" text="Estudiantes - "|add:course.name %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container" class="container-fluid">
+    {% include 'components/title.html' with type="general-title" text="Estudiantes - "|add:course.name %}
     <div class="container">
         <div class="row">
             <div class="col-12 table-responsive">

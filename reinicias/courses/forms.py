@@ -1,6 +1,7 @@
+from typing import Any, Dict
 from django import forms
 from main.models import Person, User
-from .models import CourseUnit, Course, CourseUnitResource
+from .models import CourseUnit, Course, CourseUnitResource, Question, QuestionOption, Autoevaluation
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 
@@ -85,3 +86,40 @@ class CourseUnitResourceCreateForm(forms.ModelForm):
     class Meta:
         model = CourseUnitResource
         fields = ['resource']
+
+
+class QuestionEditForm(forms.Form):
+    this_question_id = forms.IntegerField(widget=forms.HiddenInput)
+    question = forms.CharField(widget=forms.Textarea,label='Pregunta')
+    order = forms.IntegerField(min_value=1,label='Orden',widget=forms.NumberInput(attrs={'min':'1','step':'1'}))
+    is_multiple = forms.BooleanField(label='Es de respuesta múltiple',required=False)
+
+    def clean(self) -> Dict[str, Any]:
+        qoptions = QuestionOption.objects.filter(question=self.data.get('this_question_id'))
+        # Debe haber más de una opción
+        if qoptions.count() < 2:
+            raise ValidationError(
+                'Debe haber al menos dos respuestas',
+                code='min_number_answer'
+            )
+        # Debe haber alguna respuesta correcta
+
+        if not qoptions.filter(is_correct=True).exists():
+            raise ValidationError(
+                'Debe haber al menos una respuesta correcta',
+                code='min_correct_answer'
+            )
+
+        # Si el formulario es de respuesta única, no debe haber más de una respuesta correcta
+        if not self.data.get('is_multiple') and qoptions.filter(is_correct=True).count() > 1:
+            raise ValidationError(
+                'Si la pregunta no es de respuesta múltiple, solo debe tener una respuesta correcta',
+                code='no_mult_one_answer'
+            )
+
+        return super().clean()
+
+class AutoevaluationEditForm(forms.ModelForm):
+    class Meta:
+        model = Autoevaluation
+        fields = ['title','duration','instructions','penalization_factor']

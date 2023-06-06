@@ -11,6 +11,7 @@
 
     --md-border: solid 3px;
     
+    --xs-size: 14px;
     --sm-size: 18px;
     --md-size: 24px;
     --lg-size: 36px;
@@ -41,9 +42,20 @@
     font-weight: bold;
 }
 
+span {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--xs-size);
+}
+
 p {
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: var(--md-size);
+    color: var(--black);
+}
+
+p.autoevaluation-paragraph {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
     color: var(--black);
 }
 
@@ -81,6 +93,7 @@ p {
     height: 100%;
     position: relative;
     object-fit: cover;
+    padding: 0;
 }
 
 .main-hello-box {
@@ -90,12 +103,24 @@ p {
     background-color: var(--white);
     border-radius: 15px;
     padding: 20px;
-    max-width: 100%;
-    
+    max-width: 90%;
+    max-height: calc(50vh - 0.3*50vh);
 }
 
 .main-hello-box p {
     font-size: var(--sm-size) !important;
+}
+
+@media screen and (orientation: landscape) and (max-width:900px) {
+    .main-hello-box p {
+        font-size: 12px !important;
+    }
+}
+
+@media screen and (min-width: 460px) {
+    .main-hello-box {
+        max-width: 50%;
+    }
 }
 
 @media screen and (min-width: 768px) {
@@ -106,12 +131,11 @@ p {
         background-color: var(--white);
         border-radius: 15px;
         padding: 20px;
-        max-width: 35vw;
-        font-size: var(--md-size);
+        max-width: 50%;
     }
 
     .main-hello-box p {
-        font-size: var(--md-size) !important;
+        font-size: var(--sm-size) !important;
     }
 
 }
@@ -138,7 +162,7 @@ p {
         font-size: var(--sm-size);
     }
 }
-@media screen and (min-width:768px) {
+@media screen and (min-width:1084px) {
     .btn-general {
         width: 450px;
         font-size: var(--md-size);
@@ -150,6 +174,10 @@ p {
     color: var(--black);
     border: var(--cyan) var(--md-border);
     border-radius: 10px;
+}
+
+.btn-outline-cyan span {
+    font-size: var(--md-size);
 }
 
 .btn-outline-cyan:hover {
@@ -167,6 +195,11 @@ p {
 }
 
 .btn-outline-cyan a {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-decoration: none;
     color: var(--black);
 }
@@ -192,7 +225,17 @@ p {
     min-height: calc(100vh - 48px - 140px);
 }
 
+#id-course-container {
+    min-height: calc(100vh - 56px - 140px);
+}
+
 footer {
+    width: 100vw;
+    height: 48px;
+    background-color: var(--cyan);
+}
+
+header {
     width: 100vw;
     height: 48px;
     background-color: var(--cyan);
@@ -279,6 +322,9 @@ footer {
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
     font-size: var(--md-size);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .r-form-field {
@@ -289,6 +335,8 @@ footer {
     width: 100%;
     padding: 0;
     min-height: var(--input-height);
+    display: flex;
+    align-items: center;
 }
 
 .r-form-field > input[type="text"],
@@ -317,7 +365,7 @@ footer {
 .r-form-field > input[type="checkbox"] {
     padding: 0 15px;
     width: 100%;
-    vertical-align: middle;
+    height: calc(var(--input-height)/2);
 }
 
 .r-form-field > input[type="file"] {
@@ -343,6 +391,7 @@ footer {
     width: 100%;
     padding-left: 10px;
     overflow: hidden;
+    font-size: var(--md-size);
 }
 
 .published-input {
@@ -358,6 +407,7 @@ footer {
 
 .published-input > span {
     vertical-align: bottom;
+    font-size: var(--md-size);
 }
 
 .r-form-field > input:focus,
@@ -377,12 +427,12 @@ footer {
 }
 
 .r-form-button {
-    width: 210px;
-    height: 80px;
+    width: 150px;
+    height: 50px;
     color: var(--white);
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
-    font-size: var(--md-size);
+    font-size: var(--sm-size);
     background-image: conic-gradient(var(--cyan) 10deg, var(--purple) 180deg, var(--cyan) 360deg);
     border: 0;
     border-radius: 10px;
@@ -393,6 +443,14 @@ footer {
 }
 
 .courses-button {
+    width: 150px;
+    height: 50px;
+    border: 0;
+    border-radius: 10px;
+    display: flex;
+}
+
+.autoevaluation-button {
     width: 150px;
     height: 50px;
     border: 0;
@@ -429,6 +487,12 @@ footer {
 .gif-icon {
     width: 64px;
     height: 64px;
+}
+
+.accordion {
+    max-height: 432px;
+    overflow-y: auto;
+    overflow-x: auto;
 }
 
 .accordion-button:disabled {
@@ -541,4 +605,56 @@ button.accordion-button:focus {
 
 .border-cyan {
     border: var(--cyan) solid 2px;
+}
+
+.autoevaluation-title {
+    font-weight: bold;
+    font-size: var(--md-size);
+}
+
+.autoevaluation-instructions {
+    border-top: var(--cyan) solid 1px;
+    border-bottom: var(--cyan) solid 1px;
+    margin: 24px 0;
+    padding: 24px 0;
+}
+
+.delete-question {
+    font-size: 48px;
+    line-height: 0;
+}
+
+.delete-question:hover {
+    text-shadow: 0 0 2px var(--black);
+}
+
+.question-title {
+    font-family: 'OpenSans',Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: var(--sm-size);
+}
+
+.question-option-text {
+    font-family: 'OpenSans',Arial, Helvetica, sans-serif;
+    font-size: var(--xs-size);
+}
+
+.btn-invisible {
+    background-color: transparent;
+    border: none;
+}
+
+.btn-invisible:hover {
+    text-shadow: 0 0 2px var(--black);
+}
+
+.btn-invisible > span {
+    font-size: calc(var(--input-height)*0.8);
+    line-height: 0;
+}
+
+.autoevaluation-options-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }

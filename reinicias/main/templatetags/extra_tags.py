@@ -10,3 +10,7 @@ def has_group(value,arg):
 @register.filter
 def get_item(value,arg):
     return value.get(arg)
+
+@register.filter
+def add_int(value,arg):
+    return f'{value}{arg}'

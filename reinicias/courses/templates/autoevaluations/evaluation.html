@@ -1,0 +1,84 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Realizar autoevaluaci&oacute;n{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+<header></header>
+<div class="container">
+    <div class="row text-center text-md-end">
+        <h1 class="my-4 simple-title col-12">{{autoevaluation.title|upper}}</h1>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center text-md-end">
+            <span class="autoevaluation-title">{{autoevaluation.course_unit.title}}</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-3">
+            <span>{{autoevaluation.duration}} minutos</span>
+        </div>
+        <div class="col-12 col-md-9">
+            <div class="progress">
+                {% load humanize %}
+                {% widthratio calification.get_remaining_time autoevaluation.duration 100 as bar_width %}
+                <div id="id-timer" class="progress-bar" role="progressbar" aria-label="Tiempo restante" style="width: {{bar_width}}%" aria-valuenow="{{calification.get_remaining_time}}" aria-valuemin="0" aria-valuemax="100">
+                    <span class="bi bi-hourglass-split text-white"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            {% load humanize %}
+            {% widthratio autoevaluation.penalization_factor 1 100 as percentage %}
+            <span>Cada error resta un {{percentage}}% del valor de la pregunta</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 autoevaluation-instructions">
+            <p class="autoevaluation-paragraph">{{autoevaluation.instructions}}</p>
+        </div>
+    </div>
+    <form method="post" action="{% url 'process_autoevaluation' autoevaluation.pk %}" class="container" enctype="multipart/form-data">{% csrf_token %}
+        {% for question in questions %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-8 col-md-9 col-lg-10">
+                        <span class="question-title">{{question.order}}&period;&nbsp;{{question.question}}</span>
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2 text-end">
+                        <span>{{question_points|get_item:question|floatformat:2}} puntos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                {% load extra_tags %}
+                {% include 'components/autoevaluation_options.html' with options=options|get_item:question question=question multiple=question.is_multiple %}
+            </div>
+        </div> 
+        {% endfor %}
+
+        <div class="row justify-content-center my-3">
+            <button type="submit" class="r-form-button">Enviar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    var timerInterval = setInterval(function() {
+        let nowT = Date.now();
+        let must_finish = new Date(JSON.parse('{{end_date|safe}}'));
+        let difference = must_finish - nowT;
+        let duration = JSON.parse('{{duration|safe}}');
+        
+        let timer = document.getElementById('id-timer');
+        timer.style.width = `${(difference/60000) / duration * 100}%`;
+
+        if (difference <= 0) {
+            document.querySelector('form').submit();
+        }
+    }, 5000);
+</script> 
+{% endblock %}

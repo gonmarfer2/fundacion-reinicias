@@ -14,7 +14,7 @@
                 {% for content in contents %}
                     <li class="w-100">
                         {% if not published %}
-                        <a href="units/{{unit.pk}}/resources/{{content.pk}}/remove" onclick="confirm('¿Está seguro de querer borrar {{content.get_file_with_extension}}')" class="bi bi-x-square-fill text-danger"></a>
+                        <a href="units/{{unit.pk}}/resources/{{content.pk}}/remove" onclick="return confirm('¿Está seguro de querer borrar {{content.get_file_with_extension}}?')" class="bi bi-x-square-fill text-danger"></a>
                         &nbsp;
                         {% endif %}
                         <strong class="text-capitalize">{{content}}:&nbsp;</strong>
@@ -25,14 +25,14 @@
             </div>
             <div class="w-100 row align-items-center">
                 <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
-                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="autoevaluation/{{unit.pk}}/" >Ver autoevaluaci&oacute;n</a></button>
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="/courses/autoevaluations/{{unit.autoevaluation.pk}}/" >Ver autoevaluaci&oacute;n</a></button>
                 </div>
                 {% if not published %}
                 <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
                     <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/edit" >Editar tema</a></button>
                 </div>
                 <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
-                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/delete" onclick="confirm('¿Está seguro de querer eliminar el tema {{unit.title}}')">Borrar tema</a></button>
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/delete" onclick="return confirm('¿Está seguro de querer eliminar el tema {{unit.title}}?')">Borrar tema</a></button>
                 </div>
                 <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
                     <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/resources/add/">A&ntilde;adir recurso</a></button>

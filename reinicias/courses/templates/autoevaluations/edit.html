@@ -1,13 +1,13 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Curso {{course.pk}}{% endblock %}
+{% block title %}Editar autoevaluaci&oacute;n{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
 <div class="container">
     <div class="row">
-        <h1 class="my-4 simple-title col-12">{{title}}</h1>
+        <h1 class="my-4 simple-title col-12">Editar autoevaluaci&oacute;n</h1>
     </div>
 
     <div class="row">
@@ -23,7 +23,7 @@
         <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
             <div class="row">
                 {% for field in form %}
-                <div class="col-12 mb-2">
+                <div class="col-12 col-md-6 mb-2">
                     <div class="w-100 r-form-tag">
                         {{field.label_tag}}
                     </div>

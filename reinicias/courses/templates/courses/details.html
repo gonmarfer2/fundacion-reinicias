@@ -1,11 +1,11 @@
-{% extends 'layouts/base_Bootstrap5.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Curso {{course.pk}}{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
-{% include 'components/navbar2.html' with userGroups=userGroups %}
-<div class="container">
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container" class="container">
     <h1 class="my-4 simple-title">{{course.name}}</h1>
 
     <div class="row">
@@ -37,7 +37,7 @@
         <div class="col-12">
             <div class="accordion accordion-flush" id="accordionUnits">
                 {% for unit in units %}
-                    {% include 'components/unitsrow.html' with unit=unit parent_id="accordionUnits" contents=unitContents|get_item:unit.pk block=unitShow|get_item:unit.pk %}
+                    {% include 'components/unitsrow.html' with unit=unit parent_id="accordionUnits" contents=unitContents|get_item:unit.pk block=unitShow|get_item:unit.pk autoev_block=autoevShow|get_item:unit.pk %}
                 {% endfor %}
             </div>
         </div>
