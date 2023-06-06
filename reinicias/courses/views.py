@@ -118,6 +118,7 @@ def list_course(request):
         
         return render(request,'courses/list_teachers.html',context)
 
+
 def check_if_course_time_has_expired(student):
     inscribed_courses = CourseStatus.objects.filter(student=student)
     for course in inscribed_courses:
@@ -127,6 +128,7 @@ def check_if_course_time_has_expired(student):
             Calification.objects.filter(student=student,autoevaluation__in=autoevaluations).delete()
             student.options_chosen.filter(question__autoevaluation__in=autoevaluations).delete()
             course.delete()
+
 
 @require_http_methods(["GET","POST"])
 @transaction.atomic()
@@ -227,25 +229,11 @@ def details_course(request,course_id):
                         .values('tries_count')[:1]),0)            
             ).order_by('order')
         
-        current_calification = CourseStatus.get_end_calification(student=this_student,course=course_id)
-        if current_calification != '-' and current_calification >= 5.0:
-            course_finished = True
-            for unit in this_units:
-                if unit.completed == False:
-                    course_finished = False
-                    break
-            if course_finished:
-                CourseStatus.objects.filter(student=this_student,courses=this_course).update(completed=True)
+        current_calification = set_completed_courses(student=this_student,course=this_course,units=this_units)
 
         unit_contents = {u.pk:CourseUnitResource.objects.filter(course_unit=u) for u in this_units}
 
-        autoevaluations = Autoevaluation.objects.filter(course_unit__in=this_units)
-        for unit in this_units:
-            last_calification = Calification.get_last_calification(this_student,autoevaluations.get(course_unit=unit))
-            if last_calification:
-                has_week_passed = (datetime.now(timezone.utc) - last_calification.end_date)
-                if unit.completed == False and unit.tries == 3 and has_week_passed.days >= 7:
-                    unblock_unit(this_student,autoevaluations.get(course_unit=unit))
+        unblock_units(student=this_student,units=this_units)
         
         unit_block,autoev_block = get_blocked_units(this_units)
 
@@ -276,6 +264,7 @@ def details_course(request,course_id):
         }
         return render(request,'courses/details_teachers.html',context)
 
+
 def get_blocked_units(this_units):
     unit_block = {}
     autoev_block = {}
@@ -283,13 +272,7 @@ def get_blocked_units(this_units):
         first_unit = this_units.get(order=1)
         unit_block[first_unit.pk] = False
 
-        if first_unit.tries == 3:
-            if first_unit.completed:
-                autoev_block[first_unit.pk] = False
-            else:
-                autoev_block[first_unit.pk] = True
-        else:
-            autoev_block[first_unit.pk] = False
+        check_unit_tries(current_unit,autoev_block)
 
         for i in range(2,len(this_units)+1):
             previous_unit = this_units.get(order=(i-1))
@@ -299,17 +282,42 @@ def get_blocked_units(this_units):
                 unit_block[current_unit.pk] = True
             else:
                 unit_block[current_unit.pk] = False
-                if current_unit.tries == 3:
-                    if current_unit.completed:
-                        autoev_block[current_unit.pk] = False
-                    else:
-                        autoev_block[current_unit.pk] = True
-                else:
-                    autoev_block[current_unit.pk] = False
+                check_unit_tries(current_unit,autoev_block)
     return (unit_block,autoev_block)
 
-def unblock_unit(student,autoevaluation):
-    Calification.objects.filter(student=student,autoevaluation=autoevaluation).delete()
+
+def check_unit_tries(unit,block_dict):
+    if unit.tries == 3:
+        if unit.completed:
+            block_dict[unit.pk] = False
+        else:
+            block_dict[unit.pk] = True
+    else:
+        block_dict[unit.pk] = False    
+
+
+def set_completed_courses(student,course,units):
+    current_calification = CourseStatus.get_end_calification(student=student,course=course)
+    if current_calification != '-' and current_calification >= 5.0:
+        course_finished = True
+        for unit in units:
+            if unit.completed == False:
+                course_finished = False
+                break
+        if course_finished:
+            CourseStatus.objects.filter(student=student,courses=course).update(completed=True)
+    return current_calification
+
+
+def unblock_units(student,units):
+    autoevaluations = Autoevaluation.objects.filter(course_unit__in=units)
+    for unit in units:
+        last_calification = Calification.get_last_calification(student,autoevaluations.get(course_unit=unit))
+        if last_calification:
+            has_week_passed = (datetime.now(timezone.utc) - last_calification.end_date)
+            if unit.completed == False and unit.tries == 3 and has_week_passed.days >= 7:
+                Calification.objects.filter(student=student,autoevaluation=autoevaluations.get(course_unit=unit)).delete()
+
 
 @require_http_methods(["GET","POST"])
 @group_required("teachers")
