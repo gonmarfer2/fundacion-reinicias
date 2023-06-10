@@ -17,7 +17,7 @@ services:
     container_name: reinicias_web
     image: reinicias_web:latest
     build: .
-    command: ash -c "cd reinicias && python manage.py collectstatic --noinput && python manage.py makemigrations && python manage.py migrate && gunicorn -w 5 reinicias.wsgi --timeout=500 -b 0.0.0.0:5000"
+    command: ash -c "cd reinicias && python manage.py collectstatic --noinput && python manage.py makemigrations && python manage.py makemigrations courses && python manage.py migrate && gunicorn -w 5 reinicias.wsgi --timeout=500 -b 0.0.0.0:5000"
     expose:
       - "5000"
     volumes:
