@@ -25,6 +25,14 @@
                 <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
               </li>
             {% endif %}
+            {% if userGroups|has_group:"technics" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'technics_user_list' %}">Lista de usuarios</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Sesiones</a>
+              </li>
+            {% endif %}
           {% endif %}
         </ul>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

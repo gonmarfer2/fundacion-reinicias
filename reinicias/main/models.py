@@ -65,14 +65,24 @@ class Person(models.Model):
     def __str__(self) -> str:
         return f"{self.name} {self.last_name}"
 
+
 class Technic(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return str(self.person)
     
+
 class Teacher(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
+
+    def __str__(self) -> str:
+        return str(self.person)
+    
+
+class Patient(models.Model):
+    person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
+    school = models.CharField(max_length=255,verbose_name='Centro Educativo')
 
     def __str__(self) -> str:
         return str(self.person)

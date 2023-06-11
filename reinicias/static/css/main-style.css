@@ -217,6 +217,10 @@ p.autoevaluation-paragraph {
     align-self: center;
 }
 
+#id-anoncourse-container {
+    min-height: calc(100vh - 80px - 123.5px);
+}
+
 #id-main-container {
     min-height: calc(100vh - 48px - 123.5px);
 }
@@ -229,14 +233,18 @@ p.autoevaluation-paragraph {
     min-height: calc(100vh - 56px - 140px);
 }
 
+#id-technic-container {
+    min-height: calc(100vh - 56px - 140px);
+}
+
 footer {
-    width: 100vw;
+    width: 100%;
     height: 48px;
     background-color: var(--cyan);
 }
 
 header {
-    width: 100vw;
+    width: 100%;
     height: 48px;
     background-color: var(--cyan);
 }
@@ -298,7 +306,8 @@ header {
     background-size: cover;
     height: var(--title-height);
     align-items: center;
-    width: 100vw;
+    width: 100%;
+    margin: 0;
 }
 
 .technic-title {
@@ -575,7 +584,8 @@ button.accordion-button:focus {
     align-self: center;
 }
 
-.form-control.course-filter {
+.form-control.course-filter,
+.form-select.course-filter {
     font-family: 'OpenSans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-size: var(--sm-size);
     color: var(--grey);
@@ -657,4 +667,37 @@ button.accordion-button:focus {
     list-style-type: none;
     padding: 0;
     margin: 0;
+}
+
+.page-item > a {
+    background-color: var(--white);
+    color: var(--black);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item.active > a {
+    background-image: linear-gradient(var(--cyan),var(--purple));
+    color: var(--white);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item:hover > a {
+    background-image: linear-gradient(var(--cyan),var(--purple));
+    color: var(--white);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item:first-child > a,
+.page-item.active:first-child > a {
+    border-radius: 10px 0 0 10px;
+    border-width: 2px 0 2px 2px;
+}
+
+.page-item:last-child > a,
+.page-item.active:last-child > a {
+    border-radius: 0 10px 10px 0;
+    border-width: 2px 2px 2px 0;
 }

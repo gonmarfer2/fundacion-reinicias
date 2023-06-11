@@ -3,7 +3,7 @@
 {% block title %}Inicio de sesi&oacute;n{% endblock %}
 
 {% block body %}
-<div class="container-fluid" id="id-form-container">
+<div id="id-form-container">
     {% include 'components/title.html' with type="general-title" text="Iniciar sesi&oacute;n" %}
     <form method="post" class="container">{% csrf_token %}
         <div class="row r-form-container mt-md-5">

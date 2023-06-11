@@ -1,0 +1,77 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="technic-title" text="Lista de usuarios" %}
+    <div class="container">
+        <div id="id-filter-panel" class="row">
+            <div class="col-3 d-none d-md-flex justify-content-start align-items-center">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="#">Nuevo miembro</a></button>
+            </div>
+            <div class="col-12 col-md-9">
+                <form action="#" method="POST" class="form my-4 input-group">
+                    <input type="text" class="form-control course-filter" name="query" placeholder="Filtra por nombre...">
+                    <select class="form-select course-filter" name="role" placeholder="Filtra por rol...">
+                        <option selected value="0">Seleccione un rol...</option>
+                        {% for role in roles %}
+                            <option value="role.pk">{{role|capfirst}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
+                </form>
+            </div>
+            <div class="col-12 d-flex d-md-none align-items-center">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="#">Nuevo miembro</a></button>
+            </div>
+        </div>
+
+        <div id="id-table" class="row mt-5 mt-md-3">
+            <div class="col-12 table-responsive">
+                <table class="table table-hover">
+                    <caption>Usuarios en el sistema</caption>
+                    <thead>
+                        <th scope="col">Usuario</th>
+                        <th scope="col">Nombre y apellidos</th>
+                        <th scope="col">Roles</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col"></th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for user in users %}
+                            <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{user.pk}}'">
+                                <td>{{user.user.username}}</td>
+                                <td>{{user}}</td>
+                                <td>{{user.user.groups.all|join:","}}</td>
+                                <td>{{user.user.email}}</td>
+                                <td class="bi bi-chevron-right"></td>
+                            </tr>                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if pages.has_previous or pages.has_next %}
+        <div id="id-pagination" class="row">
+            <nav aria-label="Paginación de ususarios">
+                <ul class="pagination justify-content-end">
+                    {% if pages.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'-1'}}">Anterior</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'-1'}}">{{pages.current|add:"-1"}}</a></li>
+                    {% endif %}
+                    <li class="page-item active"><a class="page-link" href="?page={{pages.current}}">{{pages.current}}</a></li>
+                    {% if pages.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'1'}}">{{pages.current|add:"1"}}</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'1'}}">Siguiente</a></li>
+                    {% endif %}
+                </ul>
+              </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
