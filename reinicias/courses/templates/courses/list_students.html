@@ -13,11 +13,9 @@
     <div class="container mb-4">
 
         <form action="#" method="POST" class="form row my-4">
-            <div class="col-8">
+            <div class="col-12 input-group">
                 <input type="text" class="form-control course-filter" name="query" placeholder="Filtra cursos por nombre...">
-            </div>
-            <div class="col-4">
-                <button type="submit" class="r-form-button">Filtrar</button>
+                <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
             </div>
         </form>
 
@@ -97,14 +95,14 @@
     });
 
     function createAccordionElement(course,parent_id,type,student) {
-        row = document.createElement('div');
+        let row = document.createElement('div');
         row.className='accordion-item my-3';
 
-        row_h2 = document.createElement('h2');
+        let row_h2 = document.createElement('h2');
         row_h2.className = 'accordion-header';
         row_h2.id = `flush-heading${course['id']}`;
 
-        row_h2_button = document.createElement('button');
+        let row_h2_button = document.createElement('button');
         row_h2_button.className = 'accordion-button collapsed';
         row_h2_button.setAttribute("data-bs-toggle","collapse");
         row_h2_button.setAttribute("data-bs-target",`#flush-collapse${course['id']}`);
@@ -115,36 +113,35 @@
 
         row.appendChild(row_h2);
 
-        row_collapse = document.createElement('div');
+        let row_collapse = document.createElement('div');
         row_collapse.className = 'accordion-collapse collapse course-row-content';
         row_collapse.id = `flush-collapse${course['id']}`;
         row_collapse.setAttribute("aria-labelledby",`flush-heading${course['id']}`);
         row_collapse.setAttribute("data-bs-parent",`#${parent_id}`);
 
-        row_collapse_div = document.createElement('div');
+        let row_collapse_div = document.createElement('div');
         row_collapse_div.className = 'py-md-4 pb-2';
 
-        row_collapse_div_div1 = document.createElement('div');
+        let row_collapse_div_div1 = document.createElement('div');
         row_collapse_div_div1.className = 'w-100';
         row_collapse_div_div1.innerHTML = `${course['description']}`;
         
-        row_collapse_div_div2 = document.createElement('div');
+        let row_collapse_div_div2 = document.createElement('div');
         row_collapse_div_div2.className = 'w-100';
         row_collapse_div_div2.innerHTML = `<span class="text-xs"><strong>Temas:&nbsp;</strong>${course['units']}</span>
                                             <br>
                                             <span class="text-xs"><strong>Duraci&oacute;n (semanas):&nbsp;</strong>${course['duration']}</span>`;
 
-        row_collapse_div_div3 = document.createElement('div');
+        let row_collapse_div_div3 = document.createElement('div');
         row_collapse_div_div3.className = 'w-100 d-flex';
 
-        console.log(type === "seelist");
         if(type === "seelist") {
-            row_collapse_div_div3_button = document.createElement('button');
+            let row_collapse_div_div3_button = document.createElement('button');
             row_collapse_div_div3_button.className = "my-3 courses-button courses-button-cyan";
             row_collapse_div_div3_button.innerHTML = `<a class="text-white" href="${course['id']}/" ><span>Ver curso</span></a>`;
             row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
         } else if(type === "enrol") {
-            row_collapse_div_div3_button = document.createElement('button');
+            let row_collapse_div_div3_button = document.createElement('button');
             row_collapse_div_div3_button.className = "my-3 courses-button courses-button-cyan";
             row_collapse_div_div3_button.innerHTML = `<a class="text-white" href="${course['id']}/inscribe"><span>Inscribirse</span></a>`;
             row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
@@ -152,11 +149,11 @@
 
         if(student == false) {
             if(course.published == false) {
-                row_collapse_div_div3_button2 = document.createElement('button');
+                let row_collapse_div_div3_button2 = document.createElement('button');
                 row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
                 row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/edit"><span>Editar</span></a>`;
             
-                row_collapse_div_div3_button3 = document.createElement('button');
+                let row_collapse_div_div3_button3 = document.createElement('button');
                 row_collapse_div_div3_button3.className = "my-3 ms-3 courses-button courses-button-cyan";
                 row_collapse_div_div3_button3.type = "submit";
                 row_collapse_div_div3_button3.innerHTML = `<a class="text-white" href="${course['id']}/delete"><span>Borrar</span></a>`;
@@ -164,7 +161,7 @@
                 row_collapse_div_div3.appendChild(row_collapse_div_div3_button3);
                 row_collapse_div_div3.appendChild(row_collapse_div_div3_button2);
             } else {
-                row_collapse_div_div3_button2 = document.createElement('button');
+                let row_collapse_div_div3_button2 = document.createElement('button');
                 row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
                 row_collapse_div_div3_button3.type = "submit";
                 row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/unpublish"><span>Despublicar</span></a>`;

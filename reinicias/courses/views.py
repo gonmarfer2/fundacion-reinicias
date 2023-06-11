@@ -82,7 +82,6 @@ def filter_courses_students(request):
     done = {}
     rest = {}
     query = request.POST.get('query')
-    print(request.POST)
     this_person = Person.objects.get(user=request.user)
     this_student = Student.objects.get(person=this_person)
     unit_count = CourseUnit.objects.filter(course=OuterRef('pk')).values('course')
@@ -99,6 +98,40 @@ def filter_courses_students(request):
         'current':list(current.values()),
         'done':list(done.values()),
         'rest':list(rest.values())})
+
+@require_http_methods(["POST"])
+@group_required("students")
+def filter_courses_teachers(request):
+    def get_published_courses():
+        return Course.objects.filter(published=True).annotate(
+            units=Coalesce(Subquery(
+                unit_count.annotate(count=Count('pk')).values('count'),
+                output_field=models.IntegerField()
+                ),0)).order_by('-creation_date')
+    
+    def get_unpublished_courses():
+        return Course.objects.filter(published=False).annotate(
+            units=Coalesce(Subquery(
+                unit_count.annotate(count=Count('pk')).values('count'),
+                output_field=models.IntegerField()
+                ),0)).order_by('-creation_date')
+    
+    published = {}
+    not_published = {}
+    query = request.POST.get('query')
+    unit_count = CourseUnit.objects.filter(course=OuterRef('pk')).values('course')
+    if query:
+        published = get_published_courses().filter(name__icontains=query)
+        not_published = get_unpublished_courses().filter(name__icontains=query)
+    else:
+        published = get_published_courses()
+        not_published = get_unpublished_courses()
+
+    return JsonResponse({
+        'published':list(published.values()),
+        'not_published':list(not_published.values())
+        })
+
 
 
 @require_http_methods(["GET"])
