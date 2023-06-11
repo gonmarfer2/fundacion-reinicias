@@ -71,10 +71,10 @@
             publishedAccordion.innerHTML = '';
             notPublishedAccordion.innerHTML = '';
 
-            for(course of published) {
+            for(let course of published) {
                 publishedAccordion.appendChild(createAccordionElement(course,'accordionPublished','seelist',true));
             }
-            for(course of notPublished) {
+            for(let course of notPublished) {
                 notPublishedAccordion.appendChild(createAccordionElement(course,'accordionNonPublished','seelist',true));
             }
         })
@@ -137,8 +137,8 @@
             row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
         }
 
-        if(student == false) {
-            if(course.published == false) {
+        if(!student) {
+            if(!course.published) {
                 let row_collapse_div_div3_button2 = document.createElement('button');
                 row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
                 row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/edit"><span>Editar</span></a>`;
