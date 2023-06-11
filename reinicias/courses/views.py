@@ -18,6 +18,7 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 
+
 # CUSTOM DECORATOR
 
 def group_required(*group_names):
@@ -37,6 +38,101 @@ ERROR_404_UNIT_RESOURCE = 'No existe ese recurso'
 ERROR_404_QUESTION = 'No existe esa pregunta'
 
 # VIEWS
+@require_http_methods(["POST"])
+@group_required("students")
+def filter_courses_students(request):
+    def get_current_courses():
+        return Course.objects.filter(published=True).filter(
+            coursestatus__completed=False,
+            coursestatus__student=this_student) \
+            .annotate(
+                units=Coalesce(Subquery(
+                    unit_count.annotate(count=Count('pk')).values('count'),
+                    output_field=models.IntegerField()
+                    ),0)) \
+            .order_by('-creation_date')
+    
+    def get_done_courses():
+        return Course.objects.filter(published=True).filter(
+            coursestatus__completed=True,
+            coursestatus__student=this_student) \
+            .annotate(
+                units=Coalesce(Subquery(
+                    unit_count.annotate(count=Count('pk')).values('count'),
+                    output_field=models.IntegerField()
+                    ),0)) \
+            .order_by('-creation_date')
+    
+    def get_rest_of_courses():
+        rest = Course.objects.filter(published=True).exclude(pk__in=current) \
+            .exclude(pk__in=done) \
+            .order_by('-creation_date')
+        for course in rest:
+            predecessors = course.preceeded_by.all()
+            if predecessors is not None and not set(predecessors).issubset(set(done)):
+                rest = rest.exclude(pk=course.pk)
+        rest = rest.annotate(
+            units=Coalesce(Subquery(
+                unit_count.annotate(count=Count('pk')).values('count'),
+                output_field=models.IntegerField()
+                ),0))
+        return rest
+
+    current = {}
+    done = {}
+    rest = {}
+    query = request.POST.get('query')
+    this_person = Person.objects.get(user=request.user)
+    this_student = Student.objects.get(person=this_person)
+    unit_count = CourseUnit.objects.filter(course=OuterRef('pk')).values('course')
+    if query:
+        current = get_current_courses().filter(name__icontains=query)
+        done = get_done_courses().filter(name__icontains=query)
+        rest = get_rest_of_courses().filter(name__icontains=query)
+    else:
+        current = get_current_courses()
+        done = get_done_courses()
+        rest = get_rest_of_courses()
+
+    return JsonResponse({
+        'current':list(current.values()),
+        'done':list(done.values()),
+        'rest':list(rest.values())})
+
+@require_http_methods(["POST"])
+@group_required("students")
+def filter_courses_teachers(request):
+    def get_published_courses():
+        return Course.objects.filter(published=True).annotate(
+            units=Coalesce(Subquery(
+                unit_count.annotate(count=Count('pk')).values('count'),
+                output_field=models.IntegerField()
+                ),0)).order_by('-creation_date')
+    
+    def get_unpublished_courses():
+        return Course.objects.filter(published=False).annotate(
+            units=Coalesce(Subquery(
+                unit_count.annotate(count=Count('pk')).values('count'),
+                output_field=models.IntegerField()
+                ),0)).order_by('-creation_date')
+    
+    published = {}
+    not_published = {}
+    query = request.POST.get('query')
+    unit_count = CourseUnit.objects.filter(course=OuterRef('pk')).values('course')
+    if query:
+        published = get_published_courses().filter(name__icontains=query)
+        not_published = get_unpublished_courses().filter(name__icontains=query)
+    else:
+        published = get_published_courses()
+        not_published = get_unpublished_courses()
+
+    return JsonResponse({
+        'published':list(published.values()),
+        'not_published':list(not_published.values())
+        })
+
+
 
 @require_http_methods(["GET"])
 def list_course(request):

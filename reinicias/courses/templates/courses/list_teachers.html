@@ -16,8 +16,9 @@
             <div class="col-12 col-sm-4 d-flex justify-content-center">
                 <button class="my-sm-3 mt-3 w-100 courses-button courses-button-cyan"><a class="text-white" href="create/" >&plus;&nbsp;Nuevo curso</a></button>
             </div>
-            <form action="#" method="POST" class="form col-12 col-sm-8 my-4">
-                <input type="text" class="form-control course-filter" placeholder="Filtra cursos por nombre...">
+            <form action="#" method="POST" class="form col-12 col-sm-8 my-4 input-group">
+                <input type="text" class="form-control course-filter" name="query" placeholder="Filtra cursos por nombre...">
+                <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
             </form>
         </div>
 
@@ -37,4 +38,136 @@
         
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        let query = document.getElementsByName('query')[0].value;
+        var formData = new URLSearchParams();
+        formData.append('query',query);
+
+        fetch("filter/teachers/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+        },
+        body: formData.toString()
+        })
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
+            let clean_data = JSON.parse(data)
+            let published = clean_data['published'];
+            let notPublished = clean_data['not_published'];
+
+            let publishedAccordion = document.getElementById('accordionPublished');
+            let notPublishedAccordion = document.getElementById('accordionNonPublished');
+            
+            publishedAccordion.innerHTML = '';
+            notPublishedAccordion.innerHTML = '';
+
+            for(let course of published) {
+                publishedAccordion.appendChild(createAccordionElement(course,'accordionPublished','seelist',true));
+            }
+            for(let course of notPublished) {
+                notPublishedAccordion.appendChild(createAccordionElement(course,'accordionNonPublished','seelist',true));
+            }
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+        alert('An error occurred while processing the request.\n'+error);
+        });
+    });
+
+    function createAccordionElement(course,parent_id,type,student) {
+        let row = document.createElement('div');
+        row.className='accordion-item my-3';
+
+        let row_h2 = document.createElement('h2');
+        row_h2.className = 'accordion-header';
+        row_h2.id = `flush-heading${course['id']}`;
+
+        let row_h2_button = document.createElement('button');
+        row_h2_button.className = 'accordion-button collapsed';
+        row_h2_button.setAttribute("data-bs-toggle","collapse");
+        row_h2_button.setAttribute("data-bs-target",`#flush-collapse${course['id']}`);
+        row_h2_button.setAttribute("aria-expanded","false");
+        row_h2_button.setAttribute("aria-controls",`flush-collapse${course['id']}`);
+        row_h2_button.innerHTML = `${course['name']}`;
+        row_h2.appendChild(row_h2_button);
+
+        row.appendChild(row_h2);
+
+        let row_collapse = document.createElement('div');
+        row_collapse.className = 'accordion-collapse collapse course-row-content';
+        row_collapse.id = `flush-collapse${course['id']}`;
+        row_collapse.setAttribute("aria-labelledby",`flush-heading${course['id']}`);
+        row_collapse.setAttribute("data-bs-parent",`#${parent_id}`);
+
+        let row_collapse_div = document.createElement('div');
+        row_collapse_div.className = 'py-md-4 pb-2';
+
+        let row_collapse_div_div1 = document.createElement('div');
+        row_collapse_div_div1.className = 'w-100';
+        row_collapse_div_div1.innerHTML = `${course['description']}`;
+        
+        let row_collapse_div_div2 = document.createElement('div');
+        row_collapse_div_div2.className = 'w-100';
+        row_collapse_div_div2.innerHTML = `<span class="text-xs"><strong>Temas:&nbsp;</strong>${course['units']}</span>
+                                            <br>
+                                            <span class="text-xs"><strong>Duraci&oacute;n (semanas):&nbsp;</strong>${course['duration']}</span>`;
+
+        let row_collapse_div_div3 = document.createElement('div');
+        row_collapse_div_div3.className = 'w-100 d-flex';
+
+        if(type === "seelist") {
+            let row_collapse_div_div3_button = document.createElement('button');
+            row_collapse_div_div3_button.className = "my-3 courses-button courses-button-cyan";
+            row_collapse_div_div3_button.innerHTML = `<a class="text-white" href="${course['id']}/" ><span>Ver curso</span></a>`;
+            row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
+        } else if(type === "enrol") {
+            let row_collapse_div_div3_button = document.createElement('button');
+            row_collapse_div_div3_button.className = "my-3 courses-button courses-button-cyan";
+            row_collapse_div_div3_button.innerHTML = `<a class="text-white" href="${course['id']}/inscribe"><span>Inscribirse</span></a>`;
+            row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
+        }
+
+        if(!student) {
+            if(!course.published) {
+                let row_collapse_div_div3_button2 = document.createElement('button');
+                row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
+                row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/edit"><span>Editar</span></a>`;
+            
+                let row_collapse_div_div3_button3 = document.createElement('button');
+                row_collapse_div_div3_button3.className = "my-3 ms-3 courses-button courses-button-cyan";
+                row_collapse_div_div3_button3.type = "submit";
+                row_collapse_div_div3_button3.innerHTML = `<a class="text-white" href="${course['id']}/delete"><span>Borrar</span></a>`;
+
+                row_collapse_div_div3.appendChild(row_collapse_div_div3_button3);
+                row_collapse_div_div3.appendChild(row_collapse_div_div3_button2);
+            } else {
+                let row_collapse_div_div3_button2 = document.createElement('button');
+                row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
+                row_collapse_div_div3_button3.type = "submit";
+                row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/unpublish"><span>Despublicar</span></a>`;
+
+                row_collapse_div_div3.appendChild(row_collapse_div_div3_button3);
+            }
+        }
+
+        row_collapse_div.appendChild(row_collapse_div_div1);
+        row_collapse_div.appendChild(row_collapse_div_div2);
+        row_collapse_div.appendChild(row_collapse_div_div3);
+        row_collapse.appendChild(row_collapse_div);
+        row.appendChild(row_collapse);
+
+        return row;
+    }
+
+</script>
 {% endblock %}
