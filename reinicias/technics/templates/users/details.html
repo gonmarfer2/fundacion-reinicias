@@ -16,12 +16,12 @@
     <div class="col-12 mb-3">
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><strong>Nombre de usuario:&nbsp;</strong>{{thisUser.get_user.username}}</li>
-            <li class="list-group-item"><strong>Fecha de nacimiento:&nbsp;</strong>{{thisUser.get_person.birth_date}}</li>
+            <li class="list-group-item"><strong>Fecha de nacimiento:&nbsp;</strong>{{thisUser.get_person.birth_date|date:"d/m/Y"}}</li>
             <li class="list-group-item"><strong>Nombre:&nbsp;</strong>{{thisUser.get_person.name}}</li>
             <li class="list-group-item"><strong>Apellidos:&nbsp;</strong>{{thisUser.get_person.last_name}}</li>
             <li class="list-group-item"><strong>Correo:&nbsp;</strong>{{thisUser.get_user.email}}</li>
             <li class="list-group-item"><strong>Teléfono:&nbsp;</strong>{{thisUser.get_person.telephone}}</li>
-            <li class="list-group-item"><strong>Sexo:&nbsp;</strong>{{thisUser.get_person.sex}}</li>
+            <li class="list-group-item"><strong>Sexo:&nbsp;</strong>{{thisUser.get_person.get_sex_display}}</li>
             {% if thisUser.get_user.groups.all|has_group:"patients" %}
                 <li class="list-group-item"><strong>Centro escolar:&nbsp;</strong>{{thisUser.school}}</li>
             {% endif %}
