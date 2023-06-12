@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="technic-title" text=thisUser %}
+<div class="container">
+    <div class="col-12 mb-3">
+        {% for role in thisUser.get_user.groups.all %}
+            <span class="badge rounded-pill {{role}}-pill">&#8203;</span>
+        {% endfor %}
+    </div>
+    <div class="col-12 mb-3">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Nombre de usuario:&nbsp;</strong>{{thisUser.get_user.username}}</li>
+            <li class="list-group-item"><strong>Fecha de nacimiento:&nbsp;</strong>{{thisUser.get_person.birth_date}}</li>
+            <li class="list-group-item"><strong>Nombre:&nbsp;</strong>{{thisUser.get_person.name}}</li>
+            <li class="list-group-item"><strong>Apellidos:&nbsp;</strong>{{thisUser.get_person.last_name}}</li>
+            <li class="list-group-item"><strong>Correo:&nbsp;</strong>{{thisUser.get_user.email}}</li>
+            <li class="list-group-item"><strong>Teléfono:&nbsp;</strong>{{thisUser.get_person.telephone}}</li>
+            <li class="list-group-item"><strong>Sexo:&nbsp;</strong>{{thisUser.get_person.sex}}</li>
+            {% if thisUser.get_user.groups.all|has_group:"patients" %}
+                <li class="list-group-item"><strong>Centro escolar:&nbsp;</strong>{{thisUser.school}}</li>
+            {% endif %}
+        </ul>
+    </div>
+    
+    <div class="col-12">
+        <div class="row">
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="edit/">Editar perfil</a></button>
+            </div>
+            {% if thisUser.get_user.groups.all|has_group:"patients" %}
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Lista de tareas</a></button>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Diario</a></button>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Historial de emociones</a></button>
+            </div>
+            {% endif %}
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Cambiar contraseña</a></button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+</div>
+{% endblock %}

@@ -130,6 +130,12 @@ class Student(models.Model):
 
     def __str__(self) -> str:
         return str(self.person)
+    
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person
 
 class Calification(models.Model):
     calification = models.FloatField(null=True,validators=[MinValueValidator(0.0),MaxValueValidator(10.0)],verbose_name="Calificación")

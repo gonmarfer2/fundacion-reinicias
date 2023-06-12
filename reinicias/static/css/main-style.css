@@ -8,6 +8,10 @@
     --light-grey: #eaeaea;
     --dark-magenta: #762656;
     --yellow: #ffb800;
+    --light-yellow: #fff7ac;
+    --light-cyan: #acfff5;
+    --light-magenta: #fface8;
+    --light-green: #d1ffac;
 
     --md-border: solid 3px;
     
@@ -700,4 +704,48 @@ button.accordion-button:focus {
 .page-item.active:last-child > a {
     border-radius: 0 10px 10px 0;
     border-width: 2px 2px 2px 0;
+}
+
+.students-pill {
+    color: var(--black);
+    background-color: var(--light-yellow);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.students-pill::after {
+    content: "Estudiante";
+}
+
+.patients-pill {
+    color: var(--black);
+    background-color: var(--light-magenta);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.patients-pill::after {
+    content: "Paciente";
+}
+
+.teachers-pill {
+    color: var(--black);
+    background-color: var(--light-cyan);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.teachers-pill::after {
+    content: "Formador";
+}
+
+.technics-pill {
+    color: var(--black);
+    background-color: var(--light-green);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.technics-pill::after {
+    content: "Técnico";
 }

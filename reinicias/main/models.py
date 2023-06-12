@@ -35,6 +35,7 @@ class UserManager(BaseUserManager):
 
         Technic.objects.create(person=person)
         Teacher.objects.create(person=person)
+        Patient.objects.create(person=person,school="Reinicias")
 
         print("This user can be manually configured through the admin site")
 
@@ -64,6 +65,12 @@ class Person(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} {self.last_name}"
+    
+    def get_user(self):
+        return self.user
+    
+    def get_person(self):
+        return self
 
 
 class Technic(models.Model):
@@ -72,12 +79,24 @@ class Technic(models.Model):
     def __str__(self) -> str:
         return str(self.person)
     
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person
+    
 
 class Teacher(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
 
     def __str__(self) -> str:
         return str(self.person)
+    
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person
     
 
 class Patient(models.Model):
@@ -86,3 +105,9 @@ class Patient(models.Model):
 
     def __str__(self) -> str:
         return str(self.person)
+    
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person
