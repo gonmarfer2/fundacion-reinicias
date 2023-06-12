@@ -44,9 +44,11 @@
                 <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Historial de emociones</a></button>
             </div>
             {% endif %}
+            {% if request.user == thisUser.get_user or request.user.is_superuser %}
             <div class="col-6 col-md-3 col-lg-2 mb-2">
                 <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Cambiar contraseña</a></button>
             </div>
+            {% endif %}
         </div>
     </div>
     
