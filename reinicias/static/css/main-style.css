@@ -334,7 +334,7 @@ header {
     color: var(--black);
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
-    font-size: var(--md-size);
+    font-size: var(--sm-size);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -359,19 +359,19 @@ header {
 .r-form-field > input[type="number"] {
     width: 100%;
     height: var(--input-height);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-form-field > textarea {
     width: 100%;
     height: calc(var(--input-height)*3);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-form-field > #id_preceeded_by {
     width: 100%;
     height: calc(var(--input-height)*3);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
     overflow-y: scroll;
 }
 
@@ -385,13 +385,13 @@ header {
     width: 100%;
     overflow: hidden;
     height: var(--input-height);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-form-field label {
     width: 100%;
     padding: 0 15px;
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-file-field {
@@ -425,7 +425,7 @@ header {
 
 .r-form-field > input:focus,
 .r-form-field > textarea:focus {
-    border: var(--purple) solid 3px;
+    border: var(--purple) solid 2px;
     box-shadow: 0 0 5px var(--black);
 }
 
@@ -434,7 +434,7 @@ header {
     height: var(--input-height);
     background-color: var(--white);
     color: var(--black);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: var(--sm-size);
 }

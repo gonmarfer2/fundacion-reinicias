@@ -1,7 +1,7 @@
 from typing import Any, Dict
 from django import forms
 from main.models import Person, User
-from .models import CourseUnit, Course, CourseUnitResource, Question, QuestionOption, Autoevaluation
+from .models import CourseUnit, Course, CourseUnitResource, QuestionOption, Autoevaluation
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 
