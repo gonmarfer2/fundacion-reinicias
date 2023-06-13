@@ -1,7 +1,9 @@
+from typing import Any, Dict
 from django import forms
 from main.models import Person, User
 from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory
 from django.contrib.auth.forms import UserChangeForm
+from django.core.exceptions import ValidationError
 
 class MemberEditForm(UserChangeForm):
     username = forms.CharField(max_length=30,label='Nombre de usuario',widget=forms.TextInput(attrs={'readonly':True}))
@@ -38,3 +40,18 @@ class MemberEditForm(UserChangeForm):
 
         if 'patients' in rolenames:
             self.fields['school'] = forms.CharField(max_length=255,label='Centro educativo')
+
+class PasswordChangeForm(forms.Form):
+    password1 = forms.CharField(max_length=4096,label='Nueva contraseña',widget=forms.PasswordInput())
+    password2 = forms.CharField(max_length=4096,label='Confirmar contraseña',widget=forms.PasswordInput())
+
+    def clean(self) -> Dict[str, Any]:
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+
+        if password1 != password2:
+            raise ValidationError(
+                "Las contraseñas no coinciden",
+                code="unmatched_passwords"
+            )

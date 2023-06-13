@@ -749,3 +749,10 @@ button.accordion-button:focus {
 .technics-pill::after {
     content: "Técnico";
 }
+
+.record-history-pill {
+    color: var(--white);
+    background-color: var(--cyan);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
