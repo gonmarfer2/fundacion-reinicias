@@ -5,13 +5,12 @@
 {% load extra_tags %}
 {% block body %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
-<div class="container-fluid">
+<div id="id-main-container">
     {% if userGroups|has_group:"technics" %}
         {% include 'components/title.html' with type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico" %}
         <div class="container mt-4">
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" type="technics" href="#" text="Seguimiento de sesiones" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" type="technics" href="#" text="Lista de usuarios" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-3" type="technics" href="#" text="M&eacute;tricas del sistema" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" type="technics" href="technics/users/" text="Lista de usuarios" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" type="technics" href="technics/sessions/" text="Seguimiento de sesiones" %}
         </div>
     {% endif %}
     {% if userGroups|has_group:"teachers" %}
@@ -29,9 +28,6 @@
             {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" type="patients" href="#" text="Mi perfil" %}
         </div>
     {% endif %}
-    <div class="container-fluid">
-
-    </div>
 </div>
 
 {% endblock %}

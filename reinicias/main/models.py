@@ -6,6 +6,12 @@ import datetime
 TECHNIC_TEAM = 'technics'
 TEACHER_TEAM = 'teachers'
 PATIENT_TEAM = 'patients'
+GROUP_TRANSLATION_DICTIONARY = {
+            'patients':'Paciente',
+            'technics':'Técnico',
+            'teachers':'Formador',
+            'students':'Estudiante'
+        }
 
 class UserManager(BaseUserManager):
     def create_superuser(self,email,password=None, **extra_fields):
@@ -35,6 +41,7 @@ class UserManager(BaseUserManager):
 
         Technic.objects.create(person=person)
         Teacher.objects.create(person=person)
+        Patient.objects.create(person=person,school="Reinicias")
 
         print("This user can be manually configured through the admin site")
 
@@ -45,6 +52,9 @@ class User(AbstractUser):
 
     def has_group(self,group):
         return self.groups.filter(name=group).exists()
+    
+    def get_groups_display(self):
+        return ",".join([GROUP_TRANSLATION_DICTIONARY[group.name] for group in self.groups.all()])
 
 
 class Person(models.Model):
@@ -64,6 +74,13 @@ class Person(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} {self.last_name}"
+    
+    def get_user(self):
+        return self.user
+    
+    def get_person(self):
+        return self
+
 
 class Technic(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE)
@@ -71,8 +88,35 @@ class Technic(models.Model):
     def __str__(self) -> str:
         return str(self.person)
     
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person
+    
+
 class Teacher(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
 
     def __str__(self) -> str:
         return str(self.person)
+    
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person
+    
+
+class Patient(models.Model):
+    person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
+    school = models.CharField(max_length=255,verbose_name='Centro Educativo')
+
+    def __str__(self) -> str:
+        return str(self.person)
+    
+    def get_user(self):
+        return self.person.user
+    
+    def get_person(self):
+        return self.person

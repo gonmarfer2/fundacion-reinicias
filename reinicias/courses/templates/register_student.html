@@ -6,7 +6,7 @@
 {% block body %}
 
 {% include 'components/navbar.html' with userGroups=userGroups %}
-<div class="container-fluid">
+<div id="id-form-container">
     {% include 'components/title.html' with type="general-title" text="Registro de estudiante" %}
 
     <form method="post" class="container">{% csrf_token %}

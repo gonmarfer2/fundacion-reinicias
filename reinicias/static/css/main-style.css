@@ -8,6 +8,10 @@
     --light-grey: #eaeaea;
     --dark-magenta: #762656;
     --yellow: #ffb800;
+    --light-yellow: #fff7ac;
+    --light-cyan: #acfff5;
+    --light-magenta: #fface8;
+    --light-green: #d1ffac;
 
     --md-border: solid 3px;
     
@@ -217,6 +221,10 @@ p.autoevaluation-paragraph {
     align-self: center;
 }
 
+#id-anoncourse-container {
+    min-height: calc(100vh - 80px - 123.5px);
+}
+
 #id-main-container {
     min-height: calc(100vh - 48px - 123.5px);
 }
@@ -229,14 +237,18 @@ p.autoevaluation-paragraph {
     min-height: calc(100vh - 56px - 140px);
 }
 
+#id-technic-container {
+    min-height: calc(100vh - 56px - 140px);
+}
+
 footer {
-    width: 100vw;
+    width: 100%;
     height: 48px;
     background-color: var(--cyan);
 }
 
 header {
-    width: 100vw;
+    width: 100%;
     height: 48px;
     background-color: var(--cyan);
 }
@@ -298,7 +310,8 @@ header {
     background-size: cover;
     height: var(--title-height);
     align-items: center;
-    width: 100vw;
+    width: 100%;
+    margin: 0;
 }
 
 .technic-title {
@@ -321,7 +334,7 @@ header {
     color: var(--black);
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
-    font-size: var(--md-size);
+    font-size: var(--sm-size);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -346,19 +359,19 @@ header {
 .r-form-field > input[type="number"] {
     width: 100%;
     height: var(--input-height);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-form-field > textarea {
     width: 100%;
     height: calc(var(--input-height)*3);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-form-field > #id_preceeded_by {
     width: 100%;
     height: calc(var(--input-height)*3);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
     overflow-y: scroll;
 }
 
@@ -372,13 +385,13 @@ header {
     width: 100%;
     overflow: hidden;
     height: var(--input-height);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-form-field label {
     width: 100%;
     padding: 0 15px;
-    border: transparent solid 3px;
+    border: transparent solid 2px;
 }
 
 .r-file-field {
@@ -412,7 +425,7 @@ header {
 
 .r-form-field > input:focus,
 .r-form-field > textarea:focus {
-    border: var(--purple) solid 3px;
+    border: var(--purple) solid 2px;
     box-shadow: 0 0 5px var(--black);
 }
 
@@ -421,7 +434,7 @@ header {
     height: var(--input-height);
     background-color: var(--white);
     color: var(--black);
-    border: transparent solid 3px;
+    border: transparent solid 2px;
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: var(--sm-size);
 }
@@ -575,7 +588,8 @@ button.accordion-button:focus {
     align-self: center;
 }
 
-.form-control.course-filter {
+.form-control.course-filter,
+.form-select.course-filter {
     font-family: 'OpenSans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-size: var(--sm-size);
     color: var(--grey);
@@ -657,4 +671,88 @@ button.accordion-button:focus {
     list-style-type: none;
     padding: 0;
     margin: 0;
+}
+
+.page-item > a {
+    background-color: var(--white);
+    color: var(--black);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item.active > a {
+    background-image: linear-gradient(var(--cyan),var(--purple));
+    color: var(--white);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item:hover > a {
+    background-image: linear-gradient(var(--cyan),var(--purple));
+    color: var(--white);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item:first-child > a,
+.page-item.active:first-child > a {
+    border-radius: 10px 0 0 10px;
+    border-width: 2px 0 2px 2px;
+}
+
+.page-item:last-child > a,
+.page-item.active:last-child > a {
+    border-radius: 0 10px 10px 0;
+    border-width: 2px 2px 2px 0;
+}
+
+.students-pill {
+    color: var(--black);
+    background-color: var(--light-yellow);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.students-pill::after {
+    content: "Estudiante";
+}
+
+.patients-pill {
+    color: var(--black);
+    background-color: var(--light-magenta);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.patients-pill::after {
+    content: "Paciente";
+}
+
+.teachers-pill {
+    color: var(--black);
+    background-color: var(--light-cyan);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.teachers-pill::after {
+    content: "Formador";
+}
+
+.technics-pill {
+    color: var(--black);
+    background-color: var(--light-green);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.technics-pill::after {
+    content: "Técnico";
+}
+
+.record-history-pill {
+    color: var(--white);
+    background-color: var(--cyan);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
 }

@@ -4,7 +4,7 @@
 
 {% block body %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
-<div id="id-form-container" class="container-fluid">
+<div id="id-form-container">
     {% include 'components/title.html' with type="general-title" text="Estudiantes - "|add:course.name %}
     <div class="container">
         <div class="row">
@@ -14,13 +14,15 @@
                     <thead>
                         <th scope="col">Calificaci&oacute;n</th>
                         <th scope="col">Inicio</th>
+                        <th scope="col">Completado</th>
                         <th scope="col">Estudiante</th>
                     </thead>
                     <tbody class="table-group-divider">
                         {% for student,calification in students.items %}
-                            <tr>
+                            <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{student.student.get_user.pk}}'">
                                 <td>{{calification}}</td>
-                                <td>{{student.start_date}}</td>
+                                <td>{{student.start_date|date:"d/m/Y h:i:s"}}</td>
+                                <td>{% if student.completed %}S&iacute;{% else %}No{% endif %}</td>
                                 <td>{{student.student}}</td>
                             </tr>                        
                         {% endfor %}

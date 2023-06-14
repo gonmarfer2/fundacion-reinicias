@@ -1,36 +1,24 @@
-from django.shortcuts import render, redirect
 from courses.models import Course, CourseUnit, CourseUnitResource, Student, Calification, CourseStatus, \
     Autoevaluation,Question,QuestionOption
-from django.views.decorators.http import require_http_methods
+from datetime import datetime, timezone
 from django.contrib.auth.models import Group
-from django.db.models.expressions import Subquery
+from django.core.exceptions import PermissionDenied
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import models, transaction
 from django.db.models import Count, OuterRef, Exists, F
 from django.db.models.functions import Coalesce 
-from django.db import models, transaction
+from django.db.models.expressions import Subquery
+from django.http import Http404, JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm, \
     CourseUnitResourceCreateForm, CourseEditForm, QuestionEditForm, AutoevaluationEditForm
-from main.models import Person, Teacher
-from django.contrib.auth.decorators import user_passes_test
-from datetime import datetime, timezone
-from django.core.exceptions import PermissionDenied
-from django.http import Http404, JsonResponse
 import json
-from django.core.serializers.json import DjangoJSONEncoder
-from django.urls import reverse
-
-
-# CUSTOM DECORATOR
-
-def group_required(*group_names):
-    def has_group(user):
-        if user.is_authenticated:
-            if user.groups.filter(name__in=set(group_names)).exists() or user.is_superuser:
-                return True
-        return False
-    return user_passes_test(has_group, login_url='login')
+from main.models import Person, Teacher
+from main.views import group_required
 
 # CONSTANTS
-
 ERROR_404_COURSE = 'No existe ese curso'
 ERROR_404_UNIT = 'No existe ese tema'
 ERROR_404_AUTOEV = 'No existe esa autoevaluación'
@@ -99,6 +87,7 @@ def filter_courses_students(request):
         'done':list(done.values()),
         'rest':list(rest.values())})
 
+
 @require_http_methods(["POST"])
 @group_required("students")
 def filter_courses_teachers(request):
@@ -131,7 +120,6 @@ def filter_courses_teachers(request):
         'published':list(published.values()),
         'not_published':list(not_published.values())
         })
-
 
 
 @require_http_methods(["GET"])
