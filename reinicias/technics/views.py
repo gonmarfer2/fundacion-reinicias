@@ -177,7 +177,6 @@ def create_member(request):
 
             data = form.cleaned_data
             
-            groups = set()
             for group in request.POST.getlist('roles'):
                 new_user.groups.add(Group.objects.get_or_create(name=group)[0])
 
