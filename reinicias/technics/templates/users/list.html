@@ -10,15 +10,15 @@
     <div class="container">
         <div id="id-filter-panel" class="row">
             <div class="col-3 d-none d-md-flex justify-content-start align-items-center">
-                <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="#">Nuevo miembro</a></button>
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="create/">Nuevo miembro</a></button>
             </div>
             <div class="col-12 col-md-9">
                 <form action="#" method="POST" class="form my-4 input-group">
-                    <input type="text" class="form-control course-filter" name="query" placeholder="Filtra por nombre...">
+                    <input type="text" name="name" class="form-control course-filter" name="query" placeholder="Filtra por nombre...">
                     <select class="form-select course-filter" name="role" placeholder="Filtra por rol...">
-                        <option selected value="0">Seleccione un rol...</option>
-                        {% for role in roles %}
-                            <option value="role.pk">{{role|capfirst}}</option>
+                        <option selected value="">Seleccione un rol...</option>
+                        {% for role_id,role in roles.items %}
+                            <option value="{{role_id}}">{{role|capfirst}}</option>
                         {% endfor %}
                     </select>
                     <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
@@ -45,7 +45,7 @@
                             <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{user.pk}}'">
                                 <td>{{user.user.username}}</td>
                                 <td>{{user}}</td>
-                                <td>{{user.user.groups.all|join:","}}</td>
+                                <td>{{user.user.get_groups_display}}</td>
                                 <td>{{user.user.email}}</td>
                                 <td class="bi bi-chevron-right"></td>
                             </tr>                        
@@ -74,4 +74,71 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+const form = document.querySelector('form');
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    let query_name = document.getElementsByName('name')[0].value;
+    let query_role = document.getElementsByName('role')[0].value;
+    var formData = new URLSearchParams();
+    formData.append('query_name',query_name);
+    formData.append('query_role',query_role);
+
+    fetch("filter/", {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+    },
+    body: formData.toString()
+    })
+    .then(function(response) {
+        return response.text();
+    })
+    .then(function(data) {
+        let clean_data = JSON.parse(data)
+        
+        let tablebody = document.getElementsByTagName('tbody')[0];
+        tablebody.innerHTML = '';
+        
+        let users = clean_data['users'];
+        for(let user of users) {
+            tablebody.appendChild(createTableRow(user));
+        }
+    })
+    .catch(function(error) {
+    // Handle any network or request errors
+    alert('An error occurred while processing the request.\n'+error);
+    });
+
+    function createTableRow(user) {
+        let row = document.createElement('tr');
+        row.style = 'cursor: pointer;';
+        row.addEventListener('click', () => {
+            window.location.href = `/technics/users/${user['pk']}`;
+        })
+
+        let column1 = document.createElement('td');
+        column1.innerHTML = user['username'];
+        let column2 = document.createElement('td');
+        column2.innerHTML = user['full_name'];
+        let column3 = document.createElement('td');
+        column3.innerHTML = user['groups'];
+        let column4 = document.createElement('td');
+        column4.innerHTML = user['email'];
+
+        row.appendChild(column1);
+        row.appendChild(column2);
+        row.appendChild(column3);
+        row.appendChild(column4);
+
+        return row;
+    }
+});
+
+</script>
 {% endblock %}

@@ -43,7 +43,7 @@ class PatientRecordHistory(models.Model):
     start_date = models.DateTimeField(auto_now_add=True,verbose_name='Fecha de inicio')
     end_date = models.DateTimeField(blank=True,null=True,verbose_name='Fecha de fin')
     state = models.CharField(max_length=1,choices=RECORD_STATES)
-    initial_problem = models.CharField(blank=True,null=True,max_length=3,choices=INITIAL_PROBLEMS,verbose_name='Demanda inicial')
+    initial_problem = models.CharField(blank=True,max_length=3,choices=INITIAL_PROBLEMS,verbose_name='Demanda inicial')
     record = models.ForeignKey(PatientRecord,on_delete=models.CASCADE,verbose_name='Expediente')
 
     def __str__(self) -> str:

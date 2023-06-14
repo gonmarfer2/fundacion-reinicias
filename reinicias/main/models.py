@@ -6,6 +6,12 @@ import datetime
 TECHNIC_TEAM = 'technics'
 TEACHER_TEAM = 'teachers'
 PATIENT_TEAM = 'patients'
+GROUP_TRANSLATION_DICTIONARY = {
+            'patients':'Paciente',
+            'technics':'Técnico',
+            'teachers':'Formador',
+            'students':'Estudiante'
+        }
 
 class UserManager(BaseUserManager):
     def create_superuser(self,email,password=None, **extra_fields):
@@ -46,6 +52,9 @@ class User(AbstractUser):
 
     def has_group(self,group):
         return self.groups.filter(name=group).exists()
+    
+    def get_groups_display(self):
+        return ",".join([GROUP_TRANSLATION_DICTIONARY[group.name] for group in self.groups.all()])
 
 
 class Person(models.Model):

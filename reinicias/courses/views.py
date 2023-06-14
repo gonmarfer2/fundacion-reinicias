@@ -87,6 +87,7 @@ def filter_courses_students(request):
         'done':list(done.values()),
         'rest':list(rest.values())})
 
+
 @require_http_methods(["POST"])
 @group_required("students")
 def filter_courses_teachers(request):
@@ -119,7 +120,6 @@ def filter_courses_teachers(request):
         'published':list(published.values()),
         'not_published':list(not_published.values())
         })
-
 
 
 @require_http_methods(["GET"])
