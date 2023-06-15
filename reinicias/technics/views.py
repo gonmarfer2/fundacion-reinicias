@@ -3,14 +3,13 @@ from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from main.views import group_required
-from main.models import Person,Patient,User,Teacher,Technic,GROUP_TRANSLATION_DICTIONARY 
-from .models import PatientRecord,PatientRecordDocument,PatientRecordHistory
+from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
+from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient
 from django.http import Http404, JsonResponse
 from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm
-from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Q, F, When
+from django.db.models import Q
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
@@ -44,10 +43,11 @@ def show_user_details(request,user_id):
     if Person.objects.filter(user__pk=user_id).count() == 0:
         raise Http404(ERROR_404_PERSON)
     
-    this_person = Person.objects.get(user__pk=user_id)
+    this_person = Person.objects.get(pk=user_id)
     if this_person.user.has_group("patients"):
         this_person = Patient.objects.get(person=this_person)
         this_record = PatientRecord.objects.get(patient=this_person)
+
         this_record_documents = PatientRecordDocument.objects.filter(record=this_record)
         this_record_history = PatientRecordHistory.objects.filter(record=this_record).order_by('-start_date')
         this_creation_date = this_record_history.last().start_date
@@ -211,6 +211,7 @@ def create_member(request):
 
     return render(request,'users/register.html',context)
 
+
 @require_http_methods(["POST"])
 @group_required("technics")
 def filter_user_list(request):
@@ -225,7 +226,7 @@ def filter_user_list(request):
         person_list = person_list.filter(user__groups__in=roles)
     
     users = []
-    for person in person_list:
+    for person in person_list.order_by('user__username'):
         users.append({
             'pk':person.pk,
             'username':person.user.username,
@@ -237,3 +238,9 @@ def filter_user_list(request):
     return JsonResponse({
         'users':users
     })
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+def show_session_list(request):
+    year = request.GET.get('year')
