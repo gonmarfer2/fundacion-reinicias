@@ -108,12 +108,23 @@ class Session(models.Model):
     session_type = models.CharField(max_length=1,choices=SESSION_TYPES,verbose_name='Tipo de sesión')
     session_state = models.CharField(max_length=1,choices=SESSION_STATES,verbose_name='Estado de la sesión')
 
+    patient = models.ManyToManyField(Patient,blank=True,verbose_name='Pacientes')
+    technic = models.ForeignKey('main.Technic',on_delete=models.CASCADE  ,verbose_name='Técnico')
+
     def __str__(self) -> str:
         return self.title
 
+    def has_patients(self):
+        return self.patient.exists()
+    
+    def get_patients(self):
+        return ", ".join(self.patient.all()) if self.has_patients() else "-"
 
 class SessionNote(models.Model):
     text = models.TextField(verbose_name='Texto')
+
+    technic = models.ForeignKey('main.Technic',on_delete=models.CASCADE,verbose_name='Técnico')
+    session = models.ForeignKey(Session,on_delete=models.CASCADE,verbose_name='Sesión')
 
     def __str__(self) -> str:
         return self.text
@@ -140,6 +151,8 @@ class InitialReport(models.Model):
     social_diagnostic = models.TextField(verbose_name='Diagnóstico social')
     answer_plan = models.TextField(verbose_name='Plan de actuación')
     observations = models.TextField(verbose_name='Observaciones')
+
+    session = models.ForeignKey(Session,on_delete=models.CASCADE,verbose_name='Sesión')
 
     def __str__(self) -> str:
         return f'Informe inicial {self.record_number}'

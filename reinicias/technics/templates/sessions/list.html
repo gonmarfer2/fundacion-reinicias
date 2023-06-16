@@ -1,0 +1,81 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="technic-title" text="Sesiones" %}
+<div class="container">
+    <div class="row">
+        <form action="#" method="POST" class="form my-4 input-group">
+            <input type="number" name="year" class="form-control course-filter" min="2000" max="{{thisYear}}" step="1" value="{{thisYear}}">
+            <select class="form-select course-filter" name="state" placeholder="Filtra por estado...">
+                <option selected value="">Estado...</option>
+                {% for state,stateName in states %}
+                    <option value="{{state}}">{{stateName|capfirst}}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="technicName" class="form-control course-filter" name="query" placeholder="Filtra por técnico...">
+            <input type="text" name="patientName" class="form-control course-filter" name="query" placeholder="Filtra por paciente...">
+            <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <h2 class="text-center">Problemas m&aacute;s comunes</h2>
+            {{problemsChart | safe}}
+        </div>
+        <div class="col-12 col-lg-6">
+            <h2 class="text-center">Sesiones por mes</h2>
+            {{sessionsChart | safe}}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="#">A&ntilde;adir sesi&oacute;n</a></button>
+        </div>
+    </div>
+
+    {% for m,month in months.items %}
+    <div id="id-table-{{months.forloop}}" class="row my-5 mt-md-3">
+        <h2>{{month|capfirst}}</h2>
+        <div class="col-12 table-responsive table-cyan">
+            <table class="table table-hover mb-0">
+                <caption>{{month}}</caption>
+                <thead>
+                    <th scope="col">D&iacute;a</th>
+                    <th scope="col">Hora</th>
+                    <th scope="col">T&eacute;cnico</th>
+                    <th scope="col">Paciente</th>
+                    <th scope="col">T&iacute;tulo</th>
+                    <th scope="col">Inicial</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col"></th>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for session in sessions|get_item:month %}
+                        <tr style="cursor: pointer;" onclick="window.location.href = ''">
+                            <td>{{session.datetime|date:"d"}}</td>
+                            <td>{{session.datetime|date:"h:i"}}</td>
+                            <td>{{session.technic}}</td>
+                            <td>{% if session.has_patients %}{{session.get_patients}}{% else %}-{% endif %}</td>
+                            <td>{{session.title}}</td>
+                            <td>{{session.is_initial}}</td>
+                            <td>{{session.get_session_type_display}}</td>
+                            <td>{{session.get_session_state_display}}</td>
+                            <td class="bi bi-x-square-fill text-danger"></td>
+                        </tr>                        
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock %}

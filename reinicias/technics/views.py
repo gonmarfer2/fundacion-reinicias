@@ -4,12 +4,15 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from main.views import group_required
 from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
-from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient
+from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, InitialReport, INITIAL_PROBLEMS
 from django.http import Http404, JsonResponse
 from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, F, Count
+from django.db.models.functions import Concat
+import plotly.express as px
+from datetime import datetime, timezone
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
@@ -243,4 +246,132 @@ def filter_user_list(request):
 @require_http_methods(["GET"])
 @group_required("technics")
 def show_session_list(request):
+    MONTHS = {
+        1:'Enero',
+        2:'Febrero',
+        3:'Marzo',
+        4:'Abril',
+        5:'Mayo',
+        6:'Junio',
+        7:'Julio',
+        8:'Agosto',
+        9:'Septiembre',
+        10:'Octubre',
+        11:'Noviembre',
+        12:'Diciembre',
+    }
+    SESSION_TYPES_TRANSLATION = {t:text for t,text in Session.SESSION_TYPES}
     year = request.GET.get('year')
+    if year == None:
+        year = datetime.now(timezone.utc).year
+
+    reports_this_year = InitialReport.objects.filter(datetime__year=year)
+    sessions_this_year = Session.objects.filter(datetime__year=year)
+    PROBLEMS_TRANSLATION = {p:problem for p,problem in INITIAL_PROBLEMS}
+    
+    problems_chart = create_problems_chart(reports_this_year,PROBLEMS_TRANSLATION)
+    session_chart = create_monthly_session_chart(sessions_this_year,MONTHS,SESSION_TYPES_TRANSLATION)
+
+    sessions = {}
+    for m,month in MONTHS.items():
+        these_sessions = sessions_this_year.filter(datetime__month=m)
+        if these_sessions.exists():
+            sessions[month] = these_sessions
+        else:
+            sessions[month] = set()
+
+    context = {
+        'userGroups': request.user.groups.all(),
+        'problemsChart':problems_chart,
+        'sessionsChart':session_chart,
+        'thisYear':datetime.now(timezone.utc).year,
+        'states':Session.SESSION_TYPES,
+        'sessions':sessions,
+        'months':MONTHS
+    }
+
+    return render(request,'sessions/list.html',context)
+
+
+def create_problems_chart(reports,PROBLEMS_TRANSLATION):
+    common_problems = reports.values('initial_problem').annotate(count=Count('initial_problem')).order_by('-count')[:10]
+
+    problems_fig = px.pie(
+        values=[report['count'] for report in common_problems],
+        names=[PROBLEMS_TRANSLATION[report['initial_problem']] for report in common_problems],
+        labels=[PROBLEMS_TRANSLATION[report['initial_problem']] for report in common_problems],
+        color_discrete_sequence=['#ffb800','#402d7a','#ff0000','#00aabb','#d1ffac','#fface8','#acfff5','#fff7ac']
+    )
+
+    problems_fig.update_traces(
+        hoverlabel={
+            'font':{'family':'OpenSans'}
+        },
+        textfont={
+            'color':'#ffffff',
+            'family':'OpenSans'
+        }
+    )
+
+    problems_fig.update_layout(
+        legend={
+            'font':{'family':'OpenSans'}
+        },
+        font={
+            'family':'Montserrat'
+        }
+    )
+
+    return problems_fig.to_html()
+
+
+def create_monthly_session_chart(sessions,MONTHS,SESSION_TYPES_TRANSLATION):
+    sessions_by_month_queryset = sessions.annotate(month=F('datetime__month')) \
+    .values('month','session_type').annotate(count=Count(Concat('month','session_type',distinct=True)))
+
+    x = []
+    y = []
+    color = []
+    for month in MONTHS:
+        sessions_month = sessions_by_month_queryset.filter(month=month)
+        if sessions_month.exists():
+            x.extend([MONTHS[session['month']] for session in sessions_month])
+            y.extend([session['count'] for session in sessions_month])
+            color.extend([SESSION_TYPES_TRANSLATION[session['session_type']] for session in sessions_month])
+        else:
+            x.append(MONTHS[month])
+            y.append(0)
+            color.append('')
+
+    sessions_fig = px.bar(
+        x=x,
+        y=y,
+        color=color,
+        labels={'x': 'Mes', 'y': 'Sesiones', 'color': 'Tipo'},
+        color_discrete_sequence=['#ffb800','#402d7a','#ff0000']
+    )
+    sessions_fig.update_traces(
+        hoverlabel={
+            'font':{'family':'OpenSans'}
+        },
+        textfont={
+            'color':'#ffffff',
+            'family':'OpenSans'
+        },
+        selector=dict(type='bar'))
+    
+    sessions_fig.update_layout(
+        legend={
+            'font':{'family':'OpenSans'}
+        },
+        font={
+            'family':'Montserrat'
+        },
+        xaxis={
+            'tickangle':-45,
+            'categoryorder':'array',
+            'categoryarray':[month for _,month in MONTHS.items()]
+        },
+    )
+
+    return sessions_fig.to_html()

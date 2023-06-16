@@ -63,6 +63,13 @@ p.autoevaluation-paragraph {
     color: var(--black);
 }
 
+h2 {
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+    font-size: var(--md-size);
+    font-weight: bold;
+    color: var(--black);
+}
+
 .nav-link {
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: var(--md-size);
@@ -755,4 +762,9 @@ button.accordion-button:focus {
     background-color: var(--cyan);
     font-family: "OpenSans", Arial, Helvetica, sans-serif;
     font-size: var(--sm-size);
+}
+
+.table-cyan {
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
 }
