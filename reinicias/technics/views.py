@@ -420,7 +420,6 @@ def filter_session_list(request):
 
 
     monthly_session_chart = create_monthly_session_chart(session_list,MONTHS,SESSION_TYPES_TRANSLATION)
-
     sessions_by_month = create_sessions_by_month_dict(session_list,MONTHS,True)
 
     return JsonResponse({

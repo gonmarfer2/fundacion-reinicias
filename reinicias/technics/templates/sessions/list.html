@@ -132,6 +132,16 @@
         .then(function(data) {
             let clean_data = JSON.parse(data);
             let sessions = clean_data['sessions'];
+            let sessionsChart = clean_data['sessionsChart'];
+
+            let chartDiv = document.getElementById('id-div-sessions-chart');
+            chartDiv.innerHTML = '';
+            chartDiv.insertAdjacentHTML('beforeend',sessionsChart);
+
+            let scripts = chartDiv.getElementsByTagName('script');
+            for (let i = 0; i < scripts.length; i++) {
+                eval(scripts[i].innerHTML);
+            }
 
             for (let month of MONTHS) {
                 let tablebody = document.getElementById(`id-tablebody-${month}`);
@@ -155,7 +165,6 @@
         let rowsArray = [];
         if (sessions.length > 0) {
             for(let session of sessions) {
-                console.log(session);
                 let row = document.createElement('tr');
                 row.style = "cursor: pointer;";
                 row.innerHTML = `<td>${session.datetime_day}</td>
