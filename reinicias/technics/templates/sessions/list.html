@@ -139,8 +139,8 @@
             chartDiv.insertAdjacentHTML('beforeend',sessionsChart);
 
             let scripts = chartDiv.getElementsByTagName('script');
-            for (let i = 0; i < scripts.length; i++) {
-                eval(scripts[i].innerHTML);
+            for (let script of scripts) {
+                eval(script.innerHTML);
             }
 
             for (let month of MONTHS) {

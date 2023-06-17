@@ -13,6 +13,7 @@ from django.db.models import Q, F, Count
 from django.db.models.functions import Concat
 import plotly.express as px
 from datetime import datetime, timezone
+from django.db.models import CharField
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
@@ -287,7 +288,7 @@ def show_session_list(request):
     return render(request,'sessions/list.html',context)
 
 
-def create_problems_chart(reports,PROBLEMS_TRANSLATION):
+def create_problems_chart(reports,problems_translation):
     if not reports.exists():
         return '<span>No hay datos suficientes</span>'
 
@@ -295,8 +296,8 @@ def create_problems_chart(reports,PROBLEMS_TRANSLATION):
 
     problems_fig = px.pie(
         values=[report['count'] for report in common_problems],
-        names=[PROBLEMS_TRANSLATION[report['initial_problem']] for report in common_problems],
-        labels=[PROBLEMS_TRANSLATION[report['initial_problem']] for report in common_problems],
+        names=[problems_translation[report['initial_problem']] for report in common_problems],
+        labels=[problems_translation[report['initial_problem']] for report in common_problems],
         color_discrete_sequence=['#ffb800','#402d7a','#ff0000','#00aabb','#d1ffac','#fface8','#acfff5','#fff7ac'],
     )
 
@@ -324,26 +325,23 @@ def create_problems_chart(reports,PROBLEMS_TRANSLATION):
     return problems_fig.to_html()
 
 
-def create_monthly_session_chart(sessions,MONTHS,SESSION_TYPES_TRANSLATION):
+def create_monthly_session_chart(sessions,months,session_types_translation):
     if not sessions.exists():
         return '<span>No hay datos suficientes</span>'
-
-    sessions_by_month_queryset = sessions.annotate(month=F('datetime__month')) \
-    .values('month','session_type').annotate(count=Count(Concat('month','session_type',distinct=True)))
 
     x = []
     y = []
     color = []
-    for month in MONTHS:
-        sessions_month = sessions_by_month_queryset.filter(month=month)
-        if sessions_month.exists():
-            x.extend([MONTHS[session['month']] for session in sessions_month])
-            y.extend([session['count'] for session in sessions_month])
-            color.extend([SESSION_TYPES_TRANSLATION[session['session_type']] for session in sessions_month])
-        else:
-            x.append(MONTHS[month])
-            y.append(0)
-            color.append('')
+    for month,month_name in months.items():
+        for session_type,session_type_name in session_types_translation.items():
+            sessions_month = sessions.filter(datetime__month=month,session_type=session_type)
+            x.append(month_name)
+            if sessions_month.exists():
+                y.append(sessions_month.count())
+                color.append(session_type_name)
+            else:
+                y.append(0)
+                color.append('')
 
     sessions_fig = px.bar(
         x=x,
@@ -376,7 +374,7 @@ def create_monthly_session_chart(sessions,MONTHS,SESSION_TYPES_TRANSLATION):
         xaxis={
             'tickangle':-45,
             'categoryorder':'array',
-            'categoryarray':[month for _,month in MONTHS.items()]
+            'categoryarray':[month for _,month in months.items()]
         },
     )
 
@@ -410,14 +408,13 @@ def filter_session_list(request):
     if state:
         session_list = session_list.filter(session_state=state)
     
-    technicName = request.POST.get('technicName')
-    if technicName:
-        session_list = session_list.filter(Q(technic__person__name__icontains=technicName) | Q(technic__person__last_name__icontains=technicName))
+    technic_name = request.POST.get('technicName')
+    if technic_name:
+        session_list = session_list.filter(Q(technic__person__name__icontains=technic_name) | Q(technic__person__last_name__icontains=technic_name))
     
-    patientName = request.POST.get('patientName')
-    if patientName:
-        session_list = session_list.filter(Q(patient__person__name__icontains=technicName) | Q(patient__person__last_name__icontains=technicName)).distinct()
-
+    patient_name = request.POST.get('patientName')
+    if patient_name:
+        session_list = session_list.filter(Q(patient__person__name__icontains=patient_name) | Q(patient__person__last_name__icontains=patient_name)).distinct()
 
     monthly_session_chart = create_monthly_session_chart(session_list,MONTHS,SESSION_TYPES_TRANSLATION)
     sessions_by_month = create_sessions_by_month_dict(session_list,MONTHS,True)
@@ -428,9 +425,9 @@ def filter_session_list(request):
     })
 
 
-def create_sessions_by_month_dict(sessions,MONTHS,json_friendly=False):
+def create_sessions_by_month_dict(sessions,months,json_friendly=False):
     sessions_by_month = {}
-    for m,month in MONTHS.items():
+    for m,month in months.items():
         these_sessions = sessions.filter(datetime__month=m).order_by('datetime')
         if these_sessions.exists():
             if json_friendly:
