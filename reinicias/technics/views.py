@@ -218,7 +218,7 @@ def create_member(request):
 @require_http_methods(["POST"])
 @group_required("technics")
 def filter_user_list(request):
-    person_list = Person.objects.all()
+    person_list = Person.objects.all().order_by('user__username')
     query_name = request.POST.get('query_name')
     if query_name:
         person_list = person_list.filter(Q(name__icontains=query_name) | Q(last_name__icontains=query_name))
@@ -229,7 +229,7 @@ def filter_user_list(request):
         person_list = person_list.filter(user__groups__in=roles)
     
     users = []
-    for person in person_list.order_by('user__username'):
+    for person in person_list:
         users.append({
             'pk':person.pk,
             'username':person.user.username,
@@ -237,7 +237,6 @@ def filter_user_list(request):
             'groups':person.user.get_groups_display(),
             'email':person.user.email
         })
-    print(users)
     return JsonResponse({
         'users':users
     })
@@ -272,20 +271,15 @@ def show_session_list(request):
     problems_chart = create_problems_chart(reports_this_year,PROBLEMS_TRANSLATION)
     session_chart = create_monthly_session_chart(sessions_this_year,MONTHS,SESSION_TYPES_TRANSLATION)
 
-    sessions = {}
-    for m,month in MONTHS.items():
-        these_sessions = sessions_this_year.filter(datetime__month=m)
-        if these_sessions.exists():
-            sessions[month] = these_sessions
-        else:
-            sessions[month] = set()
+    sessions = create_sessions_by_month_dict(sessions_this_year,MONTHS)
 
     context = {
         'userGroups': request.user.groups.all(),
         'problemsChart':problems_chart,
         'sessionsChart':session_chart,
-        'thisYear':datetime.now(timezone.utc).year,
-        'states':Session.SESSION_TYPES,
+        'currentYear':year,
+        'maxYear':datetime.now(timezone.utc).year,
+        'states':Session.SESSION_STATES,
         'sessions':sessions,
         'months':MONTHS
     }
@@ -294,16 +288,21 @@ def show_session_list(request):
 
 
 def create_problems_chart(reports,PROBLEMS_TRANSLATION):
+    if not reports.exists():
+        return '<span>No hay datos suficientes</span>'
+
     common_problems = reports.values('initial_problem').annotate(count=Count('initial_problem')).order_by('-count')[:10]
 
     problems_fig = px.pie(
         values=[report['count'] for report in common_problems],
         names=[PROBLEMS_TRANSLATION[report['initial_problem']] for report in common_problems],
         labels=[PROBLEMS_TRANSLATION[report['initial_problem']] for report in common_problems],
-        color_discrete_sequence=['#ffb800','#402d7a','#ff0000','#00aabb','#d1ffac','#fface8','#acfff5','#fff7ac']
+        color_discrete_sequence=['#ffb800','#402d7a','#ff0000','#00aabb','#d1ffac','#fface8','#acfff5','#fff7ac'],
     )
 
     problems_fig.update_traces(
+        hoverinfo='label+value',
+        hovertemplate='%{label} <br>Cantidad: %{value}',
         hoverlabel={
             'font':{'family':'OpenSans'}
         },
@@ -326,6 +325,9 @@ def create_problems_chart(reports,PROBLEMS_TRANSLATION):
 
 
 def create_monthly_session_chart(sessions,MONTHS,SESSION_TYPES_TRANSLATION):
+    if not sessions.exists():
+        return '<span>No hay datos suficientes</span>'
+
     sessions_by_month_queryset = sessions.annotate(month=F('datetime__month')) \
     .values('month','session_type').annotate(count=Count(Concat('month','session_type',distinct=True)))
 
@@ -351,14 +353,18 @@ def create_monthly_session_chart(sessions,MONTHS,SESSION_TYPES_TRANSLATION):
         color_discrete_sequence=['#ffb800','#402d7a','#ff0000']
     )
     sessions_fig.update_traces(
+        hoverinfo='y',
+        hovertemplate='Cantidad: %{y}',
         hoverlabel={
-            'font':{'family':'OpenSans'}
+            'font':{
+                'family':'OpenSans',
+                'color':'#ffffff'},
+            'bordercolor':'#000000'
         },
         textfont={
             'color':'#ffffff',
             'family':'OpenSans'
-        },
-        selector=dict(type='bar'))
+        })
     
     sessions_fig.update_layout(
         legend={
@@ -375,3 +381,77 @@ def create_monthly_session_chart(sessions,MONTHS,SESSION_TYPES_TRANSLATION):
     )
 
     return sessions_fig.to_html()
+
+
+@require_http_methods(["POST"])
+@group_required("technics")
+def filter_session_list(request):
+    MONTHS = {
+        1:'Enero',
+        2:'Febrero',
+        3:'Marzo',
+        4:'Abril',
+        5:'Mayo',
+        6:'Junio',
+        7:'Julio',
+        8:'Agosto',
+        9:'Septiembre',
+        10:'Octubre',
+        11:'Noviembre',
+        12:'Diciembre',
+    }
+    SESSION_TYPES_TRANSLATION = {t:text for t,text in Session.SESSION_TYPES}
+
+
+    year = request.POST.get('year')
+    session_list = Session.objects.filter(datetime__year=year)
+    
+    state = request.POST.get('state')
+    if state:
+        session_list = session_list.filter(session_state=state)
+    
+    technicName = request.POST.get('technicName')
+    if technicName:
+        session_list = session_list.filter(Q(technic__person__name__icontains=technicName) | Q(technic__person__last_name__icontains=technicName))
+    
+    patientName = request.POST.get('patientName')
+    if patientName:
+        session_list = session_list.filter(Q(patient__person__name__icontains=technicName) | Q(patient__person__last_name__icontains=technicName)).distinct()
+
+
+    monthly_session_chart = create_monthly_session_chart(session_list,MONTHS,SESSION_TYPES_TRANSLATION)
+
+    sessions_by_month = create_sessions_by_month_dict(session_list,MONTHS,True)
+
+    return JsonResponse({
+        'sessions':sessions_by_month,
+        'sessionsChart':monthly_session_chart
+    })
+
+
+def create_sessions_by_month_dict(sessions,MONTHS,json_friendly=False):
+    sessions_by_month = {}
+    for m,month in MONTHS.items():
+        these_sessions = sessions.filter(datetime__month=m).order_by('datetime')
+        if these_sessions.exists():
+            if json_friendly:
+                sessions_this_month = []
+                for session in these_sessions:
+                    this_session_values = {
+                        'datetime_day':session.datetime.strftime('%Y'),
+                        'datetime_hour':session.datetime.strftime('%H:%M'),
+                        'title':session.title,
+                        'is_initial':session.is_initial,
+                        'technic_full_name':str(session.technic.get_person()),
+                        'patients':session.get_patients(),
+                        'session_type':session.get_session_type_display(),
+                        'session_state':session.get_session_state_display()
+                    } 
+                    sessions_this_month.append(this_session_values)
+                sessions_by_month[month] = sessions_this_month
+            else:
+                sessions_by_month[month] = these_sessions
+
+        else:
+            sessions_by_month[month] = []
+    return sessions_by_month

@@ -115,10 +115,14 @@ class Session(models.Model):
         return self.title
 
     def has_patients(self):
-        return self.patient.exists()
+        return self.patient is not None and self.patient.exists()
     
     def get_patients(self):
-        return ", ".join(self.patient.all()) if self.has_patients() else "-"
+        patient_names = []
+        for patient in self.patient.all():
+            patient_names.append(str(patient.get_person()))
+        res = ", ".join(list(patient_names)) if len(patient_names) > 0 else "-"
+        return res
 
 class SessionNote(models.Model):
     text = models.TextField(verbose_name='Texto')

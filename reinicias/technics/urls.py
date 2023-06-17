@@ -8,5 +8,6 @@ urlpatterns = [
     path('users/<int:user_id>/edit/',views.edit_user,name='technics_edit_user'),
     path('users/<int:user_id>/password/',views.change_password,name='technics_change_password'),
     path('users/filter/',views.filter_user_list,name='techncics_filter_user_list'),
-    path('sessions/',views.show_session_list,name='technics_session_list')
+    path('sessions/',views.show_session_list,name='technics_session_list'),
+    path('sessions/filter/',views.filter_session_list,name='technics_filter_session_list')
 ]

@@ -8,35 +8,46 @@
 <div id="id-form-container">
 {% include 'components/title.html' with type="technic-title" text="Sesiones" %}
 <div class="container">
-    <div class="row">
-        <form action="#" method="POST" class="form my-4 input-group">
-            <input type="number" name="year" class="form-control course-filter" min="2000" max="{{thisYear}}" step="1" value="{{thisYear}}">
+    <div class="row justify-content-center justify-content-md-start">
+        <form id="id-form-filter" action="#" method="POST" class="form mt-4 input-group col-12">
             <select class="form-select course-filter" name="state" placeholder="Filtra por estado...">
                 <option selected value="">Estado...</option>
                 {% for state,stateName in states %}
-                    <option value="{{state}}">{{stateName|capfirst}}</option>
+                <option value="{{state}}">{{stateName|capfirst}}</option>
                 {% endfor %}
             </select>
             <input type="text" name="technicName" class="form-control course-filter" name="query" placeholder="Filtra por técnico...">
             <input type="text" name="patientName" class="form-control course-filter" name="query" placeholder="Filtra por paciente...">
             <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
         </form>
-    </div>
 
+        <div class="col-6">
+            <form id="id-form-year" action="#" method="POST" class="form my-4 input-group">
+                <input type="number" name="year" class="form-control course-filter" min="2000" max="{{maxYear}}" step="1" value="{{currentYear}}">
+                <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
+            </form>
+        </div>
+    </div>
+    
     <div class="row">
-        <div class="col-12 col-lg-6">
+        <div class="col-12 mb-3 col-lg-6 text-center">
             <h2 class="text-center">Problemas m&aacute;s comunes</h2>
-            {{problemsChart | safe}}
+            <div id="id-div-problems-chart">
+                {{problemsChart | safe}}
+            </div>
         </div>
-        <div class="col-12 col-lg-6">
+        <div class="col-12 mb-3 col-lg-6 text-center">
             <h2 class="text-center">Sesiones por mes</h2>
-            {{sessionsChart | safe}}
+            <div id="id-div-sessions-chart">
+                {{sessionsChart | safe}}
+            </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 d-flex align-items-center">
             <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="#">A&ntilde;adir sesi&oacute;n</a></button>
+            <h2 class="ms-5 bi bi-arrow-down"></h2>
         </div>
     </div>
 
@@ -44,7 +55,7 @@
     <div id="id-table-{{months.forloop}}" class="row my-5 mt-md-3">
         <h2>{{month|capfirst}}</h2>
         <div class="col-12 table-responsive table-cyan">
-            <table class="table table-hover mb-0">
+            <table id="id-table-{{month}}" class="table table-hover mb-0">
                 <caption>{{month}}</caption>
                 <thead>
                     <th scope="col">D&iacute;a</th>
@@ -57,13 +68,13 @@
                     <th scope="col">Estado</th>
                     <th scope="col"></th>
                 </thead>
-                <tbody class="table-group-divider">
+                <tbody id="id-tablebody-{{month}}" class="table-group-divider">
                     {% for session in sessions|get_item:month %}
                         <tr style="cursor: pointer;" onclick="window.location.href = ''">
                             <td>{{session.datetime|date:"d"}}</td>
-                            <td>{{session.datetime|date:"h:i"}}</td>
+                            <td>{{session.datetime|date:"H:i"}}</td>
                             <td>{{session.technic}}</td>
-                            <td>{% if session.has_patients %}{{session.get_patients}}{% else %}-{% endif %}</td>
+                            <td>{{session.get_patients}}</td>
                             <td>{{session.title}}</td>
                             <td>{{session.is_initial}}</td>
                             <td>{{session.get_session_type_display}}</td>
@@ -78,4 +89,92 @@
     {% endfor %}
 </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    const formYear = document.getElementById('id-form-year');
+    formYear.addEventListener('submit',function(event) {
+        event.preventDefault();
+        var formData = new FormData(formYear);
+        let year = formData.get('year');
+        window.location = `/technics/sessions/?year=${year}`;
+    })
+</script>
+
+<script>
+    const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+    const formFilter = document.getElementById('id-form-filter');
+    formFilter.addEventListener('submit',function(event) {
+        event.preventDefault();
+        var formData = new FormData(formFilter);
+        let state = formData.get('state');
+        let technicName = formData.get('technicName');
+        let patientName = formData.get('patientName');
+
+        var urlParams = new URLSearchParams();
+        urlParams.append('state',state);
+        urlParams.append('technicName',technicName);
+        urlParams.append('patientName',patientName);
+        urlParams.append('year','{{currentYear}}')
+
+        fetch("filter/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+        },
+        body: urlParams.toString()
+        })
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
+            let clean_data = JSON.parse(data);
+            let sessions = clean_data['sessions'];
+
+            for (let month of MONTHS) {
+                let tablebody = document.getElementById(`id-tablebody-${month}`);
+                tablebody.innerHTML = '';
+                let rowsArray = createTableRows(sessions[month]);
+                for (let row of rowsArray) {
+                    tablebody.appendChild(row);
+                }
+            }
+
+            alert('El calendario de sesiones se ha actualizado.')
+            
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+        alert('An error occurred while processing the request.\n'+error);
+        });
+    })
+
+    function createTableRows(sessions) {
+        let rowsArray = [];
+        if (sessions.length > 0) {
+            for(let session of sessions) {
+                console.log(session);
+                let row = document.createElement('tr');
+                row.style = "cursor: pointer;";
+                row.innerHTML = `<td>${session.datetime_day}</td>
+                <td>${session.datetime_hour}</td>
+                <td>${session.technic_full_name}</td>
+                <td>${session.patients}</td>
+                <td>${session.title}</td>
+                <td>${session.is_initial}</td>
+                <td>${session.session_type}</td>
+                <td>${session.session_state}</td>
+                <td class="bi bi-x-square-fill text-danger"></td>`;
+                row.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.location.href = '';
+                })
+                rowsArray.push(row);
+            }
+        }
+        return rowsArray;
+    }
+</script>
 {% endblock %}
