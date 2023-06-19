@@ -6,7 +6,7 @@ from main.views import group_required
 from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
 from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, InitialReport, INITIAL_PROBLEMS
 from django.http import Http404, JsonResponse
-from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm
+from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q, F, Count
@@ -17,6 +17,7 @@ from django.db.models import CharField
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
+ERROR_404_SESSION = 'Esa sesión no existe'
 
 @require_http_methods(["GET"])
 @group_required("technics")
@@ -434,7 +435,8 @@ def create_sessions_by_month_dict(sessions,months,json_friendly=False):
                 sessions_this_month = []
                 for session in these_sessions:
                     this_session_values = {
-                        'datetime_day':session.datetime.strftime('%Y'),
+                        'pk':session.pk,
+                        'datetime_day':session.datetime.strftime('%d'),
                         'datetime_hour':session.datetime.strftime('%H:%M'),
                         'title':session.title,
                         'is_initial':session.is_initial,
@@ -451,3 +453,39 @@ def create_sessions_by_month_dict(sessions,months,json_friendly=False):
         else:
             sessions_by_month[month] = []
     return sessions_by_month
+
+@require_http_methods(["GET","POST"])
+@group_required("technics")
+@transaction.atomic()
+def create_session(request):
+    form = SessionCreateForm()
+
+    if request.method == 'POST':
+        form = SessionCreateForm(request.POST)
+
+        if form.is_valid():
+            data = form.cleaned_data
+            session = form.save(commit=False)
+            session_datetime = datetime.strptime(f'{data.get("date")} {data.get("time")}','%Y-%m-%d %H:%M:%S')
+            session.datetime = session_datetime
+            session.session_state='p'
+            session.save()
+            return redirect('/technics/sessions/')
+
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form
+    }
+    return render(request,'sessions/create.html',context)
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+@transaction.atomic()
+def delete_session(request,session_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    
+    Session.objects.get(pk=session_id).delete()
+
+    return JsonResponse({'response':'ok'})

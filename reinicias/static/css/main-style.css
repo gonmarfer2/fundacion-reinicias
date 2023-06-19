@@ -363,6 +363,7 @@ header {
 .r-form-field > input[type="password"],
 .r-form-field > input[type="email"],
 .r-form-field > input[type="date"],
+.r-form-field > input[type="time"],
 .r-form-field > input[type="number"] {
     width: 100%;
     height: var(--input-height);
@@ -375,7 +376,8 @@ header {
     border: transparent solid 2px;
 }
 
-.r-form-field > #id_preceeded_by {
+.r-form-field > #id_preceeded_by,
+.r-form-field > #id_patient {
     width: 100%;
     height: calc(var(--input-height)*3);
     border: transparent solid 2px;
