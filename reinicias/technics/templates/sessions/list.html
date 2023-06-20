@@ -76,7 +76,7 @@
                             <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.technic}}</td>
                             <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.get_patients}}</td>
                             <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.title}}</td>
-                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.is_initial}}</td>
+                            <td class="text-center" onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{% if session.is_initial %}<span class="bi bi-check-square-fill"></span>{% endif %}</td>
                             <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.get_session_type_display}}</td>
                             <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.get_session_state_display}}</td>
                             <td><span class="bi bi-x-square-fill text-danger" onclick="deleteSession('{{session.pk}}','id-{{month}}-{{forloop.counter}}')"></span></td>
@@ -172,7 +172,7 @@
                 <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.technic_full_name}</td>
                 <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.patients}</td>
                 <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.title}</td>
-                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.is_initial}</td>
+                <td class="text-center" onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.is_initial ? '<span class="bi bi-check-square-fill"></span>' : ''}</td>
                 <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.session_type}</td>
                 <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.session_state}</td>
                 <td><span class="bi bi-x-square-fill text-danger" onclick="deleteSession(${session.pk})"></span></td>`;
@@ -195,7 +195,6 @@
             }
             })
             .then(function(response) {
-                let responseText = response.text();
                 document.getElementById(rowId).remove();
             })
         }
