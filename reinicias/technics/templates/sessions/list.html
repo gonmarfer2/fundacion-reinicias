@@ -47,7 +47,7 @@
     <div class="row">
         <div class="col-12 d-flex align-items-center">
             <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="create/">A&ntilde;adir sesi&oacute;n</a></button>
-            <h2 class="ms-5 bi bi-arrow-down"></h2>
+            <h2 class="ms-5 bi bi-arrow-down">Calendario</h2>
         </div>
     </div>
 
@@ -71,14 +71,14 @@
                 <tbody id="id-tablebody-{{month}}" class="table-group-divider">
                     {% for session in sessions|get_item:month %}
                         <tr id="id-{{month}}-{{forloop.counter}}" style="cursor: pointer;">
-                            <td>{{session.datetime|date:"d"}}</td>
-                            <td>{{session.datetime|date:"H:i"}}</td>
-                            <td>{{session.technic}}</td>
-                            <td>{{session.get_patients}}</td>
-                            <td>{{session.title}}</td>
-                            <td>{{session.is_initial}}</td>
-                            <td>{{session.get_session_type_display}}</td>
-                            <td>{{session.get_session_state_display}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.datetime|date:"d"}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.datetime|date:"H:i"}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.technic}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.get_patients}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.title}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.is_initial}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.get_session_type_display}}</td>
+                            <td onclick="window.location.href = '/technics/sessions/{{session.pk}}'">{{session.get_session_state_display}}</td>
                             <td><span class="bi bi-x-square-fill text-danger" onclick="deleteSession('{{session.pk}}','id-{{month}}-{{forloop.counter}}')"></span></td>
                         </tr>                        
                     {% endfor %}
@@ -168,14 +168,14 @@
                 let row = document.createElement('tr');
                 row.style = "cursor: pointer;";
                 row.innerHTML = `<td>${session.datetime_day}</td>
-                <td>${session.datetime_hour}</td>
-                <td>${session.technic_full_name}</td>
-                <td>${session.patients}</td>
-                <td>${session.title}</td>
-                <td>${session.is_initial}</td>
-                <td>${session.session_type}</td>
-                <td>${session.session_state}</td>
-                <td><span class="bi bi-x-square-fill text-danger" onclick="deleteSession(${session.pk}})"></span></td>`;
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.datetime_hour}</td>
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.technic_full_name}</td>
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.patients}</td>
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.title}</td>
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.is_initial}</td>
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.session_type}</td>
+                <td onclick="window.location.href = '/technics/sessions/${session.pk}'">${session.session_state}</td>
+                <td><span class="bi bi-x-square-fill text-danger" onclick="deleteSession(${session.pk})"></span></td>`;
                 rowsArray.push(row);
             }
         }
@@ -195,7 +195,7 @@
             }
             })
             .then(function(response) {
-                responseText = response.text();
+                let responseText = response.text();
                 document.getElementById(rowId).remove();
             })
         }

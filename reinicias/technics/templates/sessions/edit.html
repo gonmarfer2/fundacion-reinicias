@@ -6,10 +6,9 @@
 {% load extra_tags %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
 <div id="id-form-container">
-{% include 'components/title.html' with type="technic-title" text="Sesiones" %}
 <div class="container">
     <div class="row">
-        <h1 class="my-4 simple-title col-12">A&Ntilde;adir sesi&Oacute;n</h1>
+        <h1 class="my-4 simple-title col-12">Editar sesi&Oacute;n</h1>
     </div>
 
     <div class="row">
@@ -40,11 +39,26 @@
             </div>
 
             <div class="row justify-content-center my-3">
-                <button type="submit" class="r-form-button">Crear sesi&oacute;n</button>
+                <button type="submit" class="r-form-button">Aceptar cambios</button>
             </div>
         </form>
     </div>
 </div>
+
+{% if notes %}
+<div class="container">
+    <div class="row mb-3">
+        <h2>Anotaciones</h2>
+    </div>
+    {% for note in notes %}
+        <div class="row">
+            <div class="col-12">
+                <strong>{{note.technic}}</strong><span>{{note.text}}</span>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 </div>
 {% endblock %}

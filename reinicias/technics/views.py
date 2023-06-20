@@ -6,7 +6,7 @@ from main.views import group_required
 from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
 from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, InitialReport, INITIAL_PROBLEMS
 from django.http import Http404, JsonResponse
-from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm
+from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm, SessionEditForm, NoteCreateForm
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q, F, Count
@@ -18,6 +18,7 @@ from django.db.models import CharField
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
 ERROR_404_SESSION = 'Esa sesión no existe'
+ERROR_404_SESSION_NOTE = 'Esa anotación no existe'
 
 @require_http_methods(["GET"])
 @group_required("technics")
@@ -470,7 +471,7 @@ def create_session(request):
             session.datetime = session_datetime
             session.session_state='p'
             session.save()
-            return redirect('/technics/sessions/')
+            return redirect(f'/technics/sessions/{session.pk}/')
 
     context = {
         'userGroups':request.user.groups.all(),
@@ -487,5 +488,111 @@ def delete_session(request,session_id):
         raise Http404(ERROR_404_SESSION)
     
     Session.objects.get(pk=session_id).delete()
+
+    return JsonResponse({'response':'ok'})
+
+
+@require_http_methods(["GET","POST"])
+@group_required("technics")
+@transaction.atomic()
+def edit_session(request,session_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    
+    this_session = Session.objects.get(pk=session_id)
+    initial = {
+        'date':this_session.datetime.strftime('%Y-%m-%d'),
+        'time':this_session.datetime.time()
+    }
+
+    form = SessionEditForm(instance=this_session,initial=initial,request=request)
+
+    if request.method == 'POST':
+        form = SessionEditForm(request.POST,instance=this_session,request=request)
+
+        if form.is_valid():
+            data = form.cleaned_data
+            this_session_datetime = datetime.strptime(f'{data.get("date")} {data.get("time")}','%Y-%m-%d %H:%M:%S')
+            this_session.datetime = this_session_datetime
+            this_session.title = data.get('title')
+            this_session.is_initial = data.get('is_initial')
+            this_session.session_type = data.get('session_type')
+            this_session.session_state = data.get('session_state')
+            this_session.technic = data.get('technic')
+            this_session.patient.set(data.get('patient'))
+            this_session.save()
+            return redirect(f'/technics/sessions/{this_session.pk}/')
+
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form
+    }
+    return render(request,'sessions/edit.html',context)
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+def show_session_details(request,session_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    
+    this_session = Session.objects.get(pk=session_id)
+    initial = {
+        'date':this_session.datetime.strftime('%Y-%m-%d'),
+        'time':this_session.datetime.time()
+    }
+
+    form = SessionEditForm(instance=this_session,initial=initial,disabled=True)
+
+    notes = SessionNote.objects.filter(session=this_session).order_by('-creation_datetime')
+
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form,
+        'session':this_session,
+        'notes':notes
+    }
+    return render(request,'sessions/details.html',context)
+
+
+@require_http_methods(["GET","POST"])
+@group_required("technics")
+@transaction.atomic()
+def add_note_session(request,session_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    
+    this_session = Session.objects.get(pk=session_id)
+    form = NoteCreateForm()
+
+    if request.method == 'POST':
+        form = NoteCreateForm(request.POST)
+
+        if form.is_valid():
+            new_note = form.save(commit=False)
+
+            this_technic = Technic.objects.get(person__user=request.user)
+            new_note.technic = this_technic
+            new_note.session = this_session
+            new_note.save()
+
+            return redirect(f'/technics/sessions/{this_session.pk}')
+
+    context = {
+        'session':this_session,
+        'userGroups':request.user.groups.all(),
+        'form':form
+    }
+    return render(request, 'sessions/notes/create.html', context)
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+@transaction.atomic()
+def delete_note_session(request,session_id,note_id):
+    if SessionNote.objects.filter(pk=note_id).count() == 0:
+        raise Http404(ERROR_404_SESSION_NOTE)
+    
+    SessionNote.objects.get(pk=note_id).delete()
 
     return JsonResponse({'response':'ok'})

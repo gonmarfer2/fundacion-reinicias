@@ -770,3 +770,15 @@ button.accordion-button:focus {
     border: var(--cyan) solid 2px;
     border-width: 2px 0;
 }
+
+.purple-diviser {
+    border: var(--purple) solid 4px;
+    border-width: 0 0 4px 0;
+}
+
+.note-text {
+    overflow-x: auto;
+    overflow-y: scroll;
+    word-wrap: break-word;
+    max-height: 480px;
+}

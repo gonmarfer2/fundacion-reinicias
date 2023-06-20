@@ -126,6 +126,7 @@ class Session(models.Model):
 
 class SessionNote(models.Model):
     text = models.TextField(verbose_name='Texto')
+    creation_datetime = models.DateTimeField(verbose_name='Fecha y hora de creación',auto_now=True)
 
     technic = models.ForeignKey('main.Technic',on_delete=models.CASCADE,verbose_name='Técnico')
     session = models.ForeignKey(Session,on_delete=models.CASCADE,verbose_name='Sesión')

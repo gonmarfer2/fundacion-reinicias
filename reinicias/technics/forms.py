@@ -1,7 +1,7 @@
 from typing import Any, Dict
 from django import forms
-from main.models import Person, User
-from .models import Session, Patient, PatientRecord, PatientRecordDocument, PatientRecordHistory
+from main.models import Person, User, Technic
+from .models import Session, Patient, PatientRecord, PatientRecordDocument, PatientRecordHistory, SessionNote
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
@@ -81,7 +81,7 @@ class SessionCreateForm(forms.ModelForm):
 
     date = forms.DateField(label='Fecha',widget=forms.DateInput(format='%d/%m/%Y',attrs={'type':'date'}))
     time = forms.TimeField(label='Hora',widget=forms.TimeInput(format='%H:%M',attrs={'type':'time'}))
-    patient = forms.ModelMultipleChoiceField(queryset=Patient.objects.all().order_by('person__name','person__last_name'),label='Paciente(s)',widget=forms.CheckboxSelectMultiple)
+    patient = forms.ModelMultipleChoiceField(queryset=Patient.objects.all().order_by('person__name','person__last_name'),label='Paciente(s)',widget=forms.CheckboxSelectMultiple,required=False)
     is_initial = forms.BooleanField(required=False,label='Es inicial')
 
     class Meta:
@@ -97,9 +97,35 @@ class SessionCreateForm(forms.ModelForm):
                 "No se pueden crear sesiones anteriores a la fecha actual.",
                 code="sessions_after_now"
             )
+        
+        # Date not coincides for technic and patient(s)
+        this_date = self.cleaned_data.get('date')
+        this_time = self.cleaned_data.get('time')
+
+        aux_time = datetime(2000,1,1,this_time.hour,this_time.minute)
+        this_time_lower_bound = (aux_time - timedelta(minutes=5)).time()
+        this_time_upper_bound = (aux_time + timedelta(minutes=5)).time()
+
+        this_technic = self.cleaned_data.get('technic')
+        this_patient = self.cleaned_data.get('patient',[])
+
+        session_exists_technic = Session.objects.exclude(pk=self.instance.pk).filter(technic=this_technic,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound).exists()
+        if session_exists_technic:
+            raise ValidationError(
+                "Ya existe una sesión para ese técnico en esa fecha y hora.",
+                code="already_session_technic"
+            )
+        
+        if len(this_patient) > 0:
+            session_exists_patient = Session.objects.exclude(pk=self.instance.pk).filter(patient__in=this_patient,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound).exists()
+            if session_exists_patient:
+                raise ValidationError(
+                    "Ya existe una sesión para los pacientes seleccionados en esa fecha y hora.",
+                    code="already_session_patients"
+                )
 
         # Patient clean
-        patient_list = self.cleaned_data.get('patient')
+        patient_list = self.cleaned_data.get('patient',[])
 
         is_initial = self.cleaned_data.get('is_initial')
         if is_initial and len(patient_list) > 0:
@@ -109,16 +135,93 @@ class SessionCreateForm(forms.ModelForm):
             )
 
         session_type = self.cleaned_data.get('session_type')
-        if (session_type == 'i' or session_type == 'f') and len(patient_list) != 1:
+        if not is_initial and (session_type == 'i' or session_type == 'f') and len(patient_list) != 1:
             raise ValidationError(
-                "Si la sesión es individual o familiar, debe seleccionarse un paciente.",
+                "Si la sesión es individual o familiar, debe seleccionarse solo un paciente.",
                 code="individual_one_patient"
             )
         
-        if session_type == 'g' and len(patient_list) < 2:
+        if not is_initial and session_type == 'g' and len(patient_list) < 2:
+            raise ValidationError(
+                "Si la sesión es grupal, deben seleccionarse, al menos, dos pacientes.",
+                code="groupal_two_patients"
+            )
+
+class SessionEditForm(forms.ModelForm):
+
+    date = forms.DateField(label='Fecha',widget=forms.DateInput(format='%d/%m/%Y',attrs={'type':'date'}))
+    time = forms.TimeField(label='Hora',widget=forms.TimeInput(format='%H:%M',attrs={'type':'time'}))
+    patient = forms.ModelMultipleChoiceField(queryset=Patient.objects.all().order_by('person__name','person__last_name'),label='Paciente(s)',widget=forms.CheckboxSelectMultiple,required=False)
+    is_initial = forms.BooleanField(required=False,label='Es inicial')
+
+    class Meta:
+        model = Session
+        fields = ['date','time','technic','title','patient','is_initial','session_type','session_state']
+
+    def __init__(self,*args,**kwargs):
+        disabled = kwargs.pop('disabled',False)
+        self.request = kwargs.pop('request',None)
+        super().__init__(*args,**kwargs)
+
+        if disabled:
+            for field in self.fields:
+                self.fields[field].widget.attrs['disabled'] = True
+
+    def clean(self):
+        super().clean()
+
+        # Date not coincides for technic and patient(s)
+        this_date = self.cleaned_data.get('date')
+        this_time = self.cleaned_data.get('time')
+
+        aux_time = datetime(2000,1,1,this_time.hour,this_time.minute)
+        this_time_lower_bound = (aux_time - timedelta(minutes=5)).time()
+        this_time_upper_bound = (aux_time + timedelta(minutes=5)).time()
+
+        this_technic = self.cleaned_data.get('technic')
+        this_patient = self.cleaned_data.get('patient',[])
+
+        session_exists_technic = Session.objects.exclude(pk=self.instance.pk).filter(technic=this_technic,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound).exists()
+        if session_exists_technic:
+            raise ValidationError(
+                "Ya existe una sesión para ese técnico en esa fecha y hora.",
+                code="already_session_technic"
+            )
+        
+        if len(this_patient) > 0:
+            session_exists_patient = Session.objects.exclude(pk=self.instance.pk).filter(patient__in=this_patient,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound).exists()
+            if session_exists_patient:
+                raise ValidationError(
+                    "Ya existe una sesión para los pacientes seleccionados en esa fecha y hora.",
+                    code="already_session_patients"
+                )
+
+        # Patient clean
+        patient_list = self.cleaned_data.get('patient',[])
+
+        is_initial = self.cleaned_data.get('is_initial')
+        if is_initial and len(patient_list) > 0:
+            raise ValidationError(
+                "Si la sesión es inicial, no se pueden seleccionar pacientes.",
+                code="initial_no_patient"
+            )
+
+        session_type = self.cleaned_data.get('session_type')
+        if not is_initial and (session_type == 'i' or session_type == 'f') and len(patient_list) != 1:
+            raise ValidationError(
+                "Si la sesión es individual o familiar, debe seleccionarse solo un paciente.",
+                code="individual_one_patient"
+            )
+        
+        if not is_initial and session_type == 'g' and len(patient_list) < 2:
             raise ValidationError(
                 "Si la sesión es grupal, deben seleccionarse, al menos, dos pacientes.",
                 code="groupal_two_patients"
             )
 
 
+class NoteCreateForm(forms.ModelForm):
+    
+    class Meta:
+        model = SessionNote
+        fields = ['text']
