@@ -44,7 +44,12 @@
             <div class="row justify-content-start my-3">
                 <div class="col-12 hstack gap-3">
                     <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="edit/">Editar</a></button>
-                    <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="#">Generar informe</a></button>
+                    {% if session.is_initial and session.session_type != 'g' and not report %}
+                        <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="reports/create/">Generar informe</a></button>
+                    {% endif %}
+                    {% if session.is_initial and session.session_type != 'g' and report %}
+                        <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="reports/{{report.pk}}/">Ver informe</a></button>
+                    {% endif %}
                 </div>
             </div>
         </form>

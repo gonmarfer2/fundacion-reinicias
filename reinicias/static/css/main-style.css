@@ -12,6 +12,7 @@
     --light-cyan: #acfff5;
     --light-magenta: #fface8;
     --light-green: #d1ffac;
+    --white-dove: #eaeaea;
 
     --md-border: solid 3px;
     
@@ -357,6 +358,15 @@ header {
     min-height: var(--input-height);
     display: flex;
     align-items: center;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled,
+input:read-only,
+textarea:read-only {
+    color: var(--black) !important;
+    background-color: var(--white-dove) !important;
 }
 
 .r-form-field > input[type="text"],

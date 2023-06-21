@@ -1,15 +1,14 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Lista de usuarios{% endblock %}
+{% block title %}Registrar paciente{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
 <div id="id-form-container">
-{% include 'components/title.html' with type="technic-title" text="Sesiones" %}
-<div class="container">
+<div class="container mb-4">
     <div class="row">
-        <h1 class="my-4 simple-title col-12">A&Ntilde;adir sesi&Oacute;n</h1>
+        <h1 class="my-4 simple-title col-12">Registrar paciente</h1>
     </div>
 
     <div class="row">
@@ -25,7 +24,7 @@
         <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
             <div class="row">
                 {% for field in form %}
-                    <div class="col-12 mb-2">
+                    <div class="col-12 col-md-6 mb-2">
                         <div class="w-100 r-form-tag">
                             {{field.label_tag}}
                         </div>
@@ -40,7 +39,7 @@
             </div>
 
             <div class="row justify-content-center my-3">
-                <button type="submit" class="r-form-button">Crear</button>
+                <button type="submit" class="r-form-button">{{submitText}}</button>
             </div>
         </form>
     </div>

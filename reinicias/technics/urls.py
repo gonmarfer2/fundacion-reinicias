@@ -15,5 +15,10 @@ urlpatterns = [
     path('sessions/<int:session_id>/edit/',views.edit_session,name='technics_session_edit'),
     path('sessions/delete/<int:session_id>/',views.delete_session,name='technics_session_delete'),
     path('sessions/<int:session_id>/notes/add/',views.add_note_session,name='technics_sessionnote_add'),
-    path('sessions/<int:session_id>/notes/<int:note_id>/delete/',views.delete_note_session,name='technics_sessionnote_delete')
+    path('sessions/<int:session_id>/notes/<int:note_id>/delete/',views.delete_note_session,name='technics_sessionnote_delete'),
+    path('sessions/<int:session_id>/reports/create/',views.create_report_session,name='technics_sessionreport_create'),
+    path('sessions/<int:session_id>/reports/<int:report_id>/',views.show_report_session,name='technics_sessionreport_show'),
+    path('sessions/<int:session_id>/reports/<int:report_id>/edit/',views.edit_report_session,name='technics_sessionreport_edit'),
+    path('sessions/<int:session_id>/reports/<int:report_id>/register/',views.register_patient_report,name='technics_sessionreport_register'),
+    #path('sessions/<int:session_id>/reports/<int:report_id>/generatepdf/',views.report_generate_pdf,name='technics_sessionreport_generatepdf'),
 ]

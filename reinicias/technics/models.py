@@ -136,10 +136,10 @@ class SessionNote(models.Model):
 
 
 class InitialReport(models.Model):
-    datetime =models.DateTimeField(verbose_name='Fecha y hora')
+    datetime =models.DateTimeField(auto_now=True,verbose_name='Fecha y hora')
     record_number = models.CharField(max_length=255,validators=[
         RegexValidator(regex=r"^FR1800\d+",
-                       message="El expediente debe tener el formato FR1800X, donde X es una cifra entera positiva.")
+                       message="El expediente debe tener el formato FR1800X, donde X es una cifra entera positiva."),
         ],verbose_name="Número de expediente")
     initial_problem = models.CharField(max_length=3,choices=INITIAL_PROBLEMS,verbose_name='Tipo de demanda')
     name = models.CharField(max_length=255,verbose_name='Nombre')
@@ -157,7 +157,15 @@ class InitialReport(models.Model):
     answer_plan = models.TextField(verbose_name='Plan de actuación')
     observations = models.TextField(verbose_name='Observaciones')
 
-    session = models.ForeignKey(Session,on_delete=models.CASCADE,verbose_name='Sesión')
+    session = models.OneToOneField(Session,on_delete=models.CASCADE,verbose_name='Sesión')
 
     def __str__(self) -> str:
         return f'Informe inicial {self.record_number}'
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['record_number'],
+                name='report_record_number',
+                violation_error_message='Ya existe un expediente con ese número.'
+            )]

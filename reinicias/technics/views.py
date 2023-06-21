@@ -4,21 +4,24 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from main.views import group_required
 from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
-from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, InitialReport, INITIAL_PROBLEMS
+from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, \
+    InitialReport, INITIAL_PROBLEMS
 from django.http import Http404, JsonResponse
-from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm, SessionEditForm, NoteCreateForm
+from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm, SessionEditForm, \
+    NoteCreateForm, InitialReportCreateForm, PatientCreateForm
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Q, F, Count
 from django.db.models.functions import Concat
 import plotly.express as px
 from datetime import datetime, timezone
-from django.db.models import CharField
+from django.core.exceptions import ValidationError
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
 ERROR_404_SESSION = 'Esa sesión no existe'
 ERROR_404_SESSION_NOTE = 'Esa anotación no existe'
+ERROR_404_REPORT = 'Ese informe no existe'
 
 MONTHS = {
         1:'Enero',
@@ -63,7 +66,7 @@ def show_user_list(request):
 @require_http_methods(["GET"])
 @group_required("technics","patients")
 def show_user_details(request,user_id):
-    if Person.objects.filter(user__pk=user_id).count() == 0:
+    if Person.objects.filter(pk=user_id).count() == 0:
         raise Http404(ERROR_404_PERSON)
     
     this_person = Person.objects.get(pk=user_id)
@@ -102,10 +105,10 @@ def show_user_details(request,user_id):
 @group_required("technics")
 @transaction.atomic()
 def edit_user(request,user_id):
-    if Person.objects.filter(user__pk=user_id).count() == 0:
+    if Person.objects.filter(pk=user_id).count() == 0:
         raise Http404(ERROR_404_PERSON)
     
-    this_person = Person.objects.get(user__id=user_id)
+    this_person = Person.objects.get(pk=user_id)
 
     initial_values = {
         'username':this_person.get_user().username,
@@ -146,7 +149,7 @@ def edit_user(request,user_id):
             this_person.get_person().save()
             this_person.save()
 
-            return redirect(f'/technics/users/{this_person.get_user().pk}/')
+            return redirect(f'/technics/users/{this_person.get_person().pk}/')
 
     context = {
         'thisUser':this_person,
@@ -159,9 +162,9 @@ def edit_user(request,user_id):
 
 @require_http_methods(["GET","POST"])
 def change_password(request,user_id):
-    if Person.objects.filter(user__pk=user_id).count() == 0:
+    if Person.objects.filter(pk=user_id).count() == 0:
         raise Http404(ERROR_404_PERSON)
-    this_person = Person.objects.get(user__id=user_id)
+    this_person = Person.objects.get(pk=user_id)
     if this_person.get_user() != request.user and not request.user.is_superuser:
         raise PermissionDenied()
     
@@ -175,7 +178,7 @@ def change_password(request,user_id):
             this_person.get_user().set_password(data.get('password1'))
             this_person.get_user().save()
 
-            return redirect(f'/technics/users/{this_person.get_user().pk}/')
+            return redirect(f'/technics/users/{this_person.get_person().pk}/')
         
     context = {
         'form':form,
@@ -225,7 +228,7 @@ def create_member(request):
                 )
                 new_technic.save()
 
-            return redirect(f'/technics/users/{new_user.pk}/')
+            return redirect(f'/technics/users/{new_person.pk}/')
     
     context = {
         'form':form,
@@ -534,11 +537,14 @@ def show_session_details(request,session_id):
 
     notes = SessionNote.objects.filter(session=this_session).order_by('-creation_datetime')
 
+    report = InitialReport.objects.filter(session=this_session).first()
+
     context = {
         'userGroups':request.user.groups.all(),
         'form':form,
         'session':this_session,
-        'notes':notes
+        'notes':notes,
+        'report':report
     }
     return render(request,'sessions/details.html',context)
 
@@ -584,3 +590,153 @@ def delete_note_session(request,session_id,note_id):
     SessionNote.objects.get(pk=note_id).delete()
 
     return JsonResponse({'response':'ok'})
+
+
+@require_http_methods(["GET","POST"])
+@group_required("technics")
+@transaction.atomic()
+def create_report_session(request,session_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    
+    this_session = Session.objects.get(pk=session_id)
+    form = InitialReportCreateForm(session_id=this_session.pk)
+
+    if request.method == 'POST':
+        form = InitialReportCreateForm(request.POST,session_id=this_session.pk)
+
+        if form.is_valid():
+            new_report = form.save(commit=False)
+            new_report.session = this_session
+            new_report.save()
+
+            return redirect(f'/technics/sessions/{this_session.pk}/reports/{new_report.pk}/')
+    
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form,
+        'submitText':'Crear'
+    }
+
+    return render(request,'sessions/reports/create.html',context)
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+@transaction.atomic()
+def show_report_session(request,session_id,report_id):
+    if InitialReport.objects.filter(pk=report_id).count() == 0:
+        raise Http404(ERROR_404_REPORT)
+    
+    this_report = InitialReport.objects.get(pk=report_id)
+    form = InitialReportCreateForm(instance=this_report,disabled=True)
+    record_exists = PatientRecord.objects.filter(number=this_report.record_number)
+
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form,
+        'hasRecord':record_exists
+    }
+
+    return render(request,'sessions/reports/details.html',context)
+
+
+@require_http_methods(["GET","POST"])
+@group_required("technics")
+@transaction.atomic()
+def edit_report_session(request,session_id,report_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    if InitialReport.objects.filter(pk=report_id).count() == 0:
+        raise Http404(ERROR_404_REPORT)
+    
+    this_session = Session.objects.get(pk=session_id)
+    this_report = InitialReport.objects.get(pk=report_id)
+    form = InitialReportCreateForm(instance=this_report,session_id=this_session.pk)
+
+    if request.method == 'POST':
+        form = InitialReportCreateForm(request.POST,instance=this_report,session_id=this_session.pk)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(f'/technics/sessions/{this_session.pk}/reports/{this_report.pk}/')
+    
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form,
+        'submitText':'Aceptar cambios'
+    }
+
+    return render(request,'sessions/reports/create.html',context)
+
+
+@require_http_methods(["GET","POST"])
+@group_required("technics")
+@transaction.atomic()
+def register_patient_report(request,session_id,report_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    if InitialReport.objects.filter(pk=report_id).count() == 0:
+        raise Http404(ERROR_404_REPORT)
+    
+    this_report = InitialReport.objects.get(pk=report_id)
+
+    initial_values = {
+        'name':this_report.name,
+        'last_name':this_report.last_name,
+        'roles':'Paciente'
+    }
+    form = PatientCreateForm(initial=initial_values)
+    print(form.data)
+
+    if request.method == 'POST':
+        form = PatientCreateForm(request.POST,initial=initial_values)
+
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.save()
+
+            data = form.cleaned_data
+            
+            new_user.groups.add(Group.objects.get_or_create(name='patients')[0])
+
+            new_person = Person(
+                user=new_user,
+                name=this_report.name,
+                last_name=this_report.last_name,
+                birth_date=data.get('birth_date'),
+                telephone=data.get('telephone'),
+                sex=data.get('sex')
+                )
+            new_person.save()
+
+            new_patient = Patient(
+                person=new_person,
+                school=data.get('school')
+            )
+            new_patient.save()
+
+            new_patient_record = PatientRecord(
+                number=this_report.record_number,
+                patient=new_patient
+            )
+            new_patient_record.save()
+
+            new_patient_record_history_entry = PatientRecordHistory(
+                state='a',
+                initial_problem=this_report.initial_problem,
+                record=new_patient_record
+            )
+            new_patient_record_history_entry.save()
+
+            return redirect(f'/technics/users/{new_person.pk}')
+
+    
+    context = {
+        'userGroups':request.user.groups.all(),
+        'form':form,
+        'submitText':'Registrar'
+    }
+
+    return render(request,'sessions/reports/register_patient.html',context)

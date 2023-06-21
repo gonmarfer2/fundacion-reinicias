@@ -1,7 +1,7 @@
 from typing import Any, Dict
 from django import forms
 from main.models import Person, User, Technic
-from .models import Session, Patient, PatientRecord, PatientRecordDocument, PatientRecordHistory, SessionNote
+from .models import Session, Patient, PatientRecord, PatientRecordDocument, PatientRecordHistory, SessionNote, InitialReport
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
@@ -91,6 +91,8 @@ def clean_session_forms(this_form):
 
     session_exists_technic = Session.objects.exclude(pk=this_form.instance.pk).filter(technic=this_technic,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound).exists()
     if session_exists_technic:
+        print(Session.objects.exclude(pk=this_form.instance.pk).filter(technic=this_technic,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound))
+        print(this_form.instance)
         raise ValidationError(
             "Ya existe una sesión para ese técnico en esa fecha y hora.",
             code="already_session_technic"
@@ -127,6 +129,7 @@ def clean_session_forms(this_form):
             code="groupal_two_patients"
         )
 
+
 class SessionCreateForm(forms.ModelForm):
 
     date = forms.DateField(label='Fecha',widget=forms.DateInput(format='%d/%m/%Y',attrs={'type':'date'}))
@@ -149,6 +152,7 @@ class SessionCreateForm(forms.ModelForm):
             )'''
         
         clean_session_forms(self)
+
 
 class SessionEditForm(forms.ModelForm):
 
@@ -183,3 +187,52 @@ class NoteCreateForm(forms.ModelForm):
     class Meta:
         model = SessionNote
         fields = ['text']
+
+
+class InitialReportCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = InitialReport
+        fields = ['record_number','initial_problem','name','last_name',
+                  'treatment_type','first_evaluation','family_situation',
+                  'social_situation','academic_situation','problem_situation',
+                  'drug_history','leisure','labour_situation','social_diagnostic',
+                  'answer_plan','observations']
+        
+    def __init__(self,*args,**kwargs):
+        disabled = kwargs.pop('disabled',False)
+        self.session_id = kwargs.pop('session_id',None)
+        super().__init__(*args,**kwargs)
+
+        if disabled:
+            for field in self.fields:
+                self.fields[field].widget.attrs['disabled'] = True
+
+    def clean(self):
+        super().clean()
+
+        if self.session_id and not self.instance:
+            reports_for_session = Session.objects.filter(pk=self.session_id)
+            if reports_for_session.count() != 0:
+                raise ValidationError(
+                    "Ya existe un informe para la misma sesión",
+                    code='duplicate_report'
+                )
+            
+
+class PatientCreateForm(UserCreationForm):
+    username = forms.CharField(max_length=30,label='Nombre de usuario')
+    birth_date = forms.DateField(label='Fecha de nacimiento',widget=forms.DateInput(attrs={'type':'date'},format='%Y/%m/%d'))
+    password1 = forms.CharField(label='Contraseña',max_length=190,widget=forms.PasswordInput)
+    password2 = forms.CharField(max_length=190,label='Repetir contraseña',widget=forms.PasswordInput)
+    name = forms.CharField(required=False,max_length=255,label='Nombre',widget=forms.TextInput(attrs={'readonly':True}))
+    last_name = forms.CharField(required=False,max_length=255,label='Apellidos',widget=forms.TextInput(attrs={'readonly':True}))
+    email = forms.EmailField(label='Correo electrónico')
+    telephone = forms.RegexField(regex=r"^\+?1?\d{9,15}$",label='Teléfono')
+    sex = forms.ChoiceField(choices=Person.SEX_CHOICES,label='Sexo')
+    roles = forms.CharField(required=False,max_length=255,label='Rol',widget=forms.TextInput(attrs={'readonly':True}))
+    school = forms.CharField(max_length=4096,label='Centro escolar')
+
+    class Meta:
+        model = User
+        fields = ['username','birth_date','password1','password2','name','last_name','email','telephone','sex','roles']
