@@ -20,6 +20,23 @@ ERROR_404_PERSON = 'Ese usuario no existe'
 ERROR_404_SESSION = 'Esa sesión no existe'
 ERROR_404_SESSION_NOTE = 'Esa anotación no existe'
 
+MONTHS = {
+        1:'Enero',
+        2:'Febrero',
+        3:'Marzo',
+        4:'Abril',
+        5:'Mayo',
+        6:'Junio',
+        7:'Julio',
+        8:'Agosto',
+        9:'Septiembre',
+        10:'Octubre',
+        11:'Noviembre',
+        12:'Diciembre',
+    }
+
+SESSION_TYPES_TRANSLATION = {t:text for t,text in Session.SESSION_TYPES}
+
 @require_http_methods(["GET"])
 @group_required("technics")
 def show_user_list(request):
@@ -248,21 +265,7 @@ def filter_user_list(request):
 @require_http_methods(["GET"])
 @group_required("technics")
 def show_session_list(request):
-    MONTHS = {
-        1:'Enero',
-        2:'Febrero',
-        3:'Marzo',
-        4:'Abril',
-        5:'Mayo',
-        6:'Junio',
-        7:'Julio',
-        8:'Agosto',
-        9:'Septiembre',
-        10:'Octubre',
-        11:'Noviembre',
-        12:'Diciembre',
-    }
-    SESSION_TYPES_TRANSLATION = {t:text for t,text in Session.SESSION_TYPES}
+    
     year = request.GET.get('year')
     if year == None:
         year = datetime.now(timezone.utc).year
@@ -281,7 +284,6 @@ def show_session_list(request):
         'problemsChart':problems_chart,
         'sessionsChart':session_chart,
         'currentYear':year,
-        'maxYear':datetime.now(timezone.utc).year,
         'states':Session.SESSION_STATES,
         'sessions':sessions,
         'months':MONTHS
@@ -386,22 +388,6 @@ def create_monthly_session_chart(sessions,months,session_types_translation):
 @require_http_methods(["POST"])
 @group_required("technics")
 def filter_session_list(request):
-    MONTHS = {
-        1:'Enero',
-        2:'Febrero',
-        3:'Marzo',
-        4:'Abril',
-        5:'Mayo',
-        6:'Junio',
-        7:'Julio',
-        8:'Agosto',
-        9:'Septiembre',
-        10:'Octubre',
-        11:'Noviembre',
-        12:'Diciembre',
-    }
-    SESSION_TYPES_TRANSLATION = {t:text for t,text in Session.SESSION_TYPES}
-
 
     year = request.POST.get('year')
     session_list = Session.objects.filter(datetime__year=year)
@@ -455,6 +441,7 @@ def create_sessions_by_month_dict(sessions,months,json_friendly=False):
             sessions_by_month[month] = []
     return sessions_by_month
 
+
 @require_http_methods(["GET","POST"])
 @group_required("technics")
 @transaction.atomic()
@@ -471,6 +458,7 @@ def create_session(request):
             session.datetime = session_datetime
             session.session_state='p'
             session.save()
+            session.patient.set(data.get('patient'))
             return redirect(f'/technics/sessions/{session.pk}/')
 
     context = {

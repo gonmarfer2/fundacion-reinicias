@@ -167,6 +167,8 @@ class SessionEditForm(forms.ModelForm):
         super().__init__(*args,**kwargs)
 
         if disabled:
+            self.fields['patient'].queryset = self.instance.patient.all()
+            self.fields['patient'].widget.choices = self.fields['patient'].choices
             for field in self.fields:
                 self.fields[field].widget.attrs['disabled'] = True
 
