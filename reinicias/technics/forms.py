@@ -140,13 +140,13 @@ class SessionCreateForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        # Datetime clean
-        session_datetime = datetime.strptime(f'{self.cleaned_data.get("date")} {self.cleaned_data.get("time")}','%Y-%m-%d %H:%M:%S')
+        # Datetime clean // Commented out in case it's necessary in the future
+        '''session_datetime = datetime.strptime(f'{self.cleaned_data.get("date")} {self.cleaned_data.get("time")}','%Y-%m-%d %H:%M:%S')
         if (session_datetime + timedelta(minutes=2)) < datetime.now():
             raise ValidationError(
                 "No se pueden crear sesiones anteriores a la fecha actual.",
                 code="sessions_after_now"
-            )
+            )'''
         
         clean_session_forms(self)
 
