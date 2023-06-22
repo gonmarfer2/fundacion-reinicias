@@ -150,28 +150,22 @@ class Calification(models.Model):
     def get_value(self):
         value = 0.0
         questions = Question.objects.filter(autoevaluation=self.autoevaluation)
-        print(questions)
         questions_count = questions.count()
-        print(questions_count)
         for question in questions:
             students_answers = self.student.options_chosen.filter(question=question)
-            print(students_answers)
             if not question.is_multiple:
                 for answer in students_answers:
                     value += self.__sum_value(answer,float(self.autoevaluation.penalization_factor),questions_count)
             else:
                 question_options_count = QuestionOption.objects.filter(question=question).count()
-                print(f'Opciones: {question_options_count}')
                 for answer in students_answers:
                     value += self.__sum_value(answer,float(self.autoevaluation.penalization_factor),(questions_count*question_options_count))
         return value if value > 0.0 else 0.0
     
     def __sum_value(self,answer,penalization_factor,total):
         if answer.is_correct:
-            print(f'Correct: {10/total}')
             return 10/total
         else:
-            print(f'Correct: {(-10)*penalization_factor/total}')
             return (-10)*penalization_factor/total
         
     def get_remaining_time(self):

@@ -12,6 +12,7 @@
     --light-cyan: #acfff5;
     --light-magenta: #fface8;
     --light-green: #d1ffac;
+    --white-dove: #eaeaea;
 
     --md-border: solid 3px;
     
@@ -60,6 +61,13 @@ p {
 p.autoevaluation-paragraph {
     font-family: 'OpenSans', Arial, Helvetica, sans-serif;
     font-size: var(--sm-size);
+    color: var(--black);
+}
+
+h2 {
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+    font-size: var(--md-size);
+    font-weight: bold;
     color: var(--black);
 }
 
@@ -352,10 +360,20 @@ header {
     align-items: center;
 }
 
+input:disabled,
+select:disabled,
+textarea:disabled,
+input:read-only,
+textarea:read-only {
+    color: var(--black) !important;
+    background-color: var(--white-dove) !important;
+}
+
 .r-form-field > input[type="text"],
 .r-form-field > input[type="password"],
 .r-form-field > input[type="email"],
 .r-form-field > input[type="date"],
+.r-form-field > input[type="time"],
 .r-form-field > input[type="number"] {
     width: 100%;
     height: var(--input-height);
@@ -368,7 +386,8 @@ header {
     border: transparent solid 2px;
 }
 
-.r-form-field > #id_preceeded_by {
+.r-form-field > #id_preceeded_by,
+.r-form-field > #id_patient {
     width: 100%;
     height: calc(var(--input-height)*3);
     border: transparent solid 2px;
@@ -755,4 +774,21 @@ button.accordion-button:focus {
     background-color: var(--cyan);
     font-family: "OpenSans", Arial, Helvetica, sans-serif;
     font-size: var(--sm-size);
+}
+
+.table-cyan {
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.purple-diviser {
+    border: var(--purple) solid 4px;
+    border-width: 0 0 4px 0;
+}
+
+.note-text {
+    overflow-x: auto;
+    overflow-y: scroll;
+    word-wrap: break-word;
+    max-height: 480px;
 }

@@ -1,7 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser,BaseUserManager, Group
+from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
 from django.core.validators import RegexValidator
 import datetime
+from technics.models import PatientRecord, PatientRecordHistory, INITIAL_PROBLEMS, Patient
 
 TECHNIC_TEAM = 'technics'
 TEACHER_TEAM = 'teachers'
@@ -41,7 +42,9 @@ class UserManager(BaseUserManager):
 
         Technic.objects.create(person=person)
         Teacher.objects.create(person=person)
-        Patient.objects.create(person=person,school="Reinicias")
+        superuser_patient = Patient.objects.create(person=person,school="Reinicias")
+        superuser_patient_record = PatientRecord.objects.create(number='FR18000',patient=superuser_patient)
+        PatientRecordHistory.objects.create(state='a',initial_problem=INITIAL_PROBLEMS[0][0],record=superuser_patient_record)
 
         print("This user can be manually configured through the admin site")
 
@@ -69,7 +72,10 @@ class Person(models.Model):
     name = models.CharField(max_length=255,verbose_name='Nombre')
     last_name = models.CharField(max_length=255,verbose_name='Apellidos')
     birth_date = models.DateField(verbose_name='Fecha de nacimiento')
-    telephone = models.CharField(max_length=20,validators=[RegexValidator(regex=r"^\+?1?\d{9,15}$",message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")],verbose_name="Teléfono")
+    telephone = models.CharField(max_length=20,validators=[
+        RegexValidator(regex=r"^\+?1?\d{9,15}$",
+                       message="El número de teléfono debe introducirse en el formato +999999999, hasta 15 cifras.")
+        ],verbose_name="Teléfono")
     sex = models.CharField(max_length=1,choices=SEX_CHOICES,verbose_name="Sexo/Género")
 
     def __str__(self) -> str:
@@ -107,16 +113,3 @@ class Teacher(models.Model):
     def get_person(self):
         return self.person
     
-
-class Patient(models.Model):
-    person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
-    school = models.CharField(max_length=255,verbose_name='Centro Educativo')
-
-    def __str__(self) -> str:
-        return str(self.person)
-    
-    def get_user(self):
-        return self.person.user
-    
-    def get_person(self):
-        return self.person

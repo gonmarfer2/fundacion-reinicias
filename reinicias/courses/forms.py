@@ -63,7 +63,6 @@ class CourseEditForm(forms.Form):
     def __init__(self,*args,**kwargs):
         self.course_id = kwargs.pop('course_id_edit')
         super().__init__(*args,**kwargs)
-        print(self.course_id)
         self.fields['course_id_edit'].initial = self.course_id
         self.fields['preceeded_by'].queryset = Course.objects.exclude(id=self.course_id).order_by('name')
 
