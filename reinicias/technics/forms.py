@@ -6,13 +6,19 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 
+USER_NAME_LABEL = 'Nombre de usuario'
+USER_BIRTH_LABEL = 'Fecha de nacimiento'
+USER_EMAIL_LABEL = 'Correo electrónico'
+USER_TELEPHONE_REGEX = r"^\+?1?\d{9,15}$"
+USER_TELEPHONE_LABEL = 'Teléfono'
+
 class MemberEditForm(UserChangeForm):
-    username = forms.CharField(max_length=30,label='Nombre de usuario',widget=forms.TextInput(attrs={'readonly':True}))
-    birth_date = forms.DateField(label='Fecha de nacimiento',widget=forms.DateInput(attrs={'type':'date'},format='%Y-%m-%d'))
+    username = forms.CharField(max_length=30,label=USER_NAME_LABEL,widget=forms.TextInput(attrs={'readonly':True}))
+    birth_date = forms.DateField(label=USER_BIRTH_LABEL,widget=forms.DateInput(attrs={'type':'date'},format='%Y-%m-%d'))
     name = forms.CharField(max_length=255,label='Nombre')
     last_name = forms.CharField(max_length=255,label='Apellidos')
-    email = forms.EmailField(label='Correo electrónico')
-    telephone = forms.RegexField(regex=r"^\+?1?\d{9,15}$",label='Teléfono')
+    email = forms.EmailField(label=USER_EMAIL_LABEL)
+    telephone = forms.RegexField(regex=USER_TELEPHONE_REGEX,label=USER_TELEPHONE_LABEL)
     sex = forms.ChoiceField(choices=Person.SEX_CHOICES,label='Sexo')
 
     class Meta:
@@ -58,14 +64,14 @@ class PasswordChangeForm(forms.Form):
             )
         
 class MemberCreateForm(UserCreationForm):
-    username = forms.CharField(max_length=30,label='Nombre de usuario')
-    birth_date = forms.DateField(label='Fecha de nacimiento',widget=forms.DateInput(attrs={'type':'date'},format='%Y/%m/%d'))
+    username = forms.CharField(max_length=30,label=USER_NAME_LABEL)
+    birth_date = forms.DateField(label=USER_BIRTH_LABEL,widget=forms.DateInput(attrs={'type':'date'},format='%Y/%m/%d'))
     password1 = forms.CharField(label='Contraseña',max_length=190,widget=forms.PasswordInput)
     password2 = forms.CharField(max_length=190,label='Repetir contraseña',widget=forms.PasswordInput)
     name = forms.CharField(max_length=255,label='Nombre')
     last_name = forms.CharField(max_length=255,label='Apellidos')
-    email = forms.EmailField(label='Correo electrónico')
-    telephone = forms.RegexField(regex=r"^\+?1?\d{9,15}$",label='Teléfono')
+    email = forms.EmailField(label=USER_EMAIL_LABEL)
+    telephone = forms.RegexField(regex=USER_TELEPHONE_REGEX,label=USER_TELEPHONE_LABEL)
     sex = forms.ChoiceField(choices=Person.SEX_CHOICES,label='Sexo')
     roles = forms.MultipleChoiceField(choices=(
                     ('teachers','Formador'),
@@ -221,14 +227,14 @@ class InitialReportCreateForm(forms.ModelForm):
             
 
 class PatientCreateForm(UserCreationForm):
-    username = forms.CharField(max_length=30,label='Nombre de usuario')
-    birth_date = forms.DateField(label='Fecha de nacimiento',widget=forms.DateInput(attrs={'type':'date'},format='%Y/%m/%d'))
+    username = forms.CharField(max_length=30,label=USER_NAME_LABEL)
+    birth_date = forms.DateField(label=USER_BIRTH_LABEL,widget=forms.DateInput(attrs={'type':'date'},format='%Y/%m/%d'))
     password1 = forms.CharField(label='Contraseña',max_length=190,widget=forms.PasswordInput)
     password2 = forms.CharField(max_length=190,label='Repetir contraseña',widget=forms.PasswordInput)
     name = forms.CharField(required=False,max_length=255,label='Nombre',widget=forms.TextInput(attrs={'readonly':True}))
     last_name = forms.CharField(required=False,max_length=255,label='Apellidos',widget=forms.TextInput(attrs={'readonly':True}))
-    email = forms.EmailField(label='Correo electrónico')
-    telephone = forms.RegexField(regex=r"^\+?1?\d{9,15}$",label='Teléfono')
+    email = forms.EmailField(label=USER_EMAIL_LABEL)
+    telephone = forms.RegexField(regex=USER_TELEPHONE_REGEX,label=USER_TELEPHONE_LABEL)
     sex = forms.ChoiceField(choices=Person.SEX_CHOICES,label='Sexo')
     roles = forms.CharField(required=False,max_length=255,label='Rol',widget=forms.TextInput(attrs={'readonly':True}))
     school = forms.CharField(max_length=4096,label='Centro escolar')
