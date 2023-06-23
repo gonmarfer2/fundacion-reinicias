@@ -1,11 +1,7 @@
 {% load static %}
-<div class="row justify-content-center mb-4 id-{{type}}-row">
-    <div class="col-12 d-flex justify-content-center">
-        <div class="gif-container" id="{{button_id}}-gif">
-            <img class="gif-icon" src="" alt="GIF Icon"></img>
-        </div>
-        <div id="{{button_id}}">
-            {% include 'components/cyanbutton.html' with href=href text=text %}
-        </div>
-    </div>
+<div class="gif-container" id="{{button_id}}-gif">
+    <img class="gif-icon" src="" alt="GIF Icon"></img>
+</div>
+<div id="{{button_id}}">
+    {% include 'components/cyanbutton.html' with href=href text=text %}
 </div>

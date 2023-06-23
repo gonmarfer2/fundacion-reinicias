@@ -9,14 +9,14 @@
 {% include 'components/title.html' with type="patient-title" text="Mi diario" %}
     <div class="container">
         {% if request.user.get_person.pk == diary.patient.get_person.pk %}
-        <div class="row">
-            <div class="col-12 hstack gap-3">
-                <button id="id-new-entry" class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="create/">Nueva entrada</a></button>
-                <div class="gif-container" id="id-new-entry-gif">
-                    <img class="gif-icon" src="" alt="GIF Icon"></img>
+            <div class="row">
+                <div class="col-12 hstack gap-3">
+                    <button id="id-new-entry" class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="create/">Nueva entrada</a></button>
+                    <div class="gif-container" id="id-new-entry-gif">
+                        <img class="gif-icon" src="" alt="GIF Icon"></img>
+                    </div>
                 </div>
             </div>
-        </div>
         {% endif %}
 
         <div class="row my-4">
