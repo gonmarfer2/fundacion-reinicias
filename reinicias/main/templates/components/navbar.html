@@ -33,6 +33,14 @@
                 <a class="nav-link" href="{% url 'technics_session_list' %}">Sesiones</a>
               </li>
             {% endif %}
+            {% if userGroups|has_group:"patients" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'patients_show_diary' person_id=request.user.get_person.pk %}">Mi diario</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'patients_show_feelings' person_id=request.user.get_person.pk %}">Emociones</a>
+              </li>
+            {% endif %}
           {% endif %}
         </ul>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
