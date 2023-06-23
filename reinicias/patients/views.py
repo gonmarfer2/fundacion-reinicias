@@ -137,7 +137,7 @@ def show_feelings(request,person_id):
             else:
                 feelings[feeling] = (feelings[feeling][0]+1,color)
 
-    feelings_chart = create_feelings_chart(feelings,FEELINGS_TO_COLORS)
+    feelings_chart = create_feelings_chart(feelings)
 
     context = {
         'userGroups':request.user.groups.all(),
