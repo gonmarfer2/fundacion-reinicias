@@ -11,7 +11,7 @@ FEELINGS = (
     ('ale','Alegría'),
     ('euf','Euforia'),
     ('res','Respeto'),
-    ('sat','Satisfecho'),
+    ('sat','Satisfacción'),
     ('tri','Tristeza'),
     ('abu','Aburrimiento'),
     ('sol','Soledad'),

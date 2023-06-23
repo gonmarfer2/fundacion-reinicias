@@ -62,13 +62,13 @@ class User(AbstractUser):
     def get_person(self):
         try:
             return Person.objects.get(user=self)
-        except:
+        except Person.DoesNotExist:
             return None
         
     def get_patient(self):
         try:
             return Patient.objects.get(person__user=self)
-        except:
+        except Patient.DoesNotExist:
             return None
 
     class Meta:
