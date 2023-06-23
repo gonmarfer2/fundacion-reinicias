@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Lista de usuarios{% endblock %}
+{% block title %}Mi diario{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
@@ -80,18 +80,20 @@
 <script>
 
     let patientDiv = document.querySelector('#id-new-entry-gif');
-    let patientButton = document.querySelector('#id-new-entry');
-    patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz0.png' %}";
-    patientButton.addEventListener('mouseover', (e) => {
-        setTimeout(() => {
-            patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz.gif' %}";
-        }, 50);
-    });
-    patientButton.addEventListener('mouseleave', (e) => {
-        setTimeout(() => {
-            patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz0.png' %}";
-        }, 50);
-    });
+    if (patientDiv) {
+        let patientButton = document.querySelector('#id-new-entry');
+        patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz0.png' %}";
+        patientButton.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz.gif' %}";
+            }, 50);
+        });
+        patientButton.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz0.png' %}";
+            }, 50);
+        });
+    }
 
 </script>
 {% endblock %}

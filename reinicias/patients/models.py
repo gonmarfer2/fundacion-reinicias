@@ -2,7 +2,7 @@ from django.db import models
 
 FEELINGS = (
     ('ira','Ira'),
-    ('agr','agresividad'),
+    ('agr','Agresividad'),
     ('fru','Frustración'),
     ('mie','Miedo'),
     ('hum','Humillación'),
