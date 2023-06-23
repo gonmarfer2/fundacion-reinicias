@@ -143,7 +143,6 @@ def show_feelings(request,person_id):
         'userGroups':request.user.groups.all(),
         'history':history,
         'feelingsChart':feelings_chart,
-        'history':history,
         'pages':{
             'current':int(page_obj.number),
             'has_previous':page_obj.has_previous(),
@@ -155,7 +154,7 @@ def show_feelings(request,person_id):
 
 
 
-def create_feelings_chart(feelings,feelings_to_colors):
+def create_feelings_chart(feelings):
     if len(feelings) == 0:
         return '<span>No hay datos suficientes</span>'
 
