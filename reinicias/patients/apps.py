@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class TechnicsConfig(AppConfig):
+class PatientsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'technics'
-    verbose_name = 'Técnicos'
+    name = 'patients'
+    verbose_name = 'Pacientes'

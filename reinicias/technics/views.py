@@ -10,12 +10,11 @@ from django.http import Http404, JsonResponse
 from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm, SessionEditForm, \
     NoteCreateForm, InitialReportCreateForm, PatientCreateForm
 from django.core.exceptions import PermissionDenied
-from django.db import transaction, IntegrityError
-from django.db.models import Q, F, Count
-from django.db.models.functions import Concat
+from django.db import transaction
+from django.db.models import Q, Count
 import plotly.express as px
 from datetime import datetime, timezone
-from django.core.exceptions import ValidationError
+from patients.models import Diary
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
@@ -71,6 +70,9 @@ def show_user_details(request,user_id):
     
     this_person = Person.objects.get(pk=user_id)
     if this_person.user.has_group("patients"):
+        if this_person.pk != request.user.get_person().pk:
+            raise PermissionDenied
+
         this_person = Patient.objects.get(person=this_person)
         this_record = PatientRecord.objects.get(patient=this_person)
 
@@ -729,6 +731,11 @@ def register_patient_report(request,session_id,report_id):
                 record=new_patient_record
             )
             new_patient_record_history_entry.save()
+
+            new_diary = Diary(
+                patient=new_patient
+            )
+            new_diary.save()
 
             return redirect(f'/technics/users/{new_person.pk}')
 

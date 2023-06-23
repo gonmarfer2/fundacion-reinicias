@@ -58,6 +58,21 @@ class User(AbstractUser):
     
     def get_groups_display(self):
         return ",".join([GROUP_TRANSLATION_DICTIONARY[group.name] for group in self.groups.all()])
+    
+    def get_person(self):
+        try:
+            return Person.objects.get(user=self)
+        except:
+            return None
+        
+    def get_patient(self):
+        try:
+            return Patient.objects.get(person__user=self)
+        except:
+            return None
+
+    class Meta:
+        verbose_name_plural = 'Usuarios'
 
 
 class Person(models.Model):
@@ -86,6 +101,9 @@ class Person(models.Model):
     
     def get_person(self):
         return self
+    
+    class Meta:
+        verbose_name_plural = 'Personas'
 
 
 class Technic(models.Model):
@@ -100,6 +118,9 @@ class Technic(models.Model):
     def get_person(self):
         return self.person
     
+    class Meta:
+        verbose_name_plural = 'Técnicos'
+    
 
 class Teacher(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE, verbose_name="Usuario")
@@ -112,4 +133,7 @@ class Teacher(models.Model):
     
     def get_person(self):
         return self.person
+    
+    class Meta:
+        verbose_name_plural = 'Formadores'
     

@@ -5,12 +5,12 @@
 {% load extra_tags %}
 {% block body %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
-<div id="id-main-container">
+<div id="id-form-container">
     {% if userGroups|has_group:"technics" %}
         {% include 'components/title.html' with type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico" %}
         <div class="container mt-4">
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" type="technics" href="technics/users/" text="Lista de usuarios" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" type="technics" href="technics/sessions/" text="Seguimiento de sesiones" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" type="technics" href="/technics/users/" text="Lista de usuarios" %}
+            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" type="technics" href="/technics/sessions/" text="Seguimiento de sesiones" %}
         </div>
     {% endif %}
     {% if userGroups|has_group:"teachers" %}
@@ -24,8 +24,10 @@
         {% include 'components/title.html' with type="patient-title" text="Tu &aacute;rea Reinicias" %}
         <div class="container mt-4">
             {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" type="patients" href="#" text="Mis tareas" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" type="patients" href="#" text="Mi diario" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" type="patients" href="#" text="Mi perfil" %}
+            {% if request.user.get_patient %}
+                {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" type="patients" href="/patients/diary/"|add_int:request.user.get_person.pk text="Mi diario" %}
+                {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" type="patients" href="/technics/users/"|add_int:request.user.get_person.pk text="Mi perfil" %}
+            {% endif %}
         </div>
     {% endif %}
 </div>
