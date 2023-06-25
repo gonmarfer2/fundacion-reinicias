@@ -20,5 +20,5 @@ urlpatterns = [
     path('sessions/<int:session_id>/reports/<int:report_id>/',views.show_report_session,name='technics_sessionreport_show'),
     path('sessions/<int:session_id>/reports/<int:report_id>/edit/',views.edit_report_session,name='technics_sessionreport_edit'),
     path('sessions/<int:session_id>/reports/<int:report_id>/register/',views.register_patient_report,name='technics_sessionreport_register'),
-    #path('sessions/<int:session_id>/reports/<int:report_id>/generatepdf/',views.report_generate_pdf,name='technics_sessionreport_generatepdf'),
+    path('sessions/<int:session_id>/reports/<int:report_id>/generatepdf/',views.report_generate_pdf,name='technics_sessionreport_generatepdf'),
 ]
