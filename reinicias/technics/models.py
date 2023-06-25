@@ -34,6 +34,10 @@ class Patient(models.Model):
     
     def get_person(self):
         return self.person
+    
+    class Meta:
+        verbose_name_plural = 'Pacientes'
+
 
 class PatientRecord(models.Model):
 
@@ -42,6 +46,9 @@ class PatientRecord(models.Model):
 
     def __str__(self) -> str:
         return str(self.number)
+    
+    class Meta:
+        verbose_name_plural = 'Expedientes'
     
 
 class PatientRecordHistory(models.Model):
@@ -77,6 +84,9 @@ class PatientRecordHistory(models.Model):
                 'La demanda inicial solo se debe incluir si el estado es Activo, si no, no hay que ponerlo',
                 code='technics_record_history_state_problem'
             )
+        
+    class Meta:
+        verbose_name_plural = 'Historiales de expedientes'
 
 
 class PatientRecordDocument(models.Model):
@@ -88,6 +98,9 @@ class PatientRecordDocument(models.Model):
         filter_route = re.sub('patientrecord/\d+/\d+/\d+/','',full_name)
         filter_extension = re.sub('\.\w+','',filter_route)
         return filter_extension
+    
+    class Meta:
+        verbose_name_plural = 'Documentos de expedientes'
     
 
 class Session(models.Model):
@@ -123,6 +136,10 @@ class Session(models.Model):
             patient_names.append(str(patient.get_person()))
         res = ", ".join(list(patient_names)) if len(patient_names) > 0 else "-"
         return res
+    
+    class Meta:
+        verbose_name_plural = 'Sesiones'
+
 
 class SessionNote(models.Model):
     text = models.TextField(verbose_name='Texto')
@@ -133,6 +150,9 @@ class SessionNote(models.Model):
 
     def __str__(self) -> str:
         return self.text
+    
+    class Meta:
+        verbose_name_plural = 'Anotaciones'
 
 
 class InitialReport(models.Model):
@@ -169,3 +189,5 @@ class InitialReport(models.Model):
                 name='report_record_number',
                 violation_error_message='Ya existe un expediente con ese número.'
             )]
+        
+        verbose_name_plural = 'Informes de sesión'

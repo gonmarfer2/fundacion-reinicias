@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'main',
     'courses',
     'technics',
+    'patients'
 ]
 
 AUTH_USER_MODEL = "main.User"

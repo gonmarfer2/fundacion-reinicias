@@ -25,6 +25,7 @@ class Course(models.Model):
     
     class Meta:
         db_table = "courses_course"
+        verbose_name_plural = 'Cursos'
 
 class CourseUnitResource(models.Model):
     resource = models.FileField(upload_to='courseunit/%Y/%m/%d',verbose_name="Recurso")
@@ -40,6 +41,10 @@ class CourseUnitResource(models.Model):
         full_name = self.resource.name
         filter_route = re.sub('courseunit/\d+/\d+/\d+/','',full_name)
         return filter_route
+    
+    class Meta:
+        verbose_name_plural = 'Recursos de temas'
+
 
 class CourseUnit(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
@@ -61,6 +66,9 @@ class CourseUnit(models.Model):
                 name='title_in_course',
                 deferrable=models.Deferrable.DEFERRED,
             )]
+        
+        verbose_name_plural = 'Temas'
+
 
 class Autoevaluation(models.Model):
     title = models.CharField(max_length=256,blank=False,verbose_name="Título")
@@ -71,6 +79,10 @@ class Autoevaluation(models.Model):
 
     def __str__(self) -> str:
         return self.title
+    
+    class Meta:
+        verbose_name_plural = 'Autoevaluaciones'
+
 
 class Question(models.Model):
     question = models.TextField(blank=False,verbose_name="Pregunta")
@@ -93,6 +105,8 @@ class Question(models.Model):
                 deferrable=models.Deferrable.DEFERRED,
             )
         ]
+
+        verbose_name_plural = 'Preguntas'
     
     @staticmethod
     def get_last_order(autoevaluation_id):
@@ -121,6 +135,10 @@ class QuestionOption(models.Model):
 
     def __str__(self) -> str:
         return self.option_name
+    
+    class Meta:
+        verbose_name_plural = 'Opciones de preguntas'
+
 
 class Student(models.Model):
     person = models.OneToOneField(Person,on_delete=models.CASCADE,verbose_name="Usuario")
@@ -136,6 +154,10 @@ class Student(models.Model):
     
     def get_person(self):
         return self.person
+    
+    class Meta:
+        verbose_name_plural = 'Estudiantes'
+
 
 class Calification(models.Model):
     calification = models.FloatField(null=True,validators=[MinValueValidator(0.0),MaxValueValidator(10.0)],verbose_name="Calificación")
@@ -182,6 +204,9 @@ class Calification(models.Model):
         califications = Calification.objects.filter(student=student,autoevaluation=autoevaluation).order_by('-end_date')
         return califications.first() if califications.exists() else None
     
+    class Meta:
+        verbose_name_plural = 'Calificaciones'
+    
 
 class CourseStatus(models.Model):
     completed = models.BooleanField(verbose_name="¿Completado?")
@@ -220,3 +245,6 @@ class CourseStatus(models.Model):
         calification_list = [c.get('last_calification') for c in califications]
         sum_calification = sum(calification_list)/len(calification_list)
         return sum_calification
+    
+    class Meta:
+        verbose_name_plural = 'Estados de cursos'

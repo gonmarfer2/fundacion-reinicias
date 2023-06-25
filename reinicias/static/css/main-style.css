@@ -13,6 +13,10 @@
     --light-magenta: #fface8;
     --light-green: #d1ffac;
     --white-dove: #eaeaea;
+    --anger-color: #ee6131;
+    --fear-color: #d76ec0;
+    --happiness-color: #ffbb93;
+    --sadness-color: #09a5d4;
 
     --md-border: solid 3px;
     
@@ -247,6 +251,10 @@ h2 {
 
 #id-technic-container {
     min-height: calc(100vh - 56px - 140px);
+}
+
+#id-login-container {
+    min-height: calc(100vh - 64px);
 }
 
 footer {
@@ -623,6 +631,13 @@ button.accordion-button:focus {
     font-size: var(--lg-size);
 }
 
+.simple-title-minus {
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--lg-size);
+}
+
 .course-data-large-text{
     color: var(--black);
     font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
@@ -791,4 +806,39 @@ button.accordion-button:focus {
     overflow-y: scroll;
     word-wrap: break-word;
     max-height: 480px;
+}
+
+.color-ira,
+.color-agr,
+.color-fru {
+    background-color: var(--anger-color);
+}
+
+.color-mie,
+.color-hum,
+.color-rec,
+.color-ans {
+    background-color: var(--fear-color);
+}
+
+.color-ale,
+.color-euf,
+.color-res,
+.color-sat {
+    background-color: var(--happiness-color);
+}
+
+.color-tri,
+.color-abu,
+.color-sol,
+.color-dep,
+.color-cul,
+.color-ign,
+.color-ver {
+    background-color: var(--sadness-color);
+}
+
+.history-div {
+    overflow-y: auto;
+    max-height: 50vh;
 }

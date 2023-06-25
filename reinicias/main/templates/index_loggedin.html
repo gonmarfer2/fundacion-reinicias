@@ -5,27 +5,50 @@
 {% load extra_tags %}
 {% block body %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
-<div id="id-main-container">
+<div id="id-form-container">
     {% if userGroups|has_group:"technics" %}
         {% include 'components/title.html' with type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico" %}
-        <div class="container mt-4">
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" type="technics" href="technics/users/" text="Lista de usuarios" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" type="technics" href="technics/sessions/" text="Seguimiento de sesiones" %}
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 hstack gap-3 justify-content-center id-technics-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" href="/technics/users/" text="Lista de usuarios" %}
+                </div>
+                <div class="col-12 hstack gap-3 justify-content-center id-technics-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" href="/technics/sessions/" text="Seguimiento de sesiones" %}
+                </div>
+            </div>
         </div>
     {% endif %}
     {% if userGroups|has_group:"teachers" %}
         {% include 'components/title.html' with type="teacher-title" text="&Aacute;rea de formadores" %}
-        <div class="container mt-4">
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-4" type="teachers" href="/courses/" text="Ver cursos" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-5" type="teachers" href="/courses/create/" text="Crear un curso" %}
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 hstack gap-3 justify-content-center id-teachers-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-4" href="/courses/" text="Ver cursos" %}
+                </div>
+                <div class="col-12 hstack gap-3 justify-content-center id-teachers-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-5" href="/courses/create/" text="Crear un curso" %}
+                </div>
+            </div>
         </div>
     {% endif %}
     {% if userGroups|has_group:"patients" %}
         {% include 'components/title.html' with type="patient-title" text="Tu &aacute;rea Reinicias" %}
-        <div class="container mt-4">
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" type="patients" href="#" text="Mis tareas" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" type="patients" href="#" text="Mi diario" %}
-            {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" type="patients" href="#" text="Mi perfil" %}
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" type="patients" href="#" text="Mis tareas" %}
+                </div>
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" href="/patients/diary/"|add_int:request.user.get_person.pk text="Mi diario" %}
+                </div>
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" href="/technics/users/"|add_int:request.user.get_person.pk text="Mi perfil" %}
+                </div>
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-9" href="/patients/feelings/"|add_int:request.user.get_person.pk text="Historial de emociones" %}
+                </div>
+            </div>
         </div>
     {% endif %}
 </div>

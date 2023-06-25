@@ -6,16 +6,22 @@ from main.views import group_required
 from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
 from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, \
     InitialReport, INITIAL_PROBLEMS
-from django.http import Http404, JsonResponse
+from django.http import Http404, JsonResponse, FileResponse, HttpResponse
 from .forms import MemberEditForm, PasswordChangeForm, MemberCreateForm, SessionCreateForm, SessionEditForm, \
     NoteCreateForm, InitialReportCreateForm, PatientCreateForm
 from django.core.exceptions import PermissionDenied
-from django.db import transaction, IntegrityError
-from django.db.models import Q, F, Count
-from django.db.models.functions import Concat
+from django.db import transaction
+from django.db.models import Q, Count
 import plotly.express as px
 from datetime import datetime, timezone
-from django.core.exceptions import ValidationError
+from patients.models import Diary
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Flowable
+from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.styles import getSampleStyleSheet
+from django.templatetags.static import static
+import io
 
 # Constants
 ERROR_404_PERSON = 'Ese usuario no existe'
@@ -71,6 +77,9 @@ def show_user_details(request,user_id):
     
     this_person = Person.objects.get(pk=user_id)
     if this_person.user.has_group("patients"):
+        if this_person.pk != request.user.get_person().pk:
+            raise PermissionDenied
+
         this_person = Patient.objects.get(person=this_person)
         this_record = PatientRecord.objects.get(patient=this_person)
 
@@ -730,6 +739,11 @@ def register_patient_report(request,session_id,report_id):
             )
             new_patient_record_history_entry.save()
 
+            new_diary = Diary(
+                patient=new_patient
+            )
+            new_diary.save()
+
             return redirect(f'/technics/users/{new_person.pk}')
 
     
@@ -740,3 +754,82 @@ def register_patient_report(request,session_id,report_id):
     }
 
     return render(request,'sessions/reports/register_patient.html',context)
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+def report_generate_pdf(request,session_id,report_id):
+    if Session.objects.filter(pk=session_id).count() == 0:
+        raise Http404(ERROR_404_SESSION)
+    if InitialReport.objects.filter(pk=report_id).count() == 0:
+        raise Http404(ERROR_404_REPORT)
+    
+    this_report = InitialReport.objects.get(pk=report_id)
+
+    class DocHeader(Flowable):
+        def __init__(self,date,record_number,img_data):
+            super().__init__()
+            self.date = date.strftime("%d/%m/%Y %H:%M")
+            self.record_number = record_number
+            self.img = ImageReader(img_data)
+
+        def draw(self):
+            self.canv.drawImage(self.img, 10*cm, -cm-10, height=2*cm, width=6*cm, mask='auto')
+            text_header = self.canv.beginText(0,0)
+            text_header.setFont('Helvetica-Bold',24)
+            text_header.textLine('INFORME SOCIAL')
+            text_header.setFont('Helvetica-Bold',12)
+            text_header.textLine(f'FECHA: {self.date}')
+            text_header.textLine(f'Nº EXPEDIENTE: {self.record_number}')
+            self.canv.drawText(text_header)
+
+    doc_buffer = io.BytesIO()
+    pdf_report_attrs = {
+        'initial_problem':'Demanda inicial',
+        'treatment_type':'Tipo de tratamiento',
+        'first_evaluation':'Primera evaluación / presunción diagnóstica',
+        'family_situation':'Situación familiar / antecedentes familiares',
+        'social_situation':'Situación social: relaciones sociales y con el entorno',
+        'academic_situation':'Situación académica y evolución escolar',
+        'problem_situation':'Situación-problema',
+        'drug_history':'Historia de consumo de drogas: edad de inicio, patrón, evolución',
+        'leisure':'Ocio y ocupación del tiempo libre',
+        'labour_situation':'Situación laboral / Situación económica de la familia',
+        'social_diagnostic':'Diagnóstico social',
+        'answer_plan':'Plan de actuación',
+        'observations':'Observaciones: pautas de conducta con las que se comporta',
+        }
+
+    styles = getSampleStyleSheet()
+    STYLE_N = styles['Normal']
+    STYLE_H = styles['Heading1']
+
+    story = []
+
+    logo_url = request.build_absolute_uri(static('assets/fundacionReiniciasLogo.png'))
+    header = DocHeader(this_report.datetime,this_report.record_number,logo_url)
+    story.append(header)
+    # story.append(Image(logo_url,width=6*cm,height=2*cm,hAlign='RIGHT',useDPI=True))
+    story.append(Spacer(0,2*cm))
+
+    story.append(Paragraph('Nombre y apellidos',STYLE_H))
+    story.append(Paragraph(f'{this_report.name} {this_report.last_name}',STYLE_N))
+    story.append(Spacer(0,cm))
+
+    for attr in pdf_report_attrs:
+        story.append(Paragraph(str(pdf_report_attrs[attr]),STYLE_H))
+        if attr == 'initial_problem':
+            story.append(Paragraph(this_report.get_initial_problem_display(),STYLE_N))
+        else:
+            story.append(Paragraph(str(getattr(this_report,attr)),STYLE_N))
+        story.append(Spacer(0,cm))
+
+    doc = SimpleDocTemplate(doc_buffer,pagesize=A4)
+    doc.build(story)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename={this_report}.pdf'
+    response.write(doc_buffer.getvalue())
+    doc_buffer.close()
+
+    return response
