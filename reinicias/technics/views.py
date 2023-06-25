@@ -783,7 +783,7 @@ def report_generate_pdf(request,session_id,report_id):
             text_header.textLine(f'Nº EXPEDIENTE: {self.record_number}')
             self.canv.drawText(text_header)
 
-    buffer = io.BytesIO()
+    doc_buffer = io.BytesIO()
     pdf_report_attrs = {
         'initial_problem':'Demanda inicial',
         'treatment_type':'Tipo de tratamiento',
@@ -801,8 +801,8 @@ def report_generate_pdf(request,session_id,report_id):
         }
 
     styles = getSampleStyleSheet()
-    styleN = styles['Normal']
-    styleH = styles['Heading1']
+    STYLE_N = styles['Normal']
+    STYLE_H = styles['Heading1']
 
     story = []
 
@@ -812,24 +812,24 @@ def report_generate_pdf(request,session_id,report_id):
     # story.append(Image(logo_url,width=6*cm,height=2*cm,hAlign='RIGHT',useDPI=True))
     story.append(Spacer(0,2*cm))
 
-    story.append(Paragraph('Nombre y apellidos',styleH))
-    story.append(Paragraph(f'{this_report.name} {this_report.last_name}',styleN))
+    story.append(Paragraph('Nombre y apellidos',STYLE_H))
+    story.append(Paragraph(f'{this_report.name} {this_report.last_name}',STYLE_N))
     story.append(Spacer(0,cm))
 
     for attr in pdf_report_attrs:
-        story.append(Paragraph(str(pdf_report_attrs[attr]),styleH))
+        story.append(Paragraph(str(pdf_report_attrs[attr]),STYLE_H))
         if attr == 'initial_problem':
-            story.append(Paragraph(this_report.get_initial_problem_display(),styleN))
+            story.append(Paragraph(this_report.get_initial_problem_display(),STYLE_N))
         else:
-            story.append(Paragraph(str(getattr(this_report,attr)),styleN))
+            story.append(Paragraph(str(getattr(this_report,attr)),STYLE_N))
         story.append(Spacer(0,cm))
 
-    doc = SimpleDocTemplate(buffer,pagesize=A4)
+    doc = SimpleDocTemplate(doc_buffer,pagesize=A4)
     doc.build(story)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename={this_report}.pdf'
-    response.write(buffer.getvalue())
-    buffer.close()
+    response.write(doc_buffer.getvalue())
+    doc_buffer.close()
 
     return response
