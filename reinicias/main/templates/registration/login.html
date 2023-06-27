@@ -21,6 +21,15 @@
             </div>
             {% endfor %}
         </div>
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         <div class="row r-form-container justify-content-center my-3 my-md-5 px-3 px-md-0">
             <p class="text-center">&iquest;Has olvidado la contrase&ntilde;a o el nombre de usuario&quest;<br/>
                 Ponte en contacto con los administradores de la fundaci&oacute;n.</p>

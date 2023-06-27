@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Mis tareas{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="patient-title" text=delivery %}
+    <div class="container">
+        <div class="row my-3">
+            <h2>T&iacute;tulo</h2>
+            <span class="task-text">{{task.title}}</span>
+        </div>
+        <div class="row my-3">
+            <h2>Descripci&oacute;n</h2>
+            <span class="task-text">{{task.description}}</span>
+        </div>
+        <div class="row my-3">
+            <h2>Entrega de texto</h2>
+            {% if delivery.text %}
+                <span class="task-text">{{delivery.text}}</span>
+            {% else %}
+                <span class="task-text">No hay entrega de texto</span>
+            {% endif %}
+        </div>
+        <div class="row my-3">
+            <h2>Entrega de documentos</h2>
+            {% if docs %}
+                <ul>
+                {% for doc in docs %}
+                    <li class="w-100"><strong class="text-capitalize">{{doc}}:&nbsp;</strong><a target="_blank" href="{{MEDIA_URL}}{{doc.document.name}}" rel="noopener">{{doc.document.name}}</a></li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <span class="task-text">No hay entrega de documentos</span>
+            {% endif %}
+        </div>
+        {% if task.state == 'c' %}
+        <div class="row my-3">
+            <div class="hstack gap-3">
+                <button class="my-3 courses-button courses-button-cyan" onclick="return confirm('¿De verdad desea aceptar esta tarea?')">
+                    <a class="text-white" href="/patients/{{patient.get_person.pk}}/tasks/{{task.pk}}/accept/">Aceptar</a>
+                </button>
+                <button class="my-3 courses-button courses-button-cyan" onclick="return confirm('¿De verdad desea rechazar esta tarea?')">
+                    <a class="text-white" href="/patients/{{patient.get_person.pk}}/tasks/{{task.pk}}/deny/">Rechazar</a>
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

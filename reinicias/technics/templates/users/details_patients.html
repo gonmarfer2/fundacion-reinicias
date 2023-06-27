@@ -28,17 +28,19 @@
     
     <div class="col-12">
         <div class="row">
+            {% if userGroups|has_group:'technics' %}
             <div class="col-6 col-md-3 col-lg-2 mb-2">
                 <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="edit/">Editar perfil</a></button>
             </div>
+            {% endif %}
             <div class="col-6 col-md-3 col-lg-2 mb-2">
-                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Lista de tareas</a></button>
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="/patients/{{thisUser.get_person.pk}}/tasks/">Lista de tareas</a></button>
             </div>
             <div class="col-6 col-md-3 col-lg-2 mb-2">
-                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Diario</a></button>
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="/patients/diary/{{thisUser.get_person.pk}}/">Diario</a></button>
             </div>
             <div class="col-6 col-md-3 col-lg-2 mb-2">
-                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="#">Historial de emociones</a></button>
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="/patients/feelings/{{thisUser.get_person.pk}}/">Historial de emociones</a></button>
             </div>
             {% if request.user == thisUser.get_user or request.user.is_superuser %}
             <div class="col-6 col-md-3 col-lg-2 mb-2">

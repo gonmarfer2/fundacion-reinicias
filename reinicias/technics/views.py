@@ -76,9 +76,10 @@ def show_user_details(request,user_id):
         raise Http404(ERROR_404_PERSON)
     
     this_person = Person.objects.get(pk=user_id)
-    if this_person.user.has_group("patients"):
-        if this_person.pk != request.user.get_person().pk:
+    if request.user.has_group('patients') and not request.user.has_group('technics') and this_person.pk != request.user.get_person().pk:
             raise PermissionDenied
+
+    if this_person.user.has_group("patients"):
 
         this_person = Patient.objects.get(person=this_person)
         this_record = PatientRecord.objects.get(patient=this_person)

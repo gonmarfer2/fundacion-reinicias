@@ -550,6 +550,7 @@ textarea:read-only {
     align-items: center;
     background-color: var(--white);
     border-top: var(--black) solid 1px;
+    padding: 1%;
 }
 
 .accordion-button.collapsed {
@@ -803,7 +804,7 @@ button.accordion-button:focus {
 
 .note-text {
     overflow-x: auto;
-    overflow-y: scroll;
+    overflow-y: auto;
     word-wrap: break-word;
     max-height: 480px;
 }
@@ -841,4 +842,21 @@ button.accordion-button:focus {
 .history-div {
     overflow-y: auto;
     max-height: 50vh;
+}
+
+.accordion-title-no-overflow {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.task-text {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    word-wrap: break-word;
 }
