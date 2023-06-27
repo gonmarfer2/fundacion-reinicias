@@ -977,10 +977,7 @@ def autoevaluation_process(request,autoevaluation_id):
         autoevaluation=this_autoevaluation
     ).order_by('-start_date')
 
-    for calification in these_calification:
-        if calification.end_date == None:
-            calification.end_date = django_timezone.now()
-            calification.save()
+    check_reloaded_tries(these_calification)
 
     this_calification = these_calification.first()
 
@@ -1006,3 +1003,9 @@ def autoevaluation_process(request,autoevaluation_id):
 
     return redirect(reverse('course_details',args=[this_autoevaluation.course_unit.course.pk]))
             
+
+def check_reloaded_tries(califications):
+    for calification in califications:
+        if calification.end_date == None:
+            calification.end_date = django_timezone.now()
+            calification.save()

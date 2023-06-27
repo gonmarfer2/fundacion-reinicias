@@ -104,7 +104,7 @@
   }
 
   if('{{request.user.is_authenticated}}' === 'True') {
-    document.onload = checkNotifications();
+    document.onload = checkNotifications;
     var checkTimer = setInterval(checkNotifications,60000)
   }
 
