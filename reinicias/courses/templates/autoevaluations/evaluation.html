@@ -19,11 +19,12 @@
             <span>{{autoevaluation.duration}} minutos</span>
         </div>
         <div class="col-12 col-md-9">
-            <div class="progress">
+            <div class="progress position-relative">
+                <span class="w-100 bi bi-hourglass-split text-white position-absolute top-0 start-0"></span>
                 {% load humanize %}
                 {% widthratio calification.get_remaining_time autoevaluation.duration 100 as bar_width %}
-                <div id="id-timer" class="progress-bar" role="progressbar" aria-label="Tiempo restante" style="width: {{bar_width}}%" aria-valuenow="{{calification.get_remaining_time}}" aria-valuemin="0" aria-valuemax="100">
-                    <span class="bi bi-hourglass-split text-white"></span>
+                <div id="id-timer" class="progresscolor-100" role="progressbar" aria-label="Tiempo restante" style="width: {{bar_width}}%" aria-valuenow="{{calification.get_remaining_time}}" aria-valuemin="0" aria-valuemax="100">
+                    
                 </div>
             </div>
         </div>
@@ -74,7 +75,14 @@
         let duration = JSON.parse('{{duration|safe}}');
         
         let timer = document.getElementById('id-timer');
-        timer.style.width = `${(difference/60000) / duration * 100}%`;
+        let new_width = (difference/60000) / duration * 100;
+        timer.style.width = `${new_width}%`;
+
+        if(new_width < 11) {
+            timer.classList = 'progresscolor-10';
+        } else if(new_width < 51) {
+            timer.classList = 'progresscolor-50';
+        }
 
         if (difference <= 0) {
             document.querySelector('form').submit();

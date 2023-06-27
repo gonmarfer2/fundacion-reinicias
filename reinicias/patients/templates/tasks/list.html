@@ -1,0 +1,122 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Mis tareas{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="patient-title" text="Mis tareas" %}
+    <div class="container">
+        {% load static %}
+        {% if userGroups|has_group:"technics" %}
+        <div class="row my-4">
+            <div class="col-12 hstack gap-3">
+                <button id="id-new-entry" class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="add/">Nueva tarea</a></button>
+                <div class="gif-container" id="id-new-entry-gif">
+                    <img class="gif-icon" src="" alt="GIF Icon"></img>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row my-4">
+            <div class="col-12 hstack gap-1">
+                <img class="section-icon" src="{% static 'assets/icons/reloj.png' %}" alt="Icono de tareas pendientes"/>
+                <span class="text-separator px-1">Tareas pendientes</span>
+                <div class="horizontal-separator"></div>
+            </div>
+        </div>
+        {% if pendingTasks %}
+        <div class="row">
+            <div class="col-12">
+                <div class="accordion accordion-flush" id="accordionPending">
+                    {% for task in pendingTasks %}
+                        {% include 'components/task_accordion.html' with task=task type='pending' user=userGroups parent_id='accordionPending' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-12">
+                <span>¡No hay tareas!</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row my-4">
+            <div class="col-12 hstack gap-1">
+                <img class="section-icon" src="{% static 'assets/icons/enviado.png' %}" alt="Icono de tareas enviadas"/>
+                <span class="text-separator px-1">Tareas enviadas</span>
+                <div class="horizontal-separator"></div>
+            </div>
+        </div>
+        {% if sentTasks %}
+        <div class="row">
+            <div class="col-12">
+                <div class="accordion accordion-flush" id="accordionDone">
+                    {% for task in sentTasks %}
+                        {% include 'components/task_accordion.html' with task=task type='done' user=userGroups parent_id='accordionDone' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-12">
+                <span>¡No hay tareas!</span>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="row my-4">
+            <div class="col-12 hstack gap-1">
+                <img class="section-icon" src="{% static 'assets/icons/vale.png' %}" alt="Icono de tareas aceptadas"/>
+                <span class="text-separator px-1">Tareas aceptadas</span>
+                <div class="horizontal-separator"></div>
+            </div>
+        </div>
+        {% if acceptedTasks %}
+        <div class="row">
+            <div class="col-12">
+                <div class="accordion accordion-flush" id="accordionTasks">
+                    {% for task in acceptedTasks %}
+                        {% include 'components/task_accordion.html' with task=task type='accepted' user=userGroups parent_id='accordionTasks' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-12">
+                <span>¡No hay tareas!</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% load static %}
+<script>
+
+    let patientDiv = document.querySelector('#id-new-entry-gif');
+    if (patientDiv) {
+        let patientButton = document.querySelector('#id-new-entry');
+        patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz0.png' %}";
+        patientButton.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz.gif' %}";
+            }, 50);
+        });
+        patientButton.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                patientDiv.querySelector('img').src = "{% static 'assets/gifs/Papelylapiz0.png' %}";
+            }, 50);
+        });
+    }
+
+</script>
+{% endblock %}

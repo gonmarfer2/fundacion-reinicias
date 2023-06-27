@@ -1,0 +1,108 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% load static %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="general-title" text="Notificaciones" %}
+    <div class="container">
+        <div class="row my-4">
+            <div class="col-12 hstack gap-1">
+                <img class="section-icon" src="{% static 'assets/icons/enviado.png' %}" alt="Icono de notificaciones entrantes"/>
+                <span class="text-separator px-1">Nuevas notificaciones</span>
+                <div class="horizontal-separator"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 table-responsive">
+                <table class="table table-hover">
+                    <caption>Nuevas notificaciones</caption>
+                    <thead>
+                        <th scope="col">Enviado</th>
+                        <th scope="col">Mensaje</th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for notification in unreadNotifications %}
+                            <tr style="cursor: pointer;">
+                                <td>{{notification.sent_date|date:"d/m/Y H:i"}}</td>
+                                <td>{{notification}}</td>
+                            </tr>                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row my-4">
+            <div class="col-12 hstack gap-1">
+                <img class="section-icon" src="{% static 'assets/icons/reloj.png' %}" alt="Icono de notificaciones le&iacute;das"/>
+                <span class="text-separator px-1">Notificaciones le&iacute;das</span>
+                <div class="horizontal-separator"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 table-responsive">
+                <table class="table table-hover">
+                    <caption>Notificaciones le&iacute;das</caption>
+                    <thead>
+                        <th scope="col">Enviado</th>
+                        <th scope="col">Mensaje</th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for notification in readNotifications %}
+                            <tr style="cursor: pointer;">
+                                <td>{{notification.sent_date|date:"d/m/Y H:i"}}</td>
+                                <td>{{notification}}</td>
+                            </tr>                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% if pages.has_previous or pages.has_next %}
+            <div id="id-pagination" class="row">
+                <nav aria-label="Paginación de ususarios">
+                    <ul class="pagination justify-content-end">
+                        {% if pages.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'-1'}}">Anterior</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'-1'}}">{{pages.current|add:"-1"}}</a></li>
+                        {% endif %}
+                        <li class="page-item active"><a class="page-link" href="?page={{pages.current}}">{{pages.current}}</a></li>
+                        {% if pages.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'1'}}">{{pages.current|add:"1"}}</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'1'}}">Siguiente</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded',function(event) {
+        var userId = new URLSearchParams();
+        userId.append('user_id','{{request.user.pk}}')
+        fetch("/notifications/read/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+            },
+            body: userId.toString() 
+        })
+        .then(function(response) {
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+        alert('An error occurred while processing the request.\n'+error);
+        });
+    })
+</script>
+{% endblock %}

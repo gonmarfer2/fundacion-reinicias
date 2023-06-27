@@ -37,7 +37,7 @@
         <div class="container my-4">
             <div class="row">
                 <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
-                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" type="patients" href="#" text="Mis tareas" %}
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" href="/patients/"|add_int:request.user.get_person.pk|add:"/tasks/" text="Mis tareas" %}
                 </div>
                 <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
                     {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" href="/patients/diary/"|add_int:request.user.get_person.pk text="Mi diario" %}

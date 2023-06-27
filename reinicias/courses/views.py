@@ -15,8 +15,9 @@ from django.views.decorators.http import require_http_methods
 from .forms import StudentRegisterForm, CourseUnitCreateForm, CourseUnitEditForm, CourseCreateForm, \
     CourseUnitResourceCreateForm, CourseEditForm, QuestionEditForm, AutoevaluationEditForm
 import json
-from main.models import Person, Teacher
+from main.models import Person, Teacher, Notification
 from main.views import group_required
+from django.utils import timezone as django_timezone
 
 # CONSTANTS
 ERROR_404_COURSE = 'No existe ese curso'
@@ -213,6 +214,15 @@ def check_if_course_time_has_expired(student):
             student.options_chosen.filter(question__autoevaluation__in=autoevaluations).delete()
             course.delete()
 
+            Notification.objects.create(
+                type=f'Usted no ha completado el curso {this_course} ha tiempo, se ha reestablecido su progreso.',
+                user=student.get_user()
+            )
+            Notification.objects.create(
+                type=f'{student} no ha completado el curso {this_course} ha tiempo, se ha reestablecido su progreso.',
+                user=this_course.teacher.get_user()
+            )
+
 
 @require_http_methods(["GET","POST"])
 @transaction.atomic()
@@ -393,6 +403,13 @@ def set_completed_courses(student,course,units):
                 break
         if course_finished:
             CourseStatus.objects.filter(student=student,courses=course).update(completed=True)
+            
+            Notification.objects.create(
+                type=f'{student} ha conseguido superar el curso: {course}',
+                user=course.teacher.get_user())
+            Notification.objects.create(
+                type=f'¡Felicidades, ha conseguido superar el curso: {course}!',
+                user=student.get_user())
     return current_calification
 
 
@@ -955,10 +972,14 @@ def autoevaluation_process(request,autoevaluation_id):
     if related_califications > 3:
         raise PermissionDenied('Si tienes más de 3 intentos no puedes hacer otro')
     
-    this_calification = Calification.objects.filter(
+    these_calification = Calification.objects.filter(
         student=this_student,
         autoevaluation=this_autoevaluation
-    ).order_by('-start_date').first()
+    ).order_by('-start_date')
+
+    check_reloaded_tries(these_calification)
+
+    this_calification = these_calification.first()
 
     this_calification.end_date = datetime.now()
     this_calification.save()
@@ -982,3 +1003,9 @@ def autoevaluation_process(request,autoevaluation_id):
 
     return redirect(reverse('course_details',args=[this_autoevaluation.course_unit.course.pk]))
             
+
+def check_reloaded_tries(califications):
+    for calification in califications:
+        if calification.end_date == None:
+            calification.end_date = django_timezone.now()
+            calification.save()

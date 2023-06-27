@@ -371,7 +371,12 @@ header {
 input:disabled,
 select:disabled,
 textarea:disabled,
-input:read-only,
+input[type="text"]:read-only,
+input[type="password"]:read-only,
+input[type="email"]:read-only,
+input[type="date"]:read-only,
+input[type="time"]:read-only,
+input[type="number"]:read-only,
 textarea:read-only {
     color: var(--black) !important;
     background-color: var(--white-dove) !important;
@@ -550,6 +555,7 @@ textarea:read-only {
     align-items: center;
     background-color: var(--white);
     border-top: var(--black) solid 1px;
+    padding: 1%;
 }
 
 .accordion-button.collapsed {
@@ -803,7 +809,7 @@ button.accordion-button:focus {
 
 .note-text {
     overflow-x: auto;
-    overflow-y: scroll;
+    overflow-y: auto;
     word-wrap: break-word;
     max-height: 480px;
 }
@@ -841,4 +847,33 @@ button.accordion-button:focus {
 .history-div {
     overflow-y: auto;
     max-height: 50vh;
+}
+
+.accordion-title-no-overflow {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.task-text {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+
+.progresscolor-100 {
+    background-color: var(--sadness-color);
+}
+
+.progresscolor-50 {
+    background-color: var(--yellow);
+}
+
+.progresscolor-10 {
+    background-color: var(--anger-color);
 }
