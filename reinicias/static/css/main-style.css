@@ -371,7 +371,12 @@ header {
 input:disabled,
 select:disabled,
 textarea:disabled,
-input:read-only,
+input[type="text"]:read-only,
+input[type="password"]:read-only,
+input[type="email"]:read-only,
+input[type="date"]:read-only,
+input[type="time"]:read-only,
+input[type="number"]:read-only,
 textarea:read-only {
     color: var(--black) !important;
     background-color: var(--white-dove) !important;
@@ -859,4 +864,16 @@ button.accordion-button:focus {
     overflow-x: auto;
     overflow-y: auto;
     word-wrap: break-word;
+}
+
+.progresscolor-100 {
+    background-color: var(--sadness-color);
+}
+
+.progresscolor-50 {
+    background-color: var(--yellow);
+}
+
+.progresscolor-10 {
+    background-color: var(--anger-color);
 }

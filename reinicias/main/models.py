@@ -137,3 +137,16 @@ class Teacher(models.Model):
     class Meta:
         verbose_name_plural = 'Formadores'
     
+
+class Notification(models.Model):
+    sent_date = models.DateTimeField(auto_now=True,verbose_name='Fecha de envío')
+    read_date = models.DateTimeField(verbose_name='Fecha de lectura',null=True)
+    type = models.CharField(max_length=4096,verbose_name='Tipo de mensaje')
+
+    user = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='Usuario')
+
+    def __str__(self) -> str:
+        return self.type
+
+    class Meta:
+        verbose_name_plural = 'Notificaciones'

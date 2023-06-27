@@ -21,7 +21,7 @@
                         {% for student,calification in students.items %}
                             <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{student.student.get_user.pk}}'">
                                 <td>{{calification}}</td>
-                                <td>{{student.start_date|date:"d/m/Y h:i:s"}}</td>
+                                <td>{{student.start_date|date:"d/m/Y H:i:s"}}</td>
                                 <td>{% if student.completed %}S&iacute;{% else %}No{% endif %}</td>
                                 <td>{{student.student}}</td>
                             </tr>                        

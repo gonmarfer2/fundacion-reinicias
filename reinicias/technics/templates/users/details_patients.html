@@ -104,8 +104,8 @@
                                 <tr>
                                     <td><span class="badge record-history-pill">{{entry.get_state_display}}</span></td>
                                     <td><span>{% if entry.get_initial_problem_display %}{{entry.get_initial_problem_display}}{% else %}-{% endif %}</span></td>
-                                    <td><span>{{entry.start_date|date:"d/m/Y h:i:s"}}</span></td>
-                                    <td><span>{% if entry.end_date %}{{entry.end_date|date:"d/m/Y h:i:s"}}{% else %}-{% endif %}</span></td>
+                                    <td><span>{{entry.start_date|date:"d/m/Y H:i:s"}}</span></td>
+                                    <td><span>{% if entry.end_date %}{{entry.end_date|date:"d/m/Y H:i:s"}}{% else %}-{% endif %}</span></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

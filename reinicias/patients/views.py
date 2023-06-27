@@ -12,7 +12,7 @@ import plotly.express as px
 from datetime import datetime, timedelta, timezone
 from django.db.models import Q, F, CharField, Value
 from django.db.models.functions import Concat
-from main.models import Technic
+from main.models import Technic, Notification
 
 
 # Constants
@@ -94,6 +94,12 @@ def create_diary_entry(request,person_id):
             new_entry = form.save(commit=False)
             new_entry.diary = this_diary
             new_entry.save()
+
+            for technic in Technic.objects.all():
+                Notification.objects.create(
+                    type=f'{this_patient} ha escrito una nueva entrada en su diario.',
+                    user=technic.get_user()
+                )
 
             return redirect(f'/patients/diary/{this_patient.person.pk}')
     
@@ -296,6 +302,12 @@ def show_tasks_details(request,person_id,task_id):
 
             this_task.state = 'c'
             this_task.save()
+
+            for technic in Technic.objects.all():
+                Notification.objects.create(
+                    type=f'{this_patient} ha enviado una nueva entrega para la tarea {this_task.title}',
+                    user=technic.get_user()
+                )
 
             return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
         
