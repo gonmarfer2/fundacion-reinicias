@@ -280,6 +280,12 @@ def inscribe_in_course(request,course_id):
             courses=this_course
         )
         new_try.save()
+
+        Notification.objects.create(
+            user=this_course.teacher.get_user(),
+            type=f'Se ha inscrito un nuevo estudiante en el curso: {this_course}'
+        )
+
         return redirect(f"/courses/{course_id}")
 
 

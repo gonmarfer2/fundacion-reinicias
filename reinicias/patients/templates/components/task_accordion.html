@@ -29,7 +29,7 @@
                     <a class="text-white" href="{{task.pk}}/delivery/">Ver entrega</a>
                 </button>
                     {% if not task.feeling %}
-                    <button class="my-3 courses-button courses-button-cyan" onclick="evaluateTask('{{task.patient.get_person.pk}}','{{task.pk}}')">
+                    <button class="my-3 courses-button courses-button-cyan">
                         <span class="text-white" data-bs-toggle="modal" data-bs-target="#id-evaluatetask-{{task.pk}}">Valorar</span>
                     </button>
                     <strong>Entregado:&nbsp;</strong><span>{{task.deadline|date:"d/m/Y"}}</span>

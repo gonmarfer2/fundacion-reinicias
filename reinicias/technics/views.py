@@ -28,6 +28,7 @@ ERROR_404_PERSON = 'Ese usuario no existe'
 ERROR_404_SESSION = 'Esa sesión no existe'
 ERROR_404_SESSION_NOTE = 'Esa anotación no existe'
 ERROR_404_REPORT = 'Ese informe no existe'
+ERROR_404_DOCUMENT = 'Ese documento no existe'
 
 MONTHS = {
         1:'Enero',
@@ -834,3 +835,41 @@ def report_generate_pdf(request,session_id,report_id):
     doc_buffer.close()
 
     return response
+
+
+@require_http_methods(["POST"])
+@group_required("technics")
+@transaction.atomic()
+def add_record_document(request,user_id):
+    if Person.objects.filter(pk=user_id).count() == 0:
+        raise Http404(ERROR_404_PERSON)
+    
+    this_person = Person.objects.get(pk=user_id)
+    if not Patient.objects.filter(person=this_person).exists():
+        raise PermissionDenied
+    
+    this_patient = Patient.objects.get(person=this_person)
+    documents = request.FILES.getlist('documents')
+    
+    this_record = PatientRecord.objects.get(patient=this_patient)
+    for doc in documents:
+        PatientRecordDocument.objects.create(
+            document=doc,
+            record=this_record
+        )
+
+    return JsonResponse({'response':'ok'})
+
+
+@require_http_methods(["GET"])
+@group_required("technics")
+@transaction.atomic()
+def delete_record_document(request,user_id,document_id):
+    if Person.objects.filter(pk=user_id).count() == 0:
+        raise Http404(ERROR_404_PERSON)
+    if PatientRecordDocument.objects.filter(pk=document_id).count() == 0:
+        raise Http404(ERROR_404_DOCUMENT)
+    
+    PatientRecordDocument.objects.get(pk=document_id).delete()
+
+    return JsonResponse({'response':'ok'})

@@ -60,20 +60,53 @@
                 </h2>
                 <div id="flush-collapseRecord" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-headingRecord" data-bs-parent="#accordionPatientRecord">
                     <div class="py-md-4 pb-2">
-                        <div class="w-100">
+                        <div class="w-100 vstack gap-3">
                             <ul>
                                 <li><strong>N&uacute;mero:&nbsp;</strong><span>{{thisRecord}}</span></li>
                                 <li><strong>Estado:&nbsp;</strong><span>{{currentState.get_state_display}}</span></li>
                                 <li><strong>Documentos:&nbsp;</strong>
                                     <ul>
                                         {% for document in thisRecordDocuments %}
-                                        <li><span>{{document}}:&nbsp;</span><a target="_blank" href="{{MEDIA_URL}}{{document.document.name}}" rel="noopener">{{document.document.name}}</a></li>
+                                        <li id="id-doc-list-{{document.pk}}">
+                                            <a class="bi bi-x-square-fill text-danger" onclick="deleteDocument('id-doc-list-{{document.pk}}','{{document.pk}}')" style="cursor: pointer;"></a>
+                                            &nbsp;<span>{{document}}:&nbsp;</span>
+                                            <a target="_blank" href="{{MEDIA_URL}}{{document.document.name}}" rel="noopener">{{document.document.name}}</a>
+                                        </li>
                                         {% endfor %}
                                     </ul>
                                 <li><strong>Creado:&nbsp;</strong><span>{{createdOn}}</span></li>
                                 <li><strong>Demanda inicial actual:&nbsp;</strong><span>{{initialProblem.get_initial_problem_display}}</span></li>
                                     
                             </ul>
+                            <button class="my-3 courses-button courses-button-cyan">
+                                <span class="text-white" data-bs-toggle="modal" data-bs-target="#id-adddocument-{{thisRecord.pk}}">A&ntilde;adir documentos</span>
+                            </button>
+                            <div class="modal fade" id="id-adddocument-{{thisRecord.pk}}" tabindex="-1" aria-labelledby="label-adddocument-{{thisRecord.pk}}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header hstack">
+                                            <div class="vstack">
+                                                <h2 class="modal-title fs-5" id="label-adddocument-{{thisRecord.pk}}">Añadir documentos al expediente</h2>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" class="container" id="id-formdocument">
+                                                <div class="row my-3">
+                                                    <div class="col-12">
+                                                        <input id="id-record-document-input" class="form-control" type="file" name="docunents" multiple/>
+                                                    </div>
+                                                </div>
+                                                <div class="row w-100">
+                                                    <div class="col-12 input-group">
+                                                        <button type="submit" class="r-form-button">A&ntilde;adir</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -118,4 +151,57 @@
     
 </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.getElementById('id-formdocument').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let documents_files = event.target.querySelector('#id-record-document-input').files;
+
+        var formData = new FormData();
+        for (let file of documents_files) {
+            formData.append('documents',file);
+        }
+        console.log(formData)
+
+        fetch("/technics/users/{{thisUser.get_person.pk}}/records/documents/add/", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+            },
+            body: formData
+        })
+        .then(function(response) {
+            window.location.reload();
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+            alert('An error occurred while processing the request.\n'+error);
+        });
+    })
+
+    function deleteDocument(divId,documentId) {
+        if (confirm('¿Desea eliminar este documento?')) {
+
+            fetch(`/technics/users/{{thisUser.get_person.pk}}/records/documents/${documentId}/delete/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+                },
+            })
+            .then(function(response) {
+                return response.json()
+            })
+            .then(function(data){
+                document.getElementById(divId).remove();
+            })
+            .catch(function(error) {
+            // Handle any network or request errors
+                alert('An error occurred while processing the request.\n'+error);
+            });
+        }
+    }
+</script>
+
 {% endblock %}

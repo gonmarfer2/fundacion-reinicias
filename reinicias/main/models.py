@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
 from django.core.validators import RegexValidator
 import datetime
 from technics.models import PatientRecord, PatientRecordHistory, INITIAL_PROBLEMS, Patient
+from patients.models import Diary
 
 TECHNIC_TEAM = 'technics'
 TEACHER_TEAM = 'teachers'
@@ -45,6 +46,8 @@ class UserManager(BaseUserManager):
         superuser_patient = Patient.objects.create(person=person,school="Reinicias")
         superuser_patient_record = PatientRecord.objects.create(number='FR18000',patient=superuser_patient)
         PatientRecordHistory.objects.create(state='a',initial_problem=INITIAL_PROBLEMS[0][0],record=superuser_patient_record)
+
+        Diary.objects.create(patient=superuser_patient)
 
         print("This user can be manually configured through the admin site")
 
