@@ -232,13 +232,15 @@ def show_tasks_list(request,person_id):
         'pendingTasks':pending_tasks,
         'sentTasks':sent_tasks,
         'acceptedTasks':accepted_tasks,
-        'feelings':FEELINGS
+        'feelings':FEELINGS,
+        'patient':this_patient
     }
     return render(request,'tasks/list.html',context)
 
 
 @require_http_methods(['GET','POST'])
 @group_required('technics')
+@transaction.atomic()
 def add_tasks(request,person_id):
     this_patient = Patient.objects.filter(person__pk=person_id)
     if not this_patient.exists():
@@ -258,6 +260,11 @@ def add_tasks(request,person_id):
             new_task.technic = Technic.objects.get(person__user=request.user)
             new_task.save()
 
+            Notification.objects.create(
+                user=this_patient.get_user(),
+                type=f'Tienes una tarea nueva: {new_task}'
+            )
+
             return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
     
     context = {
@@ -270,6 +277,7 @@ def add_tasks(request,person_id):
 
 @require_http_methods(['GET','POST'])
 @group_required('patients')
+@transaction.atomic()
 def show_tasks_details(request,person_id,task_id):
     this_patient = Patient.objects.filter(person__pk=person_id)
     this_task = Task.objects.filter(pk=task_id)
@@ -352,6 +360,7 @@ def show_delivery_details(request,person_id,task_id):
 
 @require_http_methods(['POST'])
 @group_required('patients')
+@transaction.atomic()
 def evaluate_task(request,person_id,task_id):
     this_patient = Patient.objects.filter(person__pk=person_id)
     this_task = Task.objects.filter(pk=task_id)
@@ -373,6 +382,7 @@ def evaluate_task(request,person_id,task_id):
 
 @require_http_methods(['GET'])
 @group_required('technics')
+@transaction.atomic()
 def accept_task(request,person_id,task_id):
     this_patient = Patient.objects.filter(person__pk=person_id)
     this_task = Task.objects.filter(pk=task_id)
@@ -387,10 +397,17 @@ def accept_task(request,person_id,task_id):
     this_task.state = 'a'
     this_task.save()
 
+    Notification.objects.create(
+        user=this_patient.get_user(),
+        type=f'Se ha aceptado tu entrega para la tarea: {this_task}'
+    )
+
     return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
+
 
 @require_http_methods(['GET'])
 @group_required('technics') 
+@transaction.atomic()
 def deny_task(request,person_id,task_id):
     this_patient = Patient.objects.filter(person__pk=person_id)
     this_task = Task.objects.filter(pk=task_id)
@@ -405,4 +422,27 @@ def deny_task(request,person_id,task_id):
     this_task.state = 'w'
     this_task.save()
 
+    Notification.objects.create(
+        user=this_patient.get_user(),
+        type=f'Se ha rechazado tu entrega para la tarea: {this_task}'
+    )
+
     return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
+
+
+
+@require_http_methods(['GET'])
+@group_required('technics') 
+@transaction.atomic()
+def delete_task(request,person_id,task_id):
+    this_patient = Patient.objects.filter(person__pk=person_id)
+    this_task = Task.objects.filter(pk=task_id)
+    if not this_patient.exists():
+        raise Http404(ERROR_404_PERSON)
+    if not this_task.exists():
+        raise Http404(ERROR_404_TASK)
+    
+    this_task.first().delete()
+
+    return JsonResponse({'response':'ok'})
+

@@ -39,8 +39,8 @@ def check_new_notifications(request):
 @login_required(login_url='login')
 @require_http_methods(["GET"])
 def show_notifications(request):
-    unread_notifications = Notification.objects.filter(user=request.user,read_date__isnull=True)
-    read_notifications = Notification.objects.filter(user=request.user,read_date__isnull=False)
+    unread_notifications = Notification.objects.filter(user=request.user,read_date__isnull=True).order_by('-sent_date')
+    read_notifications = Notification.objects.filter(user=request.user,read_date__isnull=False).order_by('-sent_date')
 
     page_number = request.GET.get('page',None)    
     paginator_read = Paginator(read_notifications,5)
