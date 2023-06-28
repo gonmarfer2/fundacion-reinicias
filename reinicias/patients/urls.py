@@ -12,4 +12,5 @@ urlpatterns = [
     path('<int:person_id>/tasks/<int:task_id>/evaluate/',views.evaluate_task,name='patients_evaluate_task'),
     path('<int:person_id>/tasks/<int:task_id>/accept/',views.accept_task,name='patients_accept_task'),
     path('<int:person_id>/tasks/<int:task_id>/deny/',views.deny_task,name='patients_deny_task'),
+    path('<int:person_id>/tasks/<int:task_id>/delete/',views.delete_task,name='patients_delete_task'),
 ]

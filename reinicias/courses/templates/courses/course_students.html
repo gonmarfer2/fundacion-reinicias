@@ -3,6 +3,7 @@
 {% block title %}Cursos{% endblock %}
 
 {% block body %}
+{% load tz %}
 {% include 'components/navbar.html' with userGroups=userGroups %}
 <div id="id-form-container">
     {% include 'components/title.html' with type="general-title" text="Estudiantes - "|add:course.name %}
@@ -19,7 +20,7 @@
                     </thead>
                     <tbody class="table-group-divider">
                         {% for student,calification in students.items %}
-                            <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{student.student.get_user.pk}}'">
+                            <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{student.student.get_person.pk}}'">
                                 <td>{{calification}}</td>
                                 <td>{{student.start_date|date:"d/m/Y H:i:s"}}</td>
                                 <td>{% if student.completed %}S&iacute;{% else %}No{% endif %}</td>

@@ -118,5 +118,26 @@
         });
     }
 
+    function deleteTask(divId,taskId) {
+        if (confirm('¿Desea eliminar esta tarea?')) {
+
+            fetch(`/patients/{{patient.get_person.pk}}/tasks/${taskId}/delete/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+                },
+            })
+            .then(function(response) {
+                return response.json()
+            })
+            .then(function(data){
+                document.getElementById(divId).remove();
+            })
+            .catch(function(error) {
+            // Handle any network or request errors
+                alert('An error occurred while processing the request.\n'+error);
+            });
+        }
+    }
 </script>
 {% endblock %}

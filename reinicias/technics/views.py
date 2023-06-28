@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from main.views import group_required
-from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY 
+from main.models import Person, Teacher, Technic, GROUP_TRANSLATION_DICTIONARY, Notification 
 from .models import PatientRecord, PatientRecordDocument, PatientRecordHistory, Patient, Session, SessionNote, \
     InitialReport, INITIAL_PROBLEMS
 from django.http import Http404, JsonResponse, FileResponse, HttpResponse
@@ -103,6 +103,20 @@ def show_user_details(request,user_id):
         }
 
         return render(request,'users/details_patients.html',context)
+
+    if this_person.user.has_group("technics"):
+        these_sessions = Session.objects.filter(technic__person=this_person,datetime__year=datetime.now().year)
+        sessions_by_type_query = these_sessions.values('session_type').annotate(count=Count('session_type'))
+        sessions_by_type = {SESSION_TYPES_TRANSLATION[s['session_type']]:s['count'] for s in sessions_by_type_query}
+        print(sessions_by_type)
+        context = {
+            'yearSessions':these_sessions.count(),
+            'sessionsByType':sessions_by_type,
+            'thisUser': this_person,
+            'userGroups':request.user.groups.all()
+        }
+        
+        return render(request,'users/details.html',context)
 
     context = {
         'thisUser': this_person,
@@ -473,6 +487,13 @@ def create_session(request):
             session.session_state='p'
             session.save()
             session.patient.set(data.get('patient'))
+
+            for patient in session.patient.all():
+                Notification.objects.create(
+                    user=patient.get_user(),
+                    type=f'Nueva sesión el día {session_datetime.strftime("%d/%m/%Y")} a las {session_datetime.strftime("%H:%M")} con {session.technic}'
+                )
+
             return redirect(f'/technics/sessions/{session.pk}/')
 
     context = {

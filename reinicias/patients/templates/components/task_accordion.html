@@ -1,6 +1,6 @@
 {% load static %}
 {% load extra_tags %}
-<div class="accordion-item my-3">
+<div id="id-task-{{task.pk}}" class="accordion-item my-3">
     <h2 class="accordion-header" id="flush-heading{{task.pk}}">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{task.pk}}" aria-expanded="false" aria-controls="flush-collapse{{task.pk}}">
             <span class="accordion-title-no-overflow" title="{{task.title}}">{{task.title}}</span>
@@ -99,6 +99,7 @@
 
             {% elif user|has_group:'technics' %}
             <div class="w-100 mb-3 hstack gap-3 align-items-center">
+                <a class="bi bi-x-square-fill text-danger" onclick="deleteTask('id-task-{{task.pk}}','{{task.pk}}')" style="cursor: pointer;"></a>
                 {% if type == 'pending' %}
                 <strong>Fecha de entrega:&nbsp;</strong><span class="{% if task.is_deadline_surpassed  %}text-danger{% endif %}">{{task.deadline|date:"d/m/Y"}}</span>
                 {% elif type == 'done' %}

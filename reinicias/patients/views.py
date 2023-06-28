@@ -232,7 +232,8 @@ def show_tasks_list(request,person_id):
         'pendingTasks':pending_tasks,
         'sentTasks':sent_tasks,
         'acceptedTasks':accepted_tasks,
-        'feelings':FEELINGS
+        'feelings':FEELINGS,
+        'patient':this_patient
     }
     return render(request,'tasks/list.html',context)
 
@@ -403,6 +404,7 @@ def accept_task(request,person_id,task_id):
 
     return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
 
+
 @require_http_methods(['GET'])
 @group_required('technics') 
 @transaction.atomic()
@@ -426,3 +428,21 @@ def deny_task(request,person_id,task_id):
     )
 
     return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
+
+
+
+@require_http_methods(['GET'])
+@group_required('technics') 
+@transaction.atomic()
+def delete_task(request,person_id,task_id):
+    this_patient = Patient.objects.filter(person__pk=person_id)
+    this_task = Task.objects.filter(pk=task_id)
+    if not this_patient.exists():
+        raise Http404(ERROR_404_PERSON)
+    if not this_task.exists():
+        raise Http404(ERROR_404_TASK)
+    
+    this_task.first().delete()
+
+    return JsonResponse({'response':'ok'})
+
