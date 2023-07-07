@@ -1,0 +1,42 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Inicio de sesi&oacute;n{% endblock %}
+
+{% block body %}
+<div id="id-login-container">
+    {% include 'components/title.html' with type="general-title" text="Iniciar sesi&oacute;n" %}
+    <form method="post" class="container">{% csrf_token %}
+        <div class="row r-form-container mt-md-5">
+            {% for field in form %}
+            <div class="col-12 col-md-6">
+                <div class="w-100 r-form-tag">
+                    {{field.label_tag}}
+                </div>
+                <div class="w-100 r-form-field">
+                    {{field}}
+                </div>
+                <div class="w-100 r-form-errors">
+                    {{field.errors}}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <div class="row r-form-container justify-content-center my-3 my-md-5 px-3 px-md-0">
+            <p class="text-center">&iquest;Has olvidado la contrase&ntilde;a o el nombre de usuario&quest;<br/>
+                Ponte en contacto con los administradores de la fundaci&oacute;n.</p>
+        </div>
+        <div class="row r-form-container justify-content-center my-3">
+            <button type="submit" class="r-form-button">Enviar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

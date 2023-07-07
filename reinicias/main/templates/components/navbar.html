@@ -1,0 +1,111 @@
+{% load static %}
+{% load extra_tags %}
+<div class="navbar-full">
+  <div class="top-navbar"></div>
+  <nav class="navbar navbar-expand-xxl border-bottom border-1 border-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <img class="logo-reinicias" src="{% static 'assets/fundacionReiniciasLogo.png' %}" alt="Logo de la Fundación Reinicias">
+      </a>
+      {% if userGroups|length > 0 %}
+      <a id="id-notification" class="position-relative mx-3 nav-link bi bi-bell" href="/notifications/">
+        <span id="id-bubble-notification" class="d-none position-absolute top-0 start-100 translate-middle p-2 bg-danger rounded-circle">
+          <span class="visually-hidden">New alerts</span>
+        </span>
+      </a>
+      {% endif %}
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Inicio</a>
+          </li>
+          {% if userGroups|length == 0 %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
+          </li>
+          {% elif userGroups|length > 0 %}
+            {% if userGroups|has_group:"students" or userGroups|has_group:"teachers" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
+              </li>
+            {% endif %}
+            {% if userGroups|has_group:"technics" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'technics_user_list' %}">Lista de usuarios</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'technics_session_list' %}">Sesiones</a>
+              </li>
+            {% endif %}
+            {% if userGroups|has_group:"patients" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'patients_show_tasks' person_id=request.user.get_person.pk %}">Mis tareas</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'patients_show_diary' person_id=request.user.get_person.pk %}">Mi diario</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'patients_show_feelings' person_id=request.user.get_person.pk %}">Emociones</a>
+              </li>
+            {% endif %}
+          {% endif %}
+        </ul>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          {% if userGroups|length == 0 %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Iniciar sesi&oacute;n</a>
+            </li>
+          {% elif userGroups|length > 0 %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Cerrar sesi&oacute;n</a>
+            </li>
+          {% endif %}
+      </div>
+    </div>
+  </nav>
+</div>
+
+<script>
+  function checkNotifications() {
+    let notificationDiv = document.getElementById('id-notification');
+    let bubbleDiv = document.getElementById('id-bubble-notification');
+    fetch("/notifications/check/", {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+      },
+      })
+      .then(function(response) {
+        return(response.text());
+      })
+      .then(function(data){
+        let jsonData = JSON.parse(data);
+        if (jsonData.new) {
+          notificationDiv.classList = "position-relative mx-3 nav-link bi bi-bell-fill";
+          if (bubbleDiv.classList.contains('d-none')) {
+            bubbleDiv.classList.remove('d-none');
+          }
+        } else {
+          notificationDiv.classList = "position-relative mx-3 nav-link bi bi-bell";
+          if (!bubbleDiv.classList.contains('d-none')) {
+            bubbleDiv.classList.add('d-none');
+          }
+        }
+  
+      })
+      .catch(function(error) {
+      // Handle any network or request errors
+      alert('An error occurred while processing the request.\n'+error);
+      });
+  }
+
+  if('{{request.user.is_authenticated}}' === 'True') {
+    document.addEventListener('DOMContentLoaded',checkNotifications);
+    var checkTimer = setInterval(checkNotifications,60000);
+  }
+
+</script>

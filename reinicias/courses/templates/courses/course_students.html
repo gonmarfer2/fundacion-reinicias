@@ -1,0 +1,36 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Cursos{% endblock %}
+
+{% block body %}
+{% load tz %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+    {% include 'components/title.html' with type="general-title" text="Estudiantes - "|add:course.name %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 table-responsive">
+                <table class="table table-hover">
+                    <caption>Estudiantes inscritos al curso</caption>
+                    <thead>
+                        <th scope="col">Calificaci&oacute;n</th>
+                        <th scope="col">Inicio</th>
+                        <th scope="col">Completado</th>
+                        <th scope="col">Estudiante</th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for student,calification in students.items %}
+                            <tr style="cursor: pointer;" onclick="window.location.href = '/technics/users/{{student.student.get_person.pk}}'">
+                                <td>{{calification}}</td>
+                                <td>{{student.start_date|date:"d/m/Y H:i:s"}}</td>
+                                <td>{% if student.completed %}S&iacute;{% else %}No{% endif %}</td>
+                                <td>{{student.student}}</td>
+                            </tr>                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+<div class="container">
+    <div class="row">
+        <h1 class="mt-4 simple-title col-12">Detalles de sesi&oacute;n</h1>
+    </div>
+    <div class="row">
+        <h2 class=" mb-4 col-12">{{session.title}}</h2>
+    </div>
+    
+    <div class="row">
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-12 col-md-6 mb-2">
+                        <div class="w-100 r-form-tag">
+                            {{field.label_tag}}
+                        </div>
+                        <div class="w-100 r-form-field">
+                            {{field}}
+                        </div>
+                        <div class="w-100 r-form-errors">
+                            {{field.errors}}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="row justify-content-start my-3">
+                <div class="col-12 hstack gap-3">
+                    <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="edit/">Editar</a></button>
+                    {% if session.is_initial and session.session_type != 'g' and not report %}
+                        <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="reports/create/">Generar informe</a></button>
+                    {% endif %}
+                    {% if session.is_initial and session.session_type != 'g' and report %}
+                        <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="reports/{{report.pk}}/">Ver informe</a></button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr class="purple-diviser">
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-12 hstack gap-3">
+            <h2>Anotaciones</h2>
+            <button class="autoevaluation-button courses-button-cyan"><a class="text-white bi bi-plus" href="/technics/sessions/{{session.pk}}/notes/add/">A&ntilde;adir notas</a></button>
+        </div>
+    </div>
+{% if notes %}
+    {% for note in notes %}
+        <div id="id-note-{{note.pk}}" class="row table-cyan py-2 mb-3 note-text">
+            <div class="col-11">
+                <strong>{{note.technic}} ({{note.creation_datetime|date:"d/m/Y H:i"}})</strong>
+                <br>
+                <span>{{note.text}}</span>
+            </div>
+            <div class="col-1 bi bi-x-square-fill text-danger" onclick="deleteThisNote('{{note.pk}}','id-note-{{note.pk}}')"></div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    function deleteThisNote(noteId,noteDiv) {
+        let delete_confirm = confirm('¿Desea eliminar esta anotación?');
+        if (delete_confirm) {
+            fetch(`notes/${noteId}/delete/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+            }
+            })
+            .then(function(response) {
+                document.getElementById(noteDiv).remove();
+            })
+        }
+    }
+</script>
+{% endblock %}

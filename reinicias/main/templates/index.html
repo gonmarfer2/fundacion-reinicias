@@ -1,0 +1,29 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Fundaci&oacute;n Reinicias{% endblock %}
+
+{% block body %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+{% load static %}
+<div class="container-fluid" id="id-main-container">
+    <div class="row banner">
+        <img src="{% static 'assets/Banner_Reinicias2.png' %}" alt="Banner de la Fundación Reinicias">
+        <div class="main-hello-box">
+            <p class="text-purple">&iexcl;Bienvenido al &aacute;rea de la Fundaci&oacute;n Reinicias&excl;</p>
+            <p>Al iniciar sesi&oacute;n, podr&aacute;s acceder a todo el contenido que la aplicaci&oacute;n tiene que ofrecerte.</p>
+        </div>
+    </div>
+    <div class="row justify-content-center my-5">
+        <div class="d-center-items">
+            {% include 'components/cyanbutton.html' with href="login/" text="Iniciar sesi&oacute;n" %}
+        </div>
+        <div class="d-center-items">
+            <i class="bi bi-circle-fill circle-cyan"></i>
+        </div>
+        <div class="d-center-items">
+            {% include 'components/cyanbutton.html' with href="courses/" text="Cursos" %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

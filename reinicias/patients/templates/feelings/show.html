@@ -1,0 +1,51 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="patient-title" text="Mis emociones" %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <h1 class="simple-title-minus">Emociones m&aacute;s comunes</h1>
+                <h2>&Uacute;ltimo mes</h2>
+                <div>{{feelingsChart|safe}}</div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <h1 class="simple-title-minus">Historial</h1>
+                <div class="container-fluid mb-4 history-div">
+                    {% for pk,feeling in history.items %}
+                        <div class="row">
+                            <div class="col-12 mt-4 color-{{feeling.feeling}}">
+                                <span>&lpar;{{feeling.datetime|date:"d/m/Y"}}&rpar;</span>&nbsp;<strong>{{feeling.feeling_display}}&nbsp;</strong>
+                                <br><span>&nbsp;&nbsp;&nbsp;&nbsp;{{feeling.type}}</span>
+                            </div>
+                        </div>        
+                    {% endfor %}
+                </div>
+                {% if pages.has_previous or pages.has_next %}
+                    <div id="id-pagination" class="row">
+                        <nav aria-label="Paginación de ususarios">
+                            <ul class="pagination justify-content-end">
+                                {% if pages.has_previous %}
+                                <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'-1'}}">Anterior</a></li>
+                                <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'-1'}}">{{pages.current|add:"-1"}}</a></li>
+                                {% endif %}
+                                <li class="page-item active"><a class="page-link" href="?page={{pages.current}}">{{pages.current}}</a></li>
+                                {% if pages.has_next %}
+                                <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'1'}}">{{pages.current|add:"1"}}</a></li>
+                                <li class="page-item"><a class="page-link" href="?page={{pages.current|add:'1'}}">Siguiente</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

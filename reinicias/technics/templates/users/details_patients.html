@@ -1,0 +1,207 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="technic-title" text=thisUser %}
+<div class="container">
+    <div class="col-12 mb-3">
+        {% for role in thisUser.get_user.groups.all %}
+            <span class="badge rounded-pill {{role}}-pill">&#8203;</span>
+        {% endfor %}
+    </div>
+    <div class="col-12 mb-3">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Nombre de usuario:&nbsp;</strong>{{thisUser.get_user.username}}</li>
+            <li class="list-group-item"><strong>Fecha de nacimiento:&nbsp;</strong>{{thisUser.get_person.birth_date|date:"d/m/Y"}}</li>
+            <li class="list-group-item"><strong>Nombre:&nbsp;</strong>{{thisUser.get_person.name}}</li>
+            <li class="list-group-item"><strong>Apellidos:&nbsp;</strong>{{thisUser.get_person.last_name}}</li>
+            <li class="list-group-item"><strong>Correo:&nbsp;</strong>{{thisUser.get_user.email}}</li>
+            <li class="list-group-item"><strong>Teléfono:&nbsp;</strong>{{thisUser.get_person.telephone}}</li>
+            <li class="list-group-item"><strong>Sexo:&nbsp;</strong>{{thisUser.get_person.get_sex_display}}</li>
+            <li class="list-group-item"><strong>Centro escolar:&nbsp;</strong>{{thisUser.school}}</li>
+        </ul>
+    </div>
+    
+    <div class="col-12">
+        <div class="row">
+            {% if userGroups|has_group:'technics' %}
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="edit/">Editar perfil</a></button>
+            </div>
+            {% endif %}
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="/patients/{{thisUser.get_person.pk}}/tasks/">Lista de tareas</a></button>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="/patients/diary/{{thisUser.get_person.pk}}/">Diario</a></button>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="/patients/feelings/{{thisUser.get_person.pk}}/">Historial de emociones</a></button>
+            </div>
+            {% if request.user == thisUser.get_user or request.user.is_superuser %}
+            <div class="col-6 col-md-3 col-lg-2 mb-2">
+                <button class="autoevaluation-button courses-button-cyan"><a class="text-white" href="password/">Cambiar contraseña</a></button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="accordion accordion-flush" id="accordionPatientRecord">
+            <div class="accordion-item my-3">
+                <h2 class="accordion-header" id="flush-headingRecord">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseRecord" aria-expanded="false" aria-controls="flush-collapseRecord">
+                        Expediente
+                    </button>
+                </h2>
+                <div id="flush-collapseRecord" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-headingRecord" data-bs-parent="#accordionPatientRecord">
+                    <div class="py-md-4 pb-2">
+                        <div class="w-100 vstack gap-3">
+                            <ul>
+                                <li><strong>N&uacute;mero:&nbsp;</strong><span>{{thisRecord}}</span></li>
+                                <li><strong>Estado:&nbsp;</strong><span>{{currentState.get_state_display}}</span></li>
+                                <li><strong>Documentos:&nbsp;</strong>
+                                    <ul>
+                                        {% for document in thisRecordDocuments %}
+                                        <li id="id-doc-list-{{document.pk}}">
+                                            <a class="bi bi-x-square-fill text-danger" onclick="deleteDocument('id-doc-list-{{document.pk}}','{{document.pk}}')" style="cursor: pointer;"></a>
+                                            &nbsp;<span>{{document}}:&nbsp;</span>
+                                            <a target="_blank" href="{{MEDIA_URL}}{{document.document.name}}" rel="noopener">{{document.document.name}}</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                <li><strong>Creado:&nbsp;</strong><span>{{createdOn}}</span></li>
+                                <li><strong>Demanda inicial actual:&nbsp;</strong><span>{{initialProblem.get_initial_problem_display}}</span></li>
+                                    
+                            </ul>
+                            <button class="my-3 courses-button courses-button-cyan">
+                                <span class="text-white" data-bs-toggle="modal" data-bs-target="#id-adddocument-{{thisRecord.pk}}">A&ntilde;adir documentos</span>
+                            </button>
+                            <div class="modal fade" id="id-adddocument-{{thisRecord.pk}}" tabindex="-1" aria-labelledby="label-adddocument-{{thisRecord.pk}}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header hstack">
+                                            <div class="vstack">
+                                                <h2 class="modal-title fs-5" id="label-adddocument-{{thisRecord.pk}}">Añadir documentos al expediente</h2>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" class="container" id="id-formdocument">
+                                                <div class="row my-3">
+                                                    <div class="col-12">
+                                                        <input id="id-record-document-input" class="form-control" type="file" name="docunents" multiple/>
+                                                    </div>
+                                                </div>
+                                                <div class="row w-100">
+                                                    <div class="col-12 input-group">
+                                                        <button type="submit" class="r-form-button">A&ntilde;adir</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="accordion accordion-flush" id="accordionPatientRecordHistory">
+            <div class="accordion-item my-3">
+                <h2 class="accordion-header" id="flush-headingRecordHistory">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseRecordHistory" aria-expanded="false" aria-controls="flush-collapseRecordHistory">
+                        Historial&nbsp;Expediente
+                    </button>
+                </h2>
+                <div id="flush-collapseRecordHistory" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-headingRecordHistory" data-bs-parent="#accordionPatientRecordHistory">
+                    <div class="py-md-4 pb-2 table-responsive">
+                        <table class="table table-hover">
+                            <caption>Historial del expediente del paciente</caption>
+                            <thead>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Demanda inicial</th>
+                                <th scope="col">Fecha de inicio de periodo</th>
+                                <th scope="col">Fecha de finalizaci&oacute;n de periodo</th>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for entry in thisRecordHistory %}
+                                <tr>
+                                    <td><span class="badge record-history-pill">{{entry.get_state_display}}</span></td>
+                                    <td><span>{% if entry.get_initial_problem_display %}{{entry.get_initial_problem_display}}{% else %}-{% endif %}</span></td>
+                                    <td><span>{{entry.start_date|date:"d/m/Y H:i:s"}}</span></td>
+                                    <td><span>{% if entry.end_date %}{{entry.end_date|date:"d/m/Y H:i:s"}}{% else %}-{% endif %}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.getElementById('id-formdocument').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let documents_files = event.target.querySelector('#id-record-document-input').files;
+
+        var formData = new FormData();
+        for (let file of documents_files) {
+            formData.append('documents',file);
+        }
+        console.log(formData)
+
+        fetch("/technics/users/{{thisUser.get_person.pk}}/records/documents/add/", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+            },
+            body: formData
+        })
+        .then(function(response) {
+            window.location.reload();
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+            alert('An error occurred while processing the request.\n'+error);
+        });
+    })
+
+    function deleteDocument(divId,documentId) {
+        if (confirm('¿Desea eliminar este documento?')) {
+
+            fetch(`/technics/users/{{thisUser.get_person.pk}}/records/documents/${documentId}/delete/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+                },
+            })
+            .then(function(response) {
+                return response.json()
+            })
+            .then(function(data){
+                document.getElementById(divId).remove();
+            })
+            .catch(function(error) {
+            // Handle any network or request errors
+                alert('An error occurred while processing the request.\n'+error);
+            });
+        }
+    }
+</script>
+
+{% endblock %}

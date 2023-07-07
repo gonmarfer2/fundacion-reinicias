@@ -1,0 +1,183 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Cursos{% endblock %}
+{% block css_imports %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main-style.css' %}" type="text/css">
+{% endblock %}
+
+{% block body %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-main-container">
+    {% include 'components/title.html' with type="teacher-title" text="Cursos" %}
+    <div class="container mb-4">
+
+        <form action="#" method="POST" class="form row my-4">
+            <div class="col-12 input-group">
+                <input type="text" class="form-control course-filter" name="query" placeholder="Filtra cursos por nombre...">
+                <button type="submit" class="r-form-button"><span class="text-md bi bi-search">&nbsp;Filtrar</span></button>
+            </div>
+        </form>
+
+        {% include 'components/coursesection.html' with text="Mis cursos" %}
+        <div class="accordion accordion-flush" id="accordionOnGoing">
+            {% for course in currentCourses %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionOnGoing" type="seelist" student=True %}
+            {% endfor %}
+        </div>
+        
+        {% include 'components/coursesection.html' with text="Cursos completados" %}
+        <div class="accordion accordion-flush" id="accordionDone">
+            {% for course in doneCourses %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionDone" type="seelist" student=True %}
+            {% endfor %}
+        </div>
+        
+        {% include 'components/coursesection.html' with text="Todos los cursos" %}
+        <div class="accordion accordion-flush" id="accordionAll">
+            {% for course in restOfCourses %}
+                {% include 'components/courserow.html' with course=course parent_id="accordionAll" type="enrol" student=True %}
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        let query = document.getElementsByName('query')[0].value;
+        var formData = new URLSearchParams();
+        formData.append('query',query);
+
+        fetch("filter/students/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+        },
+        body: formData.toString()
+        })
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
+            let clean_data = JSON.parse(data)
+            let current = clean_data['current'];
+            let done = clean_data['done'];
+            let rest = clean_data['rest'];
+
+            let currentAccordion = document.getElementById('accordionOnGoing');
+            let doneAccordion = document.getElementById('accordionDone');
+            let restAccordion = document.getElementById('accordionAll');
+            
+            currentAccordion.innerHTML = '';
+            doneAccordion.innerHTML = '';
+            restAccordion.innerHTML = '';
+
+            for(let course of current) {
+                currentAccordion.appendChild(createAccordionElement(course,'accordionOnGoing','seelist',true));
+            }
+            for(let course of done) {
+                doneAccordion.appendChild(createAccordionElement(course,'accordionDone','seelist',true));
+            }
+            for(let course of rest) {
+                restAccordion.appendChild(createAccordionElement(course,'accordionAll','enrol',true));
+            }
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+        alert('An error occurred while processing the request.\n'+error);
+        });
+    });
+
+    function createAccordionElement(course,parent_id,type,student) {
+        let row = document.createElement('div');
+        row.className='accordion-item my-3';
+
+        let row_h2 = document.createElement('h2');
+        row_h2.className = 'accordion-header';
+        row_h2.id = `flush-heading${course['id']}`;
+
+        let row_h2_button = document.createElement('button');
+        row_h2_button.className = 'accordion-button collapsed';
+        row_h2_button.setAttribute("data-bs-toggle","collapse");
+        row_h2_button.setAttribute("data-bs-target",`#flush-collapse${course['id']}`);
+        row_h2_button.setAttribute("aria-expanded","false");
+        row_h2_button.setAttribute("aria-controls",`flush-collapse${course['id']}`);
+        row_h2_button.innerHTML = `${course['name']}`;
+        row_h2.appendChild(row_h2_button);
+
+        row.appendChild(row_h2);
+
+        let row_collapse = document.createElement('div');
+        row_collapse.className = 'accordion-collapse collapse course-row-content';
+        row_collapse.id = `flush-collapse${course['id']}`;
+        row_collapse.setAttribute("aria-labelledby",`flush-heading${course['id']}`);
+        row_collapse.setAttribute("data-bs-parent",`#${parent_id}`);
+
+        let row_collapse_div = document.createElement('div');
+        row_collapse_div.className = 'py-md-4 pb-2';
+
+        let row_collapse_div_div1 = document.createElement('div');
+        row_collapse_div_div1.className = 'w-100';
+        row_collapse_div_div1.innerHTML = `${course['description']}`;
+        
+        let row_collapse_div_div2 = document.createElement('div');
+        row_collapse_div_div2.className = 'w-100';
+        row_collapse_div_div2.innerHTML = `<span class="text-xs"><strong>Temas:&nbsp;</strong>${course['units']}</span>
+                                            <br>
+                                            <span class="text-xs"><strong>Duraci&oacute;n (semanas):&nbsp;</strong>${course['duration']}</span>`;
+
+        let row_collapse_div_div3 = document.createElement('div');
+        row_collapse_div_div3.className = 'w-100 d-flex';
+
+        if(type === "seelist") {
+            let row_collapse_div_div3_button = document.createElement('button');
+            row_collapse_div_div3_button.className = "my-3 courses-button courses-button-cyan";
+            row_collapse_div_div3_button.innerHTML = `<a class="text-white" href="${course['id']}/" ><span>Ver curso</span></a>`;
+            row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
+        } else if(type === "enrol") {
+            let row_collapse_div_div3_button = document.createElement('button');
+            row_collapse_div_div3_button.className = "my-3 courses-button courses-button-cyan";
+            row_collapse_div_div3_button.innerHTML = `<a class="text-white" href="${course['id']}/inscribe"><span>Inscribirse</span></a>`;
+            row_collapse_div_div3.appendChild(row_collapse_div_div3_button);
+        }
+
+        if(!student) {
+            if(!course.published) {
+                let row_collapse_div_div3_button2 = document.createElement('button');
+                row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
+                row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/edit"><span>Editar</span></a>`;
+            
+                let row_collapse_div_div3_button3 = document.createElement('button');
+                row_collapse_div_div3_button3.className = "my-3 ms-3 courses-button courses-button-cyan";
+                row_collapse_div_div3_button3.type = "submit";
+                row_collapse_div_div3_button3.innerHTML = `<a class="text-white" href="${course['id']}/delete"><span>Borrar</span></a>`;
+
+                row_collapse_div_div3.appendChild(row_collapse_div_div3_button3);
+                row_collapse_div_div3.appendChild(row_collapse_div_div3_button2);
+            } else {
+                let row_collapse_div_div3_button2 = document.createElement('button');
+                row_collapse_div_div3_button2.className = "my-3 ms-3 courses-button courses-button-cyan";
+                row_collapse_div_div3_button3.type = "submit";
+                row_collapse_div_div3_button2.innerHTML = `<a class="text-white" href="${course['id']}/unpublish"><span>Despublicar</span></a>`;
+
+                row_collapse_div_div3.appendChild(row_collapse_div_div3_button3);
+            }
+        }
+
+        row_collapse_div.appendChild(row_collapse_div_div1);
+        row_collapse_div.appendChild(row_collapse_div_div2);
+        row_collapse_div.appendChild(row_collapse_div_div3);
+        row_collapse.appendChild(row_collapse_div);
+        row.appendChild(row_collapse);
+
+        return row;
+    }
+
+</script>
+{% endblock %}

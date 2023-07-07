@@ -1,0 +1,36 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Cursos{% endblock %}
+
+{% block body %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-anoncourse-container">
+    {% include 'components/title.html' with type="teacher-title" text="Cursos" %}
+
+    <div id="id-register-row" class="row my-4 px-5 justify-content-center">
+        <div class="col-10 div-ask-student-register">
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="px-3">
+                        <span class="text-purple">&iexcl;Bienvenido al &aacute;rea de cursos Reinicias&excl;</span>
+                        <br>
+                        <span>Aqu&iacute; podr&aacute;s ver todos los cursos que se ofertan, pero solo los estudiantes registrados pueden inscribirse.</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 d-flex justify-content-center">
+                    {% include 'components/cyanbutton.html' with href='register/' text='Registro como estudiante' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-4">
+        <div class="accordion accordion-flush" id="availableCourses">
+        {% for course in courses %}
+            {% include 'components/courserow_anonymous.html' with course=course parent_id="accordionPublished" type="seelist" editable=True %}
+        {% endfor %}
+        </div>    
+    </div>
+
+</div>
+{% endblock %}

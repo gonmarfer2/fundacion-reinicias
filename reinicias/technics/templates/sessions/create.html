@@ -1,0 +1,50 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+{% include 'components/title.html' with type="technic-title" text="Sesiones" %}
+<div class="container">
+    <div class="row">
+        <h1 class="my-4 simple-title col-12">A&Ntilde;adir sesi&Oacute;n</h1>
+    </div>
+
+    <div class="row">
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-12 col-md-6 mb-2">
+                        <div class="w-100 r-form-tag">
+                            {{field.label_tag}}
+                        </div>
+                        <div class="w-100 r-form-field">
+                            {{field}}
+                        </div>
+                        <div class="w-100 r-form-errors">
+                            {{field.errors}}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="row justify-content-center my-3">
+                <button type="submit" class="r-form-button">Crear sesi&oacute;n</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+{% endblock %}

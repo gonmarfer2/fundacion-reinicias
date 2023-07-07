@@ -1,0 +1,110 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}P&aacute;gina principal{% endblock %}
+
+{% load extra_tags %}
+{% block body %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div id="id-form-container">
+    {% if userGroups|has_group:"technics" %}
+        {% include 'components/title.html' with type="technic-title" text="&Aacute;rea del equipo t&eacute;cnico" %}
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 hstack gap-3 justify-content-center id-technics-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-2" href="/technics/users/" text="Lista de usuarios" %}
+                </div>
+                <div class="col-12 hstack gap-3 justify-content-center id-technics-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-1" href="/technics/sessions/" text="Seguimiento de sesiones" %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if userGroups|has_group:"teachers" %}
+        {% include 'components/title.html' with type="teacher-title" text="&Aacute;rea de formadores" %}
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 hstack gap-3 justify-content-center id-teachers-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-4" href="/courses/" text="Ver cursos" %}
+                </div>
+                <div class="col-12 hstack gap-3 justify-content-center id-teachers-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-5" href="/courses/create/" text="Crear un curso" %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if userGroups|has_group:"patients" %}
+        {% include 'components/title.html' with type="patient-title" text="Tu &aacute;rea Reinicias" %}
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-6" href="/patients/"|add_int:request.user.get_person.pk|add:"/tasks/" text="Mis tareas" %}
+                </div>
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-7" href="/patients/diary/"|add_int:request.user.get_person.pk text="Mi diario" %}
+                </div>
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-8" href="/technics/users/"|add_int:request.user.get_person.pk text="Mi perfil" %}
+                </div>
+                <div class="col-12 col-xl-6 hstack gap-3 justify-content-center id-patients-row mb-md-4">
+                    {% include 'components/gifbutton.html' with button_id="id-buttonmenu-9" href="/patients/feelings/"|add_int:request.user.get_person.pk text="Historial de emociones" %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+{% load static %}
+<script>
+    let technics = document.getElementsByClassName('id-technics-row');
+    for (let technic of technics) {
+        let buttonTechnic = technic.querySelector('button');
+        technic.querySelector('img').src = "{% static 'assets/gifs/Monigote0.png' %}";
+        buttonTechnic.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                technic.querySelector('img').src = "{% static 'assets/gifs/Monigote.gif' %}";
+            }, 50);
+        });
+        buttonTechnic.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                technic.querySelector('img').src = "{% static 'assets/gifs/Monigote0.png' %}";
+            }, 50);
+        });
+    }
+
+    let teachers = document.getElementsByClassName('id-teachers-row');
+    for (let teacher of teachers) {
+        let buttonTeacher = teacher.querySelector('button');
+        teacher.querySelector('img').src = "{% static 'assets/gifs/Libros0.png' %}";
+        buttonTeacher.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                teacher.querySelector('img').src = "{% static 'assets/gifs/Libros.gif' %}";
+            }, 50);
+        });
+        buttonTeacher.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                teacher.querySelector('img').src = "{% static 'assets/gifs/Libros0.png' %}";
+            }, 50);
+        });
+    }
+
+    let patients = document.getElementsByClassName('id-patients-row');
+    for (let patient of patients) {
+        let patientButton = patient.querySelector('button');
+        patient.querySelector('img').src = "{% static 'assets/gifs/Piedrita0.png' %}";
+        patientButton.addEventListener('mouseover', (e) => {
+            setTimeout(() => {
+                patient.querySelector('img').src = "{% static 'assets/gifs/Piedrita.gif' %}";
+            }, 50);
+        });
+        patientButton.addEventListener('mouseleave', (e) => {
+            setTimeout(() => {
+                patient.querySelector('img').src = "{% static 'assets/gifs/Piedrita0.png' %}";
+            }, 50);
+        });
+    }
+
+</script>
+{% endblock %}

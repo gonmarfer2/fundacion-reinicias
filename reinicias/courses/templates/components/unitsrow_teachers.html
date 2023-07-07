@@ -1,0 +1,44 @@
+{% load static %}
+<div class="accordion-item my-3">
+    <h2 class="accordion-header" id="flush-heading{{unit.pk}}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{unit.pk}}" aria-expanded="false" aria-controls="flush-collapse{{unit.pk}}">
+            {{unit.title}}
+        </button>
+    </h2>
+    <div id="flush-collapse{{unit.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{unit.pk}}" data-bs-parent="#{{parent_id}}">
+        <div class="pt-md-4 pb-md-2 pb-2 container-fluid">
+            <div class="row">
+                <div class="col-12 w-100"><strong>Contenido:</strong></div>
+                <!-- CONTENIDO -->
+                <ul class="col-12">
+                {% for content in contents %}
+                    <li class="w-100">
+                        {% if not published %}
+                        <a href="units/{{unit.pk}}/resources/{{content.pk}}/remove" onclick="return confirm('¿Está seguro de querer borrar {{content.get_file_with_extension}}?')" class="bi bi-x-square-fill text-danger"></a>
+                        &nbsp;
+                        {% endif %}
+                        <strong class="text-capitalize">{{content}}:&nbsp;</strong>
+                        <a target="_blank" href="{{MEDIA_URL}}{{content.resource.name}}" rel="noopener">{{content.get_file_with_extension}}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="w-100 row align-items-center">
+                <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="/courses/autoevaluations/{{unit.autoevaluation.pk}}/" >Ver autoevaluaci&oacute;n</a></button>
+                </div>
+                {% if not published %}
+                <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/edit" >Editar tema</a></button>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/delete" onclick="return confirm('¿Está seguro de querer eliminar el tema {{unit.title}}?')">Borrar tema</a></button>
+                </div>
+                <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center">
+                    <button class="my-3 courses-button courses-button-cyan"><a class="text-white" href="units/{{unit.pk}}/resources/add/">A&ntilde;adir recurso</a></button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,170 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+{% load extra_tags %}
+{% include 'components/navbar.html' with userGroups=userGroups %}
+<div class="container mb-5">
+    <div class="row">
+        <h1 class="my-4 simple-title col-12">{{title|upper}}</h1>
+    </div>
+
+    <div class="row">
+        {% if form.errors %}
+            <div class="col-12 r-form-errors">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <form method="post" class="container" enctype="multipart/form-data">{% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                <div class="col-12 mb-2">
+                    {% if field.name == 'this_question_id' %}
+                    <div class="w-100 d-none">
+                        {{field}}
+                    </div>
+                    {% else %}
+                    <div class="w-100 r-form-tag">
+                        {{field.label_tag}}
+                    </div>
+                    <div class="w-100 r-form-field">
+                        {{field}}
+                    </div>
+                    <div class="w-100 r-form-errors">
+                        {{field.errors}}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <hr class="border-info border-3 border-bottom">
+            <div class="row">
+                <div id="id-qoptions-div" class="col-12">
+                    <div class="row">
+                        <div class="col-3 d-flex align-items-end"><h3 class="r-form-tag" title="&iquest;Es correcta&quest;">&iquest;Es correcta&quest;</h3></div>
+                        <div class="col-7 d-flex align-items-end"><h3 class="r-form-tag" title="Opci&oacute;n">Opci&oacute;n</h3></div>
+                        <div class="col-2 d-flex align-items-end">
+                            <button class="autoevaluation-button courses-button-cyan text-white" type="button" onclick="create_option('{{question_id}}')">
+                                A&ntilde;adir pregunta
+                            </button>
+                        </div>
+                    </div>
+                    {% load extra_tags %}
+                    {% for option in options %}
+                    <div class="row my-2" id="{{'id_question_option_row_'|add_int:option.pk}}">
+                        <div class="col-3">
+                            <div class="r-form-field">
+                                <input type="checkbox" name="{{'id_option_'|add_int:option.pk}}" {% if option.is_correct %}checked{% endif %}>    
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="r-form-field">
+                                <input type="text" name="{{'text_option_'|add_int:option.pk}}" value="{{option.option_name}}" required>
+                            </div>
+                        </div>
+                        <div class="col-2 d-flex justify-content-center">
+                            <button id="{{'id_remove_'|add_int:option.pk}}" class="btn-invisible d-flex align-items-center" onclick="remove_option('{{option.pk}}')" type="button"><span class="bi bi-x-square-fill text-danger text-center"></span></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="row justify-content-center my-3">
+                <button type="submit" class="r-form-button">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    function remove_option(qoption_id) {
+        fetch("/courses/options/"+qoption_id+"/delete/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+        },
+        body: JSON.stringify({})
+        })
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
+            let divToRemove = document.getElementById('id_question_option_row_'+qoption_id);
+            divToRemove.remove();
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+        alert('An error occurred while processing the request.\n'+error);
+        });
+    }
+
+    function create_option(question_id) {
+        const form = document.querySelector('form');
+
+        fetch("/courses/questions/"+question_id+"/options/add/", {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+        },
+        body: JSON.stringify({})
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            var newRow = document.createElement('div');
+            newRow.className = 'row my-2';
+            newRow.id = `id_question_option_row_${data['id']}`;
+
+            var column1 = document.createElement('div');
+            column1.className = 'col-3';
+            var divFormField1 = document.createElement('div');
+            divFormField1.className = 'r-form-field';
+
+            var checkInput = document.createElement('input');
+            checkInput.type = 'checkbox';
+            checkInput.name = `id_option_${data['id']}`;
+            checkInput.value = 'on';
+            divFormField1.appendChild(checkInput);
+            column1.appendChild(divFormField1);
+            newRow.appendChild(column1);
+
+            var column2 = document.createElement('div');
+            column2.className = 'col-7';
+            var divFormField2 = document.createElement('div');
+            divFormField2.className = 'r-form-field';
+
+            var textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.name = `text_option_${data['id']}`;
+            textInput.value = data['option_name'];
+            textInput.required = true;
+            divFormField2.appendChild(textInput);
+            column2.appendChild(divFormField2);
+            newRow.appendChild(column2);
+
+            var deleteButton = document.createElement('div');
+            deleteButton.className = 'col-2 d-flex justify-content-center';
+            deleteButton.innerHTML = `<button id="id_remove_${data['id']}" class="btn-invisible d-flex align-items-center" onclick="remove_option('${data['id']}')" type="button"><span class="bi bi-x-square-fill text-danger text-center"></span></button>`;
+            newRow.appendChild(deleteButton);
+
+            form.insertBefore(newRow, form.lastElementChild);
+        })
+        .catch(function(error) {
+        // Handle any network or request errors
+        alert('An error occurred while processing the request.\n'+error);
+        });
+
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% load static %}
+<div class="accordion-item my-3">
+    <h2 class="accordion-header" id="flush-heading{{unit.pk}}">
+        <button class="accordion-button collapsed" {% if block %}disabled{% endif %} type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{unit.pk}}" aria-expanded="false" aria-controls="flush-collapse{{unit.pk}}">
+            <img class="section-icon {% if not block %}d-none{% endif %}" src="{% static 'assets/icons/block.png' %}" alt="Tema Bloqueado">
+            {{unit.title}}
+        </button>
+    </h2>
+    {% if not block %}
+    <div id="flush-collapse{{unit.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{unit.pk}}" data-bs-parent="#{{parent_id}}">
+        <div class="pt-md-4 pb-md-2 pb-2">
+            <div class="w-100">
+                <div class="w-100"><strong>Contenido:</strong></div>
+                <!-- CONTENIDO -->
+                <ul>
+                {% for content in contents %}
+                    <li class="w-100"><strong class="text-capitalize">{{content}}:&nbsp;</strong><a target="_blank" href="{{MEDIA_URL}}{{content.resource.name}}" rel="noopener">{{content.resource.name}}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="w-100 d-flex align-items-center">
+                {% if autoev_block %}
+                <span class="ms-3 text-danger"><strong>Repasa el temario e int&eacute;ntalo la semana que viene</strong></span>
+                {% else %}
+                    {% if not unit.completed %}
+                    <button class="my-3 courses-button courses-button-cyan">
+                        <a class="text-white" href="{% url 'autoevaluation_start' unit.autoevaluation.pk %}" onclick="return confirm('¿Desea comenzar un intento para la autoevaluación?')">Autoevaluaci&oacute;n</a>
+                    </button>
+                    {% endif %}
+                <div class="d-flex flex-column">
+                    <span class="ms-3"><strong>Calificaci&oacute;n:&nbsp;</strong>{% if unit.calification is not None %}{{unit.calification}}{% else %}&dash;{% endif %}</span>
+                    <span class="ms-3"><strong>Intentos:&nbsp;</strong>{% if unit.tries is not None %}{{unit.tries}}{% else %}&dash;{% endif %}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

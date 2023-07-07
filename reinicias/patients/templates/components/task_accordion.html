@@ -1,0 +1,123 @@
+{% load static %}
+{% load extra_tags %}
+<div id="id-task-{{task.pk}}" class="accordion-item my-3">
+    <h2 class="accordion-header" id="flush-heading{{task.pk}}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{task.pk}}" aria-expanded="false" aria-controls="flush-collapse{{task.pk}}">
+            <span class="accordion-title-no-overflow" title="{{task.title}}">{{task.title}}</span>
+        </button>
+    </h2>
+    <div id="flush-collapse{{task.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{task.pk}}" data-bs-parent="#{{parent_id}}">
+        <div class="py-md-2 py-2">
+            <div class="w-100 mb-3 vstack gap-3">
+                <strong>Descripci&oacute;n:</strong>
+                <span class="note-text">{{task.description}}</span>
+            </div>
+            {% if user|has_group:'patients' %}
+            <div class="w-100 mb-3 hstack gap-3 align-items-center">
+                {% if type == 'pending' %}
+                <button class="my-3 courses-button courses-button-cyan">
+                    <a class="text-white" href="{{task.pk}}/">Enviar</a>
+                </button>
+                <strong>Fecha de entrega:&nbsp;</strong><span class="{% if task.is_deadline_surpassed  %}text-danger{% endif %}">{{task.deadline|date:"d/m/Y"}}</span>
+                {% elif type == 'done' %}
+                <button class="my-3 courses-button courses-button-cyan">
+                    <a class="text-white" href="{{task.pk}}/delivery/">Ver entrega</a>
+                </button>
+                <strong>Entregado:&nbsp;</strong><span>{{task.deadline|date:"d/m/Y"}}</span>
+                {% elif type == 'accepted' %}
+                <button class="my-3 courses-button courses-button-cyan">
+                    <a class="text-white" href="{{task.pk}}/delivery/">Ver entrega</a>
+                </button>
+                    {% if not task.feeling %}
+                    <button class="my-3 courses-button courses-button-cyan">
+                        <span class="text-white" data-bs-toggle="modal" data-bs-target="#id-evaluatetask-{{task.pk}}">Valorar</span>
+                    </button>
+                    <strong>Entregado:&nbsp;</strong><span>{{task.deadline|date:"d/m/Y"}}</span>
+                    {% else %}
+                    <div class="vstack gap-2 justify-content-center">
+                        <span><strong>Emoción:&nbsp;</strong>{{task.get_feeling_display}}</span>
+                        <span><strong>Entregado:&nbsp;</strong>{{task.deadline|date:"d/m/Y"}}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if not task.feeling %}
+                    <div class="modal fade" id="id-evaluatetask-{{task.pk}}" tabindex="-1" aria-labelledby="label-evaluatetask-{{task.pk}}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header hstack">
+                                    <div class="vstack">
+                                        <h2 class="modal-title fs-5" id="label-evaluatetask-{{task.pk}}">Valorar la tarea</h2>
+                                        <span>&iquest;Qué emoción has sentido&quest;</span>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" class="container" id="id-formtask-{{task.pk}}">
+                                        <div class="row w-100">
+                                            <div class="col-12 input-group">
+                                                <select class="form-select" name="emotion" id="id-emotion-task-{{task.pk}}">
+                                                    {% for f,feeling in feelings %}
+                                                        <option value="{{f}}">{{feeling}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button type="submit" class="r-form-button">Valorar</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        document.getElementById('id-formtask-{{task.pk}}').addEventListener('submit', function(event) {
+                            event.preventDefault();
+                            let feeling_value = event.target.querySelector('select').value;
+
+                            var formData = new URLSearchParams();
+                            formData.append('feeling',feeling_value);
+
+                            fetch("/patients/{{task.patient.get_person.pk}}/tasks/{{task.pk}}/evaluate/", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': '{{ csrf_token }}'    // Include CSRF token for security
+                            },
+                            body: formData.toString()
+                            })
+                            .then(function(response) {
+                                window.location.reload();
+                            })
+                            .catch(function(error) {
+                            // Handle any network or request errors
+                            alert('An error occurred while processing the request.\n'+error);
+                            });
+                        })
+                    </script>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            {% elif user|has_group:'technics' %}
+            <div class="w-100 mb-3 hstack gap-3 align-items-center">
+                <a class="bi bi-x-square-fill text-danger" onclick="deleteTask('id-task-{{task.pk}}','{{task.pk}}')" style="cursor: pointer;"></a>
+                {% if type == 'pending' %}
+                <strong>Fecha de entrega:&nbsp;</strong><span class="{% if task.is_deadline_surpassed  %}text-danger{% endif %}">{{task.deadline|date:"d/m/Y"}}</span>
+                {% elif type == 'done' %}
+                <button class="my-3 courses-button courses-button-cyan">
+                    <a class="text-white" href="{{task.pk}}/delivery/">Ver entrega</a>
+                </button>
+                <strong>Entregado:&nbsp;</strong><span>{{task.deadline|date:"d/m/Y"}}</span>
+                {% elif type == 'accepted' %}
+                <button class="my-3 courses-button courses-button-cyan">
+                    <a class="text-white" href="{{task.pk}}/delivery/">Ver entrega</a>
+                </button>
+                    {% if type.emotion %}
+                        <strong>Emoción:&nbsp;</strong><span>{{task.emotion}}</span>
+                    {% endif %}
+                <strong>Entregado:&nbsp;</strong><span>{{task.deadline|date:"d/m/Y"}}</span>
+                {% endif %}
+            </div>
+            {% endif%}
+        </div>
+    </div>
+</div>

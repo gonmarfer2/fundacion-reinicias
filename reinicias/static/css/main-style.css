@@ -1,0 +1,879 @@
+:root {
+    --cyan: #00aabb;
+    --black: #000000;
+    --white: #ffffff;
+    --grey: #333333;
+    --red: #ff0000;
+    --purple: #402d7a;
+    --light-grey: #eaeaea;
+    --dark-magenta: #762656;
+    --yellow: #ffb800;
+    --light-yellow: #fff7ac;
+    --light-cyan: #acfff5;
+    --light-magenta: #fface8;
+    --light-green: #d1ffac;
+    --white-dove: #eaeaea;
+    --anger-color: #ee6131;
+    --fear-color: #d76ec0;
+    --happiness-color: #ffbb93;
+    --sadness-color: #09a5d4;
+
+    --md-border: solid 3px;
+    
+    --xs-size: 14px;
+    --sm-size: 18px;
+    --md-size: 24px;
+    --lg-size: 36px;
+    --xl-size: 48px;
+
+    --title-height: 72px;
+    --input-height: 38px;
+}
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url("/static/fonts/static/OpenSans-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+@font-face {
+    font-family: 'OpenSans';
+    src: url("/static/fonts/static/OpenSans-Bold.ttf") format("truetype");
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url("/static/fonts/static/Montserrat-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url("/static/fonts/static/Montserrat-Bold.ttf") format("truetype");
+    font-weight: bold;
+}
+
+span {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--xs-size);
+}
+
+p {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--md-size);
+    color: var(--black);
+}
+
+p.autoevaluation-paragraph {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+    color: var(--black);
+}
+
+h2 {
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+    font-size: var(--md-size);
+    font-weight: bold;
+    color: var(--black);
+}
+
+.nav-link {
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--md-size);
+    color: var(--grey) !important;
+}
+
+.nav-link:hover {
+    color: var(--black) !important;
+    text-decoration: underline;
+}
+
+.navbar-full {
+    width: 100%;
+}
+
+.top-navbar {
+    width: 100%;
+    height: 48px;
+    background-color: var(--cyan);
+}
+
+.logo-reinicias {
+    height: 48px;
+}
+
+.banner {
+    height: 50vh;
+}
+
+.banner > img {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    object-fit: cover;
+    padding: 0;
+}
+
+.main-hello-box {
+    position: absolute;
+    right: 0;
+    margin: 5%;
+    background-color: var(--white);
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 90%;
+    max-height: calc(50vh - 0.3*50vh);
+}
+
+.main-hello-box p {
+    font-size: var(--sm-size) !important;
+}
+
+@media screen and (orientation: landscape) and (max-width:900px) {
+    .main-hello-box p {
+        font-size: 12px !important;
+    }
+}
+
+@media screen and (min-width: 460px) {
+    .main-hello-box {
+        max-width: 50%;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .main-hello-box {
+        position: absolute;
+        right: 0;
+        margin: 48px 48px 0 0;
+        background-color: var(--white);
+        border-radius: 15px;
+        padding: 20px;
+        max-width: 50%;
+    }
+
+    .main-hello-box p {
+        font-size: var(--sm-size) !important;
+    }
+
+}
+
+.text-purple {
+    color: var(--purple);
+    font-weight: bold;
+}
+
+.btn-general {
+    width: 220px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--sm-size);
+    font-weight: bold;
+}
+
+@media screen and (min-width:576px) {
+    .btn-general {
+        width: 350px;
+        font-size: var(--sm-size);
+    }
+}
+@media screen and (min-width:1084px) {
+    .btn-general {
+        width: 450px;
+        font-size: var(--md-size);
+    }
+}
+
+.btn-outline-cyan {
+    background-color: var(--white);
+    color: var(--black);
+    border: var(--cyan) var(--md-border);
+    border-radius: 10px;
+}
+
+.btn-outline-cyan span {
+    font-size: var(--md-size);
+}
+
+.btn-outline-cyan:hover {
+    background-color: var(--cyan);
+    color: var(--white);
+    border: var(--cyan) var(--md-border);
+}
+
+.btn-outline-cyan:active,
+.btn-outline-cyan:focus {
+    background-image: linear-gradient(var(--white),var(--cyan));
+    color: var(--white);
+    border: var(--cyan) var(--md-border);
+    outline: var(--purple) var(--md-border);
+}
+
+.btn-outline-cyan a {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: var(--black);
+}
+
+.btn-outline-cyan:hover a,
+.btn-outline-cyan:active a,
+.btn-outline-cyan:focus a {
+    text-decoration: none;
+    color: var(--white);
+}
+
+.circle-cyan {
+    color: var(--cyan);
+    line-height: 0;
+    align-self: center;
+}
+
+#id-anoncourse-container {
+    min-height: calc(100vh - 80px - 123.5px);
+}
+
+#id-main-container {
+    min-height: calc(100vh - 48px - 123.5px);
+}
+
+#id-form-container {
+    min-height: calc(100vh - 48px - 140px);
+}
+
+#id-course-container {
+    min-height: calc(100vh - 56px - 140px);
+}
+
+#id-technic-container {
+    min-height: calc(100vh - 56px - 140px);
+}
+
+#id-login-container {
+    min-height: calc(100vh - 64px);
+}
+
+footer {
+    width: 100%;
+    height: 48px;
+    background-color: var(--cyan);
+}
+
+header {
+    width: 100%;
+    height: 48px;
+    background-color: var(--cyan);
+}
+
+.d-center-items {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 1vh 0;
+}
+
+@media screen and (min-width: 1012px) {
+    .d-center-items {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: fit-content;
+        margin: 0;
+    }
+}
+
+.main-title {
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--md-size);
+    color: var(--white);
+    padding-left: calc(var(--title-height) / 2);
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding-top: 24px;
+    backdrop-filter: blur(5px) brightness(80%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.general-title > .main-title {
+    backdrop-filter: blur(0) brightness(100%);
+}
+
+@media screen and (min-width:768px) {
+    .main-title {
+        font-size: var(--lg-size);
+        padding-top: 14px;
+    }
+}
+
+.general-title {
+    background-color: var(--cyan);
+    height: var(--title-height);
+    align-items: center;
+}
+
+.section-title {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: var(--title-height);
+    align-items: center;
+    width: 100%;
+    margin: 0;
+}
+
+.technic-title {
+    background-image: url("/static/assets/BannerEquipoDirectivo.jpg");
+}
+
+.teacher-title {
+    background-image: url("/static/assets/BannerFormadores.jpg");
+}
+
+.patient-title {
+    background-image: url("/static/assets/BannerPaciente.png");
+}
+
+.r-form-errors {
+    color: #ff0000;
+}
+
+.r-form-tag {
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--sm-size);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.r-form-field {
+    border: var(--cyan) solid 2px;
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+    color: #333333;
+    width: 100%;
+    padding: 0;
+    min-height: var(--input-height);
+    display: flex;
+    align-items: center;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled,
+input[type="text"]:read-only,
+input[type="password"]:read-only,
+input[type="email"]:read-only,
+input[type="date"]:read-only,
+input[type="time"]:read-only,
+input[type="number"]:read-only,
+textarea:read-only {
+    color: var(--black) !important;
+    background-color: var(--white-dove) !important;
+}
+
+.r-form-field > input[type="text"],
+.r-form-field > input[type="password"],
+.r-form-field > input[type="email"],
+.r-form-field > input[type="date"],
+.r-form-field > input[type="time"],
+.r-form-field > input[type="number"] {
+    width: 100%;
+    height: var(--input-height);
+    border: transparent solid 2px;
+}
+
+.r-form-field > textarea {
+    width: 100%;
+    height: calc(var(--input-height)*3);
+    border: transparent solid 2px;
+}
+
+.r-form-field > #id_preceeded_by,
+.r-form-field > #id_patient {
+    width: 100%;
+    height: calc(var(--input-height)*3);
+    border: transparent solid 2px;
+    overflow-y: scroll;
+}
+
+.r-form-field > input[type="checkbox"] {
+    padding: 0 15px;
+    width: 100%;
+    height: calc(var(--input-height)/2);
+}
+
+.r-form-field > input[type="file"] {
+    width: 100%;
+    overflow: hidden;
+    height: var(--input-height);
+    border: transparent solid 2px;
+}
+
+.r-form-field label {
+    width: 100%;
+    padding: 0 15px;
+    border: transparent solid 2px;
+}
+
+.r-file-field {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.r-file-field > span {
+    width: 100%;
+    padding-left: 10px;
+    overflow: hidden;
+    font-size: var(--md-size);
+}
+
+.published-input {
+    width: max-content !important;
+    height: var(--input-height);
+    color: var(--white);
+    font-weight: bold;
+    background-color: var(--cyan);
+    display: flex;
+    align-items: center;
+    cursor:pointer;
+}
+
+.published-input > span {
+    vertical-align: bottom;
+    font-size: var(--md-size);
+}
+
+.r-form-field > input:focus,
+.r-form-field > textarea:focus {
+    border: var(--purple) solid 2px;
+    box-shadow: 0 0 5px var(--black);
+}
+
+.r-form-field > select {
+    width: 100%;
+    height: var(--input-height);
+    background-color: var(--white);
+    color: var(--black);
+    border: transparent solid 2px;
+    font-family: 'OpenSans', Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.r-form-button {
+    width: 150px;
+    height: 50px;
+    color: var(--white);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--sm-size);
+    background-image: conic-gradient(var(--cyan) 10deg, var(--purple) 180deg, var(--cyan) 360deg);
+    border: 0;
+    border-radius: 10px;
+}
+
+.r-form-button:hover {
+    box-shadow: 0 0 5px var(--black);
+}
+
+.courses-button {
+    width: 150px;
+    height: 50px;
+    border: 0;
+    border-radius: 10px;
+    display: flex;
+}
+
+.autoevaluation-button {
+    width: 150px;
+    height: 50px;
+    border: 0;
+    border-radius: 10px;
+    display: flex;
+}
+
+.text-white {
+    color: var(--white) !important;
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--xs-size);
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.courses-button-cyan {
+    background-image: conic-gradient(var(--cyan) 10deg, var(--purple) 180deg, var(--cyan) 360deg);
+}
+
+.courses-button-cyan:hover {
+    box-shadow: 0 0 5px var(--black);
+}
+
+.gif-container {
+    display: flex;
+    align-items: center;
+}
+
+.gif-icon {
+    width: 64px;
+    height: 64px;
+}
+
+.accordion {
+    max-height: 432px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.accordion-button:disabled {
+    background-color: var(--light-grey) !important;
+}
+
+.accordion-button {
+    width: 100%;
+    height: var(--xl-size);
+    cursor: pointer;
+    font-family: 'Montserrat',Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--sm-size);
+    color: var(--black);
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--white);
+    border-top: var(--black) solid 1px;
+    padding: 1%;
+}
+
+.accordion-button.collapsed {
+    border-bottom: var(--black) solid 1px;
+}
+
+.accordion-button:not(.collapsed) {
+    border-top: var(--black) solid 1px;
+    background-color: transparent !important;
+    color: inherit;
+    border-bottom: var(--light-grey) solid 1px;
+}
+
+button.accordion-button:focus {
+    border-top: var(--black) solid 1px;
+    color: var(--black) !important;
+    background-color: var(--white) !important;
+    outline: none !important;
+    box-shadow: inherit;
+}
+
+.course-row-content {
+    border-bottom: var(--black) solid 1px !important;
+    border-radius: 0 !important;
+}
+
+.course-row[aria-expanded=true] .plus-icon {
+    display: none;
+}
+
+.course-row[aria-expanded=false] .minus-icon {
+    display: none;
+}
+
+#id-register-row {
+    justify-content: center;
+}
+
+.div-ask-student-register {
+    width: 90%;
+    justify-content: center;
+    padding: 15px 0;
+    border: var(--cyan) solid 3px;
+}
+
+.section-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.text-separator {
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--sm-size);
+    white-space: nowrap;
+    margin: 0 15px;
+}
+
+.horizontal-separator {
+    width: 100%;
+    height: 0;
+    border-top: var(--black) solid 5px;
+    align-self: center;
+}
+
+.form-control.course-filter,
+.form-select.course-filter {
+    font-family: 'OpenSans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: var(--sm-size);
+    color: var(--grey);
+    border: var(--cyan) solid 2px;
+}
+
+.simple-title {
+    text-transform: uppercase;
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--lg-size);
+}
+
+.simple-title-minus {
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--lg-size);
+}
+
+.course-data-large-text{
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: var(--md-size);
+}
+
+.course-data-simple-text{
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.border-cyan {
+    border: var(--cyan) solid 2px;
+}
+
+.autoevaluation-title {
+    font-weight: bold;
+    font-size: var(--md-size);
+}
+
+.autoevaluation-instructions {
+    border-top: var(--cyan) solid 1px;
+    border-bottom: var(--cyan) solid 1px;
+    margin: 24px 0;
+    padding: 24px 0;
+}
+
+.delete-question {
+    font-size: 48px;
+    line-height: 0;
+}
+
+.delete-question:hover {
+    text-shadow: 0 0 2px var(--black);
+}
+
+.question-title {
+    font-family: 'OpenSans',Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: var(--sm-size);
+}
+
+.question-option-text {
+    font-family: 'OpenSans',Arial, Helvetica, sans-serif;
+    font-size: var(--xs-size);
+}
+
+.btn-invisible {
+    background-color: transparent;
+    border: none;
+}
+
+.btn-invisible:hover {
+    text-shadow: 0 0 2px var(--black);
+}
+
+.btn-invisible > span {
+    font-size: calc(var(--input-height)*0.8);
+    line-height: 0;
+}
+
+.autoevaluation-options-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.page-item > a {
+    background-color: var(--white);
+    color: var(--black);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item.active > a {
+    background-image: linear-gradient(var(--cyan),var(--purple));
+    color: var(--white);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item:hover > a {
+    background-image: linear-gradient(var(--cyan),var(--purple));
+    color: var(--white);
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.page-item:first-child > a,
+.page-item.active:first-child > a {
+    border-radius: 10px 0 0 10px;
+    border-width: 2px 0 2px 2px;
+}
+
+.page-item:last-child > a,
+.page-item.active:last-child > a {
+    border-radius: 0 10px 10px 0;
+    border-width: 2px 2px 2px 0;
+}
+
+.students-pill {
+    color: var(--black);
+    background-color: var(--light-yellow);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.students-pill::after {
+    content: "Estudiante";
+}
+
+.patients-pill {
+    color: var(--black);
+    background-color: var(--light-magenta);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.patients-pill::after {
+    content: "Paciente";
+}
+
+.teachers-pill {
+    color: var(--black);
+    background-color: var(--light-cyan);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.teachers-pill::after {
+    content: "Formador";
+}
+
+.technics-pill {
+    color: var(--black);
+    background-color: var(--light-green);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.technics-pill::after {
+    content: "Técnico";
+}
+
+.record-history-pill {
+    color: var(--white);
+    background-color: var(--cyan);
+    font-family: "OpenSans", Arial, Helvetica, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.table-cyan {
+    border: var(--cyan) solid 2px;
+    border-width: 2px 0;
+}
+
+.purple-diviser {
+    border: var(--purple) solid 4px;
+    border-width: 0 0 4px 0;
+}
+
+.note-text {
+    overflow-x: auto;
+    overflow-y: auto;
+    word-wrap: break-word;
+    max-height: 480px;
+}
+
+.color-ira,
+.color-agr,
+.color-fru {
+    background-color: var(--anger-color);
+}
+
+.color-mie,
+.color-hum,
+.color-rec,
+.color-ans {
+    background-color: var(--fear-color);
+}
+
+.color-ale,
+.color-euf,
+.color-res,
+.color-sat {
+    background-color: var(--happiness-color);
+}
+
+.color-tri,
+.color-abu,
+.color-sol,
+.color-dep,
+.color-cul,
+.color-ign,
+.color-ver {
+    background-color: var(--sadness-color);
+}
+
+.history-div {
+    overflow-y: auto;
+    max-height: 50vh;
+}
+
+.accordion-title-no-overflow {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--black);
+    font-family: 'Montserrat', Verdana, Geneva, Tahoma, sans-serif;
+    font-size: var(--sm-size);
+}
+
+.task-text {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+
+.progresscolor-100 {
+    background-color: var(--sadness-color);
+}
+
+.progresscolor-50 {
+    background-color: var(--yellow);
+}
+
+.progresscolor-10 {
+    background-color: var(--anger-color);
+}

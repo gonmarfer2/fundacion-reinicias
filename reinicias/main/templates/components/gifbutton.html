@@ -1,0 +1,7 @@
+{% load static %}
+<div class="gif-container" id="{{button_id}}-gif">
+    <img class="gif-icon" src="" alt="GIF Icon"></img>
+</div>
+<div id="{{button_id}}">
+    {% include 'components/cyanbutton.html' with href=href text=text %}
+</div>
