@@ -53,6 +53,9 @@ class BaseTestCase(TestCase):
         self.client = Client()
 
     def tearDown(self):
+        '''
+        Este método está vacío para que se complete cuando haga falta en las clases hijas
+        '''
         pass
 
     def login(self, user='superuser_test', password='reinicias'):
