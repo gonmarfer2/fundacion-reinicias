@@ -52,11 +52,8 @@ jobs:
         python3 manage.py migrate
     - name: Run tests
       run: |
-        cd reinicias
-        coverage run ./manage.py test --keepdb
+        coverage run ./reinicias/manage.py test --keepdb
         coverage xml
-        ls
-        ls ..
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
