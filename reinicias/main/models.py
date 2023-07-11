@@ -60,7 +60,7 @@ class User(AbstractUser):
         return self.groups.filter(name=group).exists()
     
     def get_groups_display(self):
-        return ",".join([GROUP_TRANSLATION_DICTIONARY[group.name] for group in self.groups.all()])
+        return ",".join([GROUP_TRANSLATION_DICTIONARY[group.name] for group in self.groups.all().order_by('name')])
     
     def get_person(self):
         try:
