@@ -31,10 +31,12 @@ jobs:
         echo "DB_PORT {{ secrets.DB_PORT }}" >> reinicias/.env
     - name: Run migrations
       run: |
+        cd reinicias
         python manage.py makemigrations
         python manage.py migrate
     - name: Run tests
       run: |
+        cd reinicias
         python manage.py test
   sonarcloud:
     name: SonarCloud
