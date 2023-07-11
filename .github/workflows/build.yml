@@ -6,20 +6,7 @@ on:
       - develop
   pull_request:
     types: [opened, synchronize, reopened]
-  workflow_call:
-    secrets:
-      SECRET_KEY:
-        required: true
-      DB_NAME:
-        required: true
-      DB_USER:
-        required: true
-      DB_PASSWORD:
-        required: true
-      DB_HOST:
-        required: true
-      DB_PORT:
-        required: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,14 +20,21 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Run migrations
+    - name: Configure environment
       run: |
         cd reinicias
+        echo "SECRET_KEY={{ secrets.SECRET_KEY }}" > reinicias/.env
+        echo "DB_NAME {{ secrets.DB_NAME }}" >> reinicias/.env
+        echo "DB_USER {{ secrets.DB_USER }}" >> reinicias/.env
+        echo "DB_PASSWORD {{ secrets.DB_PASSWORD }}" >> reinicias/.env
+        echo "DB_HOST {{ secrets.DB_HOST }}" >> reinicias/.env
+        echo "DB_PORT {{ secrets.DB_PORT }}" >> reinicias/.env
+    - name: Run migrations
+      run: |
         python manage.py makemigrations
         python manage.py migrate
     - name: Run tests
       run: |
-        cd reinicias
         python manage.py test
   sonarcloud:
     name: SonarCloud
