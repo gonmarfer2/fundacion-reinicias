@@ -54,7 +54,7 @@ jobs:
       run: |
         cd reinicias
         coverage run ./manage.py test --keepdb
-        coverage.xml
+        coverage xml
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
