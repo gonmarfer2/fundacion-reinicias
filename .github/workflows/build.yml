@@ -47,6 +47,7 @@ jobs:
     - name: Run migrations
       run: |
         cd reinicias
+        pip freeze
         python3 manage.py makemigrations
         python3 manage.py migrate
     - name: Run tests
