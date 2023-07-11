@@ -34,6 +34,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install coverage
     - name: Configure environment
       run: |
         cd reinicias
@@ -51,7 +52,8 @@ jobs:
     - name: Run tests
       run: |
         cd reinicias
-        python manage.py test
+        coverage run ./manage.py test --keepdb
+        coverage.xml
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
