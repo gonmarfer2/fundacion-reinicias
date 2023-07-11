@@ -24,11 +24,11 @@ jobs:
       run: |
         cd reinicias
         echo "SECRET_KEY={{ secrets.SECRET_KEY }}" > reinicias/.env
-        echo "DB_NAME {{ secrets.DB_NAME }}" >> reinicias/.env
-        echo "DB_USER {{ secrets.DB_USER }}" >> reinicias/.env
-        echo "DB_PASSWORD {{ secrets.DB_PASSWORD }}" >> reinicias/.env
-        echo "DB_HOST {{ secrets.DB_HOST }}" >> reinicias/.env
-        echo "DB_PORT {{ secrets.DB_PORT }}" >> reinicias/.env
+        echo "DB_NAME={{ secrets.DB_NAME }}" >> reinicias/.env
+        echo "DB_USER={{ secrets.DB_USER }}" >> reinicias/.env
+        echo "DB_PASSWORD={{ secrets.DB_PASSWORD }}" >> reinicias/.env
+        echo "DB_HOST={{ secrets.DB_HOST }}" >> reinicias/.env
+        echo "DB_PORT={{ secrets.DB_PORT }}" >> reinicias/.env
     - name: Run migrations
       run: |
         cd reinicias
