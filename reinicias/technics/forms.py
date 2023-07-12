@@ -97,8 +97,6 @@ def clean_session_forms(this_form):
 
     session_exists_technic = Session.objects.exclude(pk=this_form.instance.pk).filter(technic=this_technic,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound).exists()
     if session_exists_technic:
-        print(Session.objects.exclude(pk=this_form.instance.pk).filter(technic=this_technic,datetime__date=this_date,datetime__time__gte=this_time_lower_bound,datetime__time__lte=this_time_upper_bound))
-        print(this_form.instance)
         raise ValidationError(
             "Ya existe una sesión para ese técnico en esa fecha y hora.",
             code="already_session_technic"

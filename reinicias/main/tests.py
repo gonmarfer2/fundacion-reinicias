@@ -59,7 +59,7 @@ class BaseTestCase(TestCase):
         pass
 
     def login(self, user='superuser_test', password='reinicias'):
-        response = self.client.post('/login/',{'username':'superuser_test','password':'reinicias'})
+        response = self.client.post('/login/',{'username':user,'password':password})
         self.assertTrue(response.status_code == 302)
         
 class UserTestCase(BaseTestCase):
