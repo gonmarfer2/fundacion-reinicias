@@ -179,6 +179,8 @@ class CourseUnitsUnitTestCase(CourseBaseTestCase):
 
 class CoursesUnitTestCase(CourseBaseTestCase):
 
+    NEW_COURSE_NAME = 'New Course'
+
     def test_inscribe_student(self):
         super().login(user='test_student',password='reinicias')
         self.client.get(f'/courses/{self.course.pk}/inscribe')
@@ -187,39 +189,34 @@ class CoursesUnitTestCase(CourseBaseTestCase):
 
     
     def test_create_course(self):
-        NEW_COURSE_NAME = 'New Course'
 
         super().login(user='test_teacher',password='reinicias')
         self.client.post('/courses/create/',{
-            'name':NEW_COURSE_NAME,
+            'name':self.NEW_COURSE_NAME,
             'duration':12,
             'description':'This is a new course',
         })
-        self.assertTrue(Course.objects.filter(name=NEW_COURSE_NAME).exists())
+        self.assertTrue(Course.objects.filter(name=self.NEW_COURSE_NAME).exists())
 
 
     def test_create_course_fail_(self):
-        NEW_COURSE_NAME = 'New Course'
-
         super().login(user='test_teacher',password='reinicias')
         self.client.post('/courses/create/',{
-            'name':NEW_COURSE_NAME,
+            'name':self.NEW_COURSE_NAME,
         })
-        self.assertTrue(not Course.objects.filter(name=NEW_COURSE_NAME).exists())
+        self.assertTrue(not Course.objects.filter(name=self.NEW_COURSE_NAME).exists())
 
     
     def test_edit_course(self):
-        NEW_COURSE_NAME = 'New Course'
-
         super().login(user='test_teacher',password='reinicias')
-        response = self.client.post(f'/courses/{self.course.pk}/edit',{
-            'name':NEW_COURSE_NAME,
+        self.client.post(f'/courses/{self.course.pk}/edit',{
+            'name':self.NEW_COURSE_NAME,
             'duration':12,
             'description':'This is a new course',
             'course_id_edit':self.course.pk
         })
         edited_course = Course.objects.get(pk=self.course.pk)
-        self.assertTrue(edited_course.name == NEW_COURSE_NAME)
+        self.assertTrue(edited_course.name == self.NEW_COURSE_NAME)
 
 
     def test_delete_course(self):
@@ -235,7 +232,7 @@ class CoursesViewTestCase(StaticLiveServerTestCase):
         self.base.setUp()
 
         options = webdriver.ChromeOptions()
-        #options.headless = True
+        options.headless = True
         self.driver = webdriver.Chrome(options=options)
         self.driver.set_window_size(1920,1080)
 
