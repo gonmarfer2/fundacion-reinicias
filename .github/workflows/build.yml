@@ -53,7 +53,8 @@ jobs:
         python3 manage.py migrate
     - name: Run tests
       run: |
-        coverage run ./reinicias/manage.py test --keepdb
+        cd reinicias
+        coverage run ./manage.py test --keepdb
         coverage xml
     - name: SonarCloud
       uses: SonarSource/sonarcloud-github-action@master
