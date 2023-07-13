@@ -11,6 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import sleep
 
+DEFAULT_TELEPHONE = '+34555555555'
+
 class TechnicBaseCaseTest(BaseTestCase):
 
     def setUp(self):
@@ -30,7 +32,7 @@ class TechnicBaseCaseTest(BaseTestCase):
             name='Technic',
             last_name='Reinicias',
             birth_date=datetime.date(1,1,1),
-            telephone='+34555555555',
+            telephone=DEFAULT_TELEPHONE,
             sex='O'
         )
 
@@ -52,7 +54,7 @@ class TechnicBaseCaseTest(BaseTestCase):
             name='Patient',
             last_name='Reinicias',
             birth_date=datetime.date(1,1,1),
-            telephone='+34555555555',
+            telephone=DEFAULT_TELEPHONE,
             sex='O'
         )
 
@@ -149,7 +151,7 @@ class PatientCreationTestCase(TechnicBaseCaseTest):
             'name':new_initial_report.name,
             'last_name':new_initial_report.last_name,
             'email':'patient2@reinicias.com',
-            'telephone':'+34555555555',
+            'telephone':DEFAULT_TELEPHONE,
             'sex':'O',
             'roles':'Paciente',
             'school':'Test School',
@@ -199,7 +201,7 @@ class TechnicViewsCaseTest(StaticLiveServerTestCase):
         self.driver.find_element(By.ID,'id_birth_date').send_keys('01/01/2000')
         self.driver.find_element(By.ID,'id_name').send_keys('Technic2')
         self.driver.find_element(By.ID,'id_last_name').send_keys('Reinicias')
-        self.driver.find_element(By.ID,'id_telephone').send_keys('+34555555555')
+        self.driver.find_element(By.ID,'id_telephone').send_keys(DEFAULT_TELEPHONE)
         self.driver.find_element(By.ID,'id_roles_1').click()
         self.driver.find_element(By.CSS_SELECTOR,'.r-form-button').submit()
 
