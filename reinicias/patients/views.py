@@ -266,7 +266,7 @@ def add_tasks(request,person_id):
             )
 
             return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
-    
+        print(form.errors)
     context = {
         'userGroups':request.user.groups.all(),
         'form':form
@@ -393,6 +393,8 @@ def accept_task(request,person_id,task_id):
     
     this_patient = this_patient.first()
     this_task = this_task.first()
+    if this_task.state != 'c':
+        raise PermissionDenied()
 
     this_task.state = 'a'
     this_task.save()
@@ -418,6 +420,8 @@ def deny_task(request,person_id,task_id):
     
     this_patient = this_patient.first()
     this_task = this_task.first()
+    if this_task.state != 'c':
+        raise PermissionDenied()
 
     this_task.state = 'w'
     this_task.save()
@@ -428,7 +432,6 @@ def deny_task(request,person_id,task_id):
     )
 
     return redirect(f'/patients/{this_patient.get_person().pk}/tasks/')
-
 
 
 @require_http_methods(['GET'])
