@@ -108,7 +108,6 @@ def show_user_details(request,user_id):
         these_sessions = Session.objects.filter(technic__person=this_person,datetime__year=datetime.now().year)
         sessions_by_type_query = these_sessions.values('session_type').annotate(count=Count('session_type'))
         sessions_by_type = {SESSION_TYPES_TRANSLATION[s['session_type']]:s['count'] for s in sessions_by_type_query}
-        print(sessions_by_type)
         context = {
             'yearSessions':these_sessions.count(),
             'sessionsByType':sessions_by_type,
@@ -720,11 +719,9 @@ def register_patient_report(request,session_id,report_id):
         'roles':'Paciente'
     }
     form = PatientCreateForm(initial=initial_values)
-    print(form.data)
 
     if request.method == 'POST':
         form = PatientCreateForm(request.POST,initial=initial_values)
-
         if form.is_valid():
             new_user = form.save(commit=False)
             new_user.save()
@@ -769,7 +766,6 @@ def register_patient_report(request,session_id,report_id):
 
             return redirect(f'/technics/users/{new_person.pk}')
 
-    
     context = {
         'userGroups':request.user.groups.all(),
         'form':form,

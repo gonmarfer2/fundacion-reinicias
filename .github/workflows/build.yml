@@ -6,9 +6,24 @@ on:
       - develop
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11-alpine
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.11.2
@@ -18,16 +33,30 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        python -m pip install -r requirements.txt
+        python -m pip install --default-timeout=100 coverage
+        sudo apt install chromium-browser chromium-chromedriver
+    - name: Configure environment
+      run: |
+        cd reinicias
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > reinicias/.env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> reinicias/.env
+        echo "DB_USER=${{ secrets.DB_USER }}" >> reinicias/.env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> reinicias/.env
+        echo "DB_HOST=${{ secrets.DB_HOST }}" >> reinicias/.env
+        echo "DB_PORT=${{ secrets.DB_PORT }}" >> reinicias/.env
+    - name: Run migrations
+      run: |
+        cd reinicias
+        pip freeze
+        python3 manage.py makemigrations
+        python3 manage.py migrate
+    - name: Run tests
+      run: |
+        coverage run ./reinicias/manage.py test --keepdb
+        coverage xml
+    - name: SonarCloud
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
