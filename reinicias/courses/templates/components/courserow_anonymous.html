@@ -11,6 +11,12 @@
             </div>
             <div class="w-100">
                 <span><strong>Temas:&nbsp;</strong>{{course.units}}</span>
+                <br>
+                <span class="text-xs"><strong>Duraci&oacute;n (semanas):&nbsp;</strong>{{course.duration}}</span>
+                <br>
+                {% if course.index_document %}
+                <span class="text-xs"><strong>Documento de curso:&nbsp;</strong><a target="_blank" href="{{MEDIA_URL}}{{course.index_document.name}}" rel="noopener">{{course.get_document_display}}</a></span>
+                {% endif %}
             </div>
         </div>
     </div>

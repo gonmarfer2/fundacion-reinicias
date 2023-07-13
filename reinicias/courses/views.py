@@ -784,9 +784,12 @@ def autoevaluation_edit(request,autoevaluation_id):
     if request.method == 'POST':
         form = AutoevaluationEditForm(request.POST)
         if form.is_valid():
-            old_unit = this_autoevaluation.course_unit
-            this_autoevaluation = form.save(commit=False)
-            this_autoevaluation.course_unit = old_unit
+            data = form.cleaned_data
+            this_autoevaluation.title = data.get('title')
+            this_autoevaluation.duration = data.get('duration')
+            this_autoevaluation.instructions = data.get('instructions')
+            this_autoevaluation.penalization_factor = data.get('penalization_factor')
+            this_autoevaluation.save()
             return redirect(f'/courses/autoevaluations/{autoevaluation_id}')
         
     context = {

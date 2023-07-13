@@ -23,6 +23,12 @@ class Course(models.Model):
     def __str__(self):
         return self.name
     
+    def get_document_display(self) -> str:
+        full_name = self.index_document.name
+        filter_route = re.sub('course/\d+/\d+/\d+/','',full_name)
+        filter_extension = re.sub('\.\w+','',filter_route)
+        return filter_extension
+    
     class Meta:
         db_table = "courses_course"
         verbose_name_plural = 'Cursos'
