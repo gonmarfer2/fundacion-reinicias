@@ -47,6 +47,7 @@ class MemberEditForm(UserChangeForm):
 
         if 'patients' in rolenames:
             self.fields['school'] = forms.CharField(max_length=255,label='Centro educativo')
+            self.fields['record_state'] = forms.ChoiceField(choices=PatientRecordHistory.RECORD_STATES,label='Estado del expediente')
 
 class PasswordChangeForm(forms.Form):
     password1 = forms.CharField(max_length=4096,label='Nueva contraseña',widget=forms.PasswordInput())

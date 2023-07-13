@@ -68,15 +68,6 @@ class PatientRecordHistory(models.Model):
     def __str__(self) -> str:
         return str(f'{self.initial_problem if self.initial_problem else "-"}: {self.record} - {self.start_date}')
     
-    def save(self,recursive=True,*args,**kwargs) -> None:
-        previous = PatientRecordHistory.objects.filter(record=self.record).order_by('-start_date')
-        super().save()
-        if previous.exists():
-            previous = previous.first()
-            if recursive:
-                previous.end_date = self.start_date
-                previous.save(recursive=False)
-
     def clean(self):
         if (self.state == 'a' and self.initial_problem is None) \
             or (self.state != 'a' and self.initial_problem is not None):

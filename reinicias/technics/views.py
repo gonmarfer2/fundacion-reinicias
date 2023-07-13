@@ -147,14 +147,18 @@ def edit_user(request,user_id):
     if this_person.user.has_group("patients"):
         this_person = Patient.objects.get(person=this_person)
         initial_values['school'] = this_person.school
+        current_entry = PatientRecordHistory.objects.filter(record__patient=this_person).order_by('-start_date').first()
+        initial_values['record_state'] = current_entry.state
 
     form = MemberEditForm(initial=initial_values,instance=this_person.get_user(),
     roles=this_person.get_user().groups.all())
 
     if request.method == "POST":
         form = MemberEditForm(request.POST,instance=this_person.get_user(),roles=this_person.get_user().groups.all())
+        print(request.POST)
         if form.is_valid():
             data = form.cleaned_data
+            print(data)
             this_person.get_person().birth_date = data.get('birth_date')
             this_person.get_person().name = data.get('name')
             this_person.get_person().last_name = data.get('last_name')
@@ -164,7 +168,7 @@ def edit_user(request,user_id):
             if this_person.get_user().has_group("patients"):
                 this_person.school = data.get('school')
 
-            roles = Group.objects.filter(name__in=data.get('roles'))
+            roles = Group.objects.filter(name__in=request.POST.getlist('roles'))
             if this_person.get_user().is_superuser:
                 roles = Group.objects.exclude(name='students')
             this_person.get_user().groups.set(roles) 
@@ -172,6 +176,11 @@ def edit_user(request,user_id):
             this_person.get_user().save()
             this_person.get_person().save()
             this_person.save()
+
+            if this_person.get_user().has_group("patients"):
+                old_record_state = PatientRecordHistory.objects.filter(record__patient=this_person).order_by('-start_date').first()
+                this_record = PatientRecord.objects.get(patient=this_person)
+                add_new_history_entry(this_record,old_record_state,data.get('record_state'))
 
             return redirect(f'/technics/users/{this_person.get_person().pk}/')
 
@@ -182,6 +191,19 @@ def edit_user(request,user_id):
     }
 
     return render(request,'users/register.html',context)
+
+
+def add_new_history_entry(record,old_state,new_state):
+    if old_state != new_state:
+        old_entry = PatientRecordHistory.objects.filter(record=record).order_by('-start_date').first()
+        if old_entry:
+            old_entry.end_date = datetime.now()
+            old_entry.save()
+        PatientRecordHistory.objects.create(
+            state=new_state,
+            end_date=None,
+            record=record
+        )
 
 
 @require_http_methods(["GET","POST"])
@@ -754,6 +776,7 @@ def register_patient_report(request,session_id,report_id):
 
             new_patient_record_history_entry = PatientRecordHistory(
                 state='a',
+                end_date=None,
                 initial_problem=this_report.initial_problem,
                 record=new_patient_record
             )
