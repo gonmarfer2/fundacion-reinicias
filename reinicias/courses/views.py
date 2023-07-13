@@ -639,6 +639,7 @@ def edit_course(request,course_id):
             update_course.preceeded_by.set(form_data.get('preceeded_by'))
             return redirect(f'/courses/{update_course.pk}')
 
+        print(form.errors)
     context = {
         'title':'EDITAR CURSO',
         'userGroups':request.user.groups.all(),

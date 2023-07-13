@@ -29,26 +29,26 @@
           {% elif userGroups|length > 0 %}
             {% if userGroups|has_group:"students" or userGroups|has_group:"teachers" %}
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'course_list' %}">Cursos</a>
+                <a id="id-navlink-courses" class="nav-link" href="{% url 'course_list' %}">Cursos</a>
               </li>
             {% endif %}
             {% if userGroups|has_group:"technics" %}
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'technics_user_list' %}">Lista de usuarios</a>
+                <a id="id-navlink-users" class="nav-link" href="{% url 'technics_user_list' %}">Lista de usuarios</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'technics_session_list' %}">Sesiones</a>
+                <a id="id-navlink-sessions" class="nav-link" href="{% url 'technics_session_list' %}">Sesiones</a>
               </li>
             {% endif %}
             {% if userGroups|has_group:"patients" %}
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'patients_show_tasks' person_id=request.user.get_person.pk %}">Mis tareas</a>
+                <a id="id-navlink-tasks" class="nav-link" href="{% url 'patients_show_tasks' person_id=request.user.get_person.pk %}">Mis tareas</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'patients_show_diary' person_id=request.user.get_person.pk %}">Mi diario</a>
+                <a id="id-navlink-diary" class="nav-link" href="{% url 'patients_show_diary' person_id=request.user.get_person.pk %}">Mi diario</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'patients_show_feelings' person_id=request.user.get_person.pk %}">Emociones</a>
+                <a id="id-navlink-feelings" class="nav-link" href="{% url 'patients_show_feelings' person_id=request.user.get_person.pk %}">Emociones</a>
               </li>
             {% endif %}
           {% endif %}
@@ -56,11 +56,11 @@
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           {% if userGroups|length == 0 %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Iniciar sesi&oacute;n</a>
+              <a id="id-navlink-login" class="nav-link" href="{% url 'login' %}">Iniciar sesi&oacute;n</a>
             </li>
           {% elif userGroups|length > 0 %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Cerrar sesi&oacute;n</a>
+              <a id="id-navlink-logout" class="nav-link" href="{% url 'logout' %}">Cerrar sesi&oacute;n</a>
             </li>
           {% endif %}
       </div>
