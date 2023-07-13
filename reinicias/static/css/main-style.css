@@ -156,6 +156,10 @@ h2 {
 
 }
 
+.register-student-box p {
+    font-size: var(--sm-size) !important;
+}
+
 .text-purple {
     color: var(--purple);
     font-weight: bold;
@@ -183,6 +187,11 @@ h2 {
         width: 450px;
         font-size: var(--md-size);
     }
+}
+
+.bg-cyan {
+    background-color: var(--cyan);
+    color: white;
 }
 
 .btn-outline-cyan {
@@ -255,6 +264,10 @@ h2 {
 
 #id-login-container {
     min-height: calc(100vh - 64px);
+}
+
+#id-autoevaluation-container {
+    min-height: calc(100vh - 103px - 140px);
 }
 
 footer {

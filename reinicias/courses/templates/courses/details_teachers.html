@@ -8,6 +8,11 @@
 <div class="container" id="id-course-container">
     <div class="row my-4">
         <h1 class="simple-title col-12">{{course.name}}</h1>
+        {% if not course.published %}
+        <h3><span class="badge bg-danger">No publicado</span></h3>
+        {% else %}
+        <h3><span class="badge bg-cyan">Publicado</span></h3>
+        {% endif %}
     </div>
 
     <div class="row my-4">
@@ -27,9 +32,11 @@
             <button class="me-3 courses-button courses-button-cyan" type="submit"><a class="text-white" href="unpublish"><span>Despublicar</span></a></button>
         </div>
         {% endif %}
+        {% if course.published %}
         <div class="col-6 col-sm-4 col-md-3 col-xl-2 d-flex justify-content-center mb-2">
             <button class="me-3 courses-button courses-button-cyan"><a class="text-white" href="students">Ver estudiantes</a></button>
         </div>
+        {% endif %}
         
     </div>
 

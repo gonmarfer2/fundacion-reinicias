@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Mis tareas{% endblock %}
+{% block title %}Tareas{% endblock %}
 
 {% block body %}
 {% load extra_tags %}
@@ -8,6 +8,12 @@
 <div id="id-form-container">
 {% include 'components/title.html' with type="patient-title" text=delivery %}
     <div class="container">
+        {% if task.is_deadline_surpassed %}
+            <div class="row my-3">
+            <br>
+            <h3><span class="badge bg-danger">Fuera de plazo</span></h3>
+            </div>
+        {% endif %}
         <div class="row my-3">
             <h2>T&iacute;tulo</h2>
             <span class="task-text">{{task.title}}</span>
