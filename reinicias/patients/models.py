@@ -84,9 +84,7 @@ class Delivery(models.Model):
     task = models.ForeignKey(Task,on_delete=models.CASCADE,verbose_name='Tarea')
 
     def __str__(self) -> str:
-        all_deliveries = list(Delivery.objects.filter(task=self.task).order_by('datetime'))
-        this_order = all_deliveries.index(self)
-        return f'Entrega {this_order} para la tarea {self.task}'
+        return f'Entrega para la tarea {self.task}'
     
     class Meta:
         verbose_name_plural = 'Entregas de tareas'

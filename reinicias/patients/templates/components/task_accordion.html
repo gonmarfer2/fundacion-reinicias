@@ -9,6 +9,9 @@
     <div id="flush-collapse{{task.pk}}" class="accordion-collapse collapse course-row-content" aria-labelledby="flush-heading{{task.pk}}" data-bs-parent="#{{parent_id}}">
         <div class="py-md-2 py-2">
             <div class="w-100 mb-3 vstack gap-3">
+                {% if task.is_deadline_surpassed %}
+                    <h5><span class="badge bg-danger">Fuera de plazo</span></h5>
+                {% endif %}
                 <strong>Descripci&oacute;n:</strong>
                 <span class="note-text">{{task.description}}</span>
             </div>
@@ -99,8 +102,8 @@
 
             {% elif user|has_group:'technics' %}
             <div class="w-100 mb-3 hstack gap-3 align-items-center">
-                <a class="bi bi-x-square-fill text-danger" onclick="deleteTask('id-task-{{task.pk}}','{{task.pk}}')" style="cursor: pointer;"></a>
                 {% if type == 'pending' %}
+                <a class="bi bi-x-square-fill text-danger" onclick="deleteTask('id-task-{{task.pk}}','{{task.pk}}')" style="cursor: pointer;"></a>
                 <strong>Fecha de entrega:&nbsp;</strong><span class="{% if task.is_deadline_surpassed  %}text-danger{% endif %}">{{task.deadline|date:"d/m/Y"}}</span>
                 {% elif type == 'done' %}
                 <button class="my-3 courses-button courses-button-cyan">
