@@ -722,7 +722,6 @@ def register_patient_report(request,session_id,report_id):
 
     if request.method == 'POST':
         form = PatientCreateForm(request.POST,initial=initial_values)
-
         if form.is_valid():
             new_user = form.save(commit=False)
             new_user.save()
@@ -767,7 +766,6 @@ def register_patient_report(request,session_id,report_id):
 
             return redirect(f'/technics/users/{new_person.pk}')
 
-    
     context = {
         'userGroups':request.user.groups.all(),
         'form':form,
